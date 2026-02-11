@@ -1,0 +1,157 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "HSL",
+  "scopeName": "source.hsl",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#preprocessor" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#typesAndConstants" },
+    { "include": "#namespaces" },
+    { "include": "#functionDecl" },
+    { "include": "#methodDecl" },
+    { "include": "#callsAndBuiltins" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.double-slash.hsl", "match": "//.*$" },
+        {
+          "name": "comment.block.hsl",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+
+    "preprocessor": {
+      "patterns": [
+        {
+          "name": "keyword.control.preprocessor.hsl",
+          "match": "^\\s*#\\s*(include|ifndef|ifdef|endif|define|undef|else|elif|pragma)\\b"
+        },
+        {
+          "name": "string.quoted.double.include.hsl",
+          "match": "#\\s*include\\s+\"[^\"]+\""
+        }
+      ]
+    },
+
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.hsl",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "name": "constant.character.escape.hsl", "match": "\\\\." }
+          ]
+        }
+      ]
+    },
+
+    "numbers": {
+      "patterns": [
+        { "name": "constant.numeric.hsl", "match": "\\b\\d+(\\.\\d+)?\\b" }
+      ]
+    },
+
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.hsl",
+          "match": "\\b(if|else|for|while|do|switch|case|default|break|continue|return|throw|try|catch)\\b"
+        },
+        {
+          "name": "storage.modifier.hsl",
+          "match": "\\b(private|public|protected|static|const)\\b"
+        },
+        {
+          "name": "keyword.declaration.hsl",
+          "match": "\\b(namespace|function|method|dialog|class)\\b"
+        }
+      ]
+    },
+
+    "typesAndConstants": {
+      "patterns": [
+        {
+          "name": "storage.type.hsl",
+          "match": "\\b(variable|integer|int|real|double|float|string|bool|boolean|object|void)\\b"
+        },
+        {
+          "name": "constant.language.boolean.hsl",
+          "match": "\\b(hslTrue|hslFalse|true|false)\\b"
+        },
+        {
+          "name": "variable.other.member.hsl",
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\[\\])"
+        },
+        {
+          "name": "keyword.operator.hsl",
+          "match": "(==|!=|<=|>=|=|<|>|\\+\\+|--|\\+|-|\\*|/|%|&&|\\|\\||!|\\+=|-=|\\*=|/=|::|\\.)"
+        }
+      ]
+    },
+
+    "namespaces": {
+      "patterns": [
+        {
+          "name": "entity.name.namespace.hsl",
+          "match": "\\bnamespace\\s+([A-Za-z_][A-Za-z0-9_:]*)\\b"
+        },
+        {
+          "name": "entity.name.namespace.hsl",
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*::\\s*([A-Za-z_][A-Za-z0-9_:]*)\\b"
+        }
+      ]
+    },
+
+    "functionDecl": {
+      "patterns": [
+        {
+          "name": "meta.function.declaration.hsl",
+          "match": "\\bfunction\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
+          "captures": {
+            "1": { "name": "entity.name.function.hsl" }
+          }
+        }
+      ]
+    },
+
+    "methodDecl": {
+      "patterns": [
+        {
+          "name": "meta.method.declaration.hsl",
+          "match": "\\bmethod\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
+          "captures": {
+            "1": { "name": "entity.name.function.hsl" }
+          }
+        }
+      ]
+    },
+
+    "callsAndBuiltins": {
+      "patterns": [
+        {
+          "name": "support.function.builtin.hsl",
+          "match": "\\b(Trace|GetFunctionName|Sleep|Wait|MessageBox)\\b"
+        },
+        {
+          "name": "support.function.builtin.hsl",
+          "match": "\\b(err\\.Raise)\\b"
+        },
+        {
+          "name": "support.function.builtin.hsl",
+          "match": "\\b(GetSize|SetSize|AddAsLast|GetAt|SetAt|CreateObject)\\b"
+        },
+        {
+          "name": "entity.name.function.call.hsl",
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()"
+        }
+      ]
+    }
+  }
+}

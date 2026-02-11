@@ -1,0 +1,34 @@
+{
+  "name": "hsl-language-support",
+  "displayName": "HSL (Hamilton) Language Support",
+  "description": "Syntax highlighting and snippets for Hamilton Standard Language (HSL)",
+  "version": "0.0.1",
+  "publisher": "your-name",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "hsl",
+        "aliases": ["HSL", "Hamilton Standard Language"],
+        "extensions": [".hsl", ".hs_", ".stp"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "hsl",
+        "scopeName": "source.hsl",
+        "path": "./syntaxes/hsl.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "hsl",
+        "path": "./snippets/hsl.code-snippets"
+      }
+    ]
+  }
+}

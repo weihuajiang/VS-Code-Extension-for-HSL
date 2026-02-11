@@ -1,0 +1,44 @@
+{
+  "HSL Function Template": {
+    "prefix": "hslfunc",
+    "body": [
+      "function ${1:Name}(${2:variable i_varInput}) ${3:void}",
+      "{",
+      "   ${4:// TODO}",
+      "   return;",
+      "}"
+    ],
+    "description": "Basic HSL function template"
+  },
+  "HSL Method Template": {
+    "prefix": "hslmethod",
+    "body": [
+      "method ${1:main}()",
+      "{",
+      "   ${2:// TODO}",
+      "   return;",
+      "}"
+    ],
+    "description": "Basic HSL method template"
+  },
+  "HSL Namespace Template": {
+    "prefix": "hslns",
+    "body": [
+      "namespace ${1:Name}",
+      "{",
+      "   ${2:// content}",
+      "}"
+    ],
+    "description": "Namespace block"
+  },
+  "err.Raise": {
+    "prefix": "raise",
+    "body": ["err.Raise(${1:1}, \"${2:message}\");"],
+    "description": "Raise an HSL error"
+  },
+  "Trace": {
+    "prefix": "trace",
+    "body": ["Trace(${1:var});"],
+    "description": "Trace output"
+  }
+}
