@@ -1,5 +1,20 @@
-{
-  "comments": {
+{  "keywords": [
+    "Keyword",
+    "activity",
+    "actionblock",
+    "executoronly",
+    "oncancelaction",
+    "oncanceltask",
+    "resource",
+    "reschedule",
+    "schedule",
+    "scheduleronly",
+    "schedulerprompt",
+    "workflow",
+    "debug",
+    "echo",
+    "__filename__"
+  ],  "comments": {
     "lineComment": "//",
     "blockComment": ["/*", "*/"]
   },

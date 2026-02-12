@@ -61,6 +61,10 @@
     "keywords": {
       "patterns": [
         {
+          "name": "keyword.reserved.hsl",
+          "match": "\\b(Keyword|activity|actionblock|executoronly|oncancelaction|oncanceltask|resource|reschedule|schedule|scheduleronly|schedulerprompt|workflow|debug|echo|__filename__)\\b"
+        },
+        {
           "name": "keyword.control.hsl",
           "match": "\\b(if|else|for|while|do|switch|case|default|break|continue|return|throw|try|catch)\\b"
         },
