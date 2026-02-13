@@ -70,7 +70,7 @@ None at this time. Please report any issues on the extension's repository.
 
 ## Release Notes
 
-### 0.0.1
+### 1.0.1
 
 Initial release of HSL Language Support featuring:
 - Full syntax highlighting for Hamilton Standard Language
