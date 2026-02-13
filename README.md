@@ -1,62 +1,87 @@
-# hsl README
+# HSL (Hamilton) Language Support
+
+A VS Code extension providing comprehensive syntax highlighting, code snippets, and language support for **HSL (Hamilton Standard Language)**.
+
+> 📖 **Learning Resources**: Check out the [How to create a VS Code Extension (for HSL)](https://pig.abbvienet.com/orgs/VENUS-Library-Development/discussions/3) guide for detailed information on extension development.
+
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- ✅ **Syntax Highlighting**: Full HSL syntax highlighting with support for keywords, data types, operators, and comments
+- ✅ **Code Snippets**: Pre-built templates for common HSL patterns:
+  - Function declarations
+  - Method definitions
+  - Namespace blocks
+  - Error handling with `err.Raise`
+  - Trace output
+- ✅ **Bracket Matching & Auto-closing**: Automatic bracket pairing for `{}`, `[]`, `()`, and quotes
+- ✅ **Code Folding**: Support for region-based code folding using `// #region` and `// #endregion` markers
+- ✅ **Language Configuration**: Proper handling of HSL comments, keywords, and operators
 
-For example if there is an image subfolder under your extension project workspace:
+## Supported File Extensions
 
-\!\[feature X\]\(images/feature-x.png\)
+This extension supports the following HSL file formats:
+- `.hsl` - Standard HSL source files
+- `.hs_` - HSL variant files
+- `.stp` - Hamilton step files
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Language Support
+
+### Keywords
+- Control flow: `if`, `else`, `for`, `while`, `do`, `switch`, `case`, `default`, `break`, `continue`, `return`
+- Exception handling: `throw`, `try`, `catch`
+- HSL-specific: `activity`, `actionblock`, `executoronly`, `oncancelaction`, `oncanceltask`, `resource`, `reschedule`, `schedule`, `scheduleronly`, `schedulerprompt`, `workflow`
+- Declarations: `namespace`, `function`, `method`, `dialog`, `class`
+- Modifiers: `private`, `public`, `protected`, `static`, `const`
+- Debug: `debug`, `echo`
+
+### Supported Data Types
+- Primitives: `integer`, `int`, `real`, `double`, `float`, `string`, `bool`, `boolean`
+- Complex: `variable`, `object`, `void`
+- Constants: `hslTrue`, `hslFalse`, `true`, `false`
+
+### Built-in Functions
+- `Trace()` - Output trace information
+- `GetFunctionName()` - Get current function name
+- `Sleep()` - Pause execution
+- `Wait()` - Wait for condition
+- `MessageBox()` - Display message dialog
+- `err.Raise()` - Raise error with message
+
+## Quick Start
+
+1. **Install** the extension from the VS Code Marketplace
+2. **Open** or create a file with `.hsl`, `.hs_`, or `.stp` extension
+3. **Use snippets** by typing:
+   - `hslfunc` - Function template
+   - `hslmethod` - Method template
+   - `hslns` - Namespace block
+   - `raise` - Error raising statement
+   - `trace` - Trace output
+
+For more detailed guidance on developing and extending this extension, visit the [How to create a VS Code Extension (for HSL)](https://pig.abbvienet.com/orgs/VENUS-Library-Development/discussions/3) documentation.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- VS Code 1.85.0 or later
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+None at this time. Please report any issues on the extension's repository.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
+Initial release of HSL Language Support featuring:
+- Full syntax highlighting for Hamilton Standard Language
+- Code snippet templates for common patterns
+- Bracket matching and auto-closing pairs
+- Code folding support
+- Comprehensive language configuration
 
-Initial release of ...
+## Additional Resources
 
-### 1.0.1
+- **[How to create a VS Code Extension (for HSL)](https://pig.abbvienet.com/orgs/VENUS-Library-Development/discussions/3)** - Comprehensive guide for HSL extension development and best practices
+- [VS Code Extension API Documentation](https://code.visualstudio.com/api)
+- [TextMate Grammar Documentation](https://macromates.com/manual/en/language_grammars)
 
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
