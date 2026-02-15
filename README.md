@@ -2,7 +2,9 @@
 
 A VS Code extension providing comprehensive syntax highlighting, code snippets, and language support for **HSL (Hamilton Standard Language)**.
 
-> 📖 **Learning Resources**: Check out the [How to create a VS Code Extension (for HSL)](https://pig.abbvienet.com/orgs/VENUS-Library-Development/discussions/3) guide for detailed information on extension development.
+> 📖 **Learning Resources**: Check out the [How to create a VS Code Extension (for HSL)](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki/How-to-create-a-VS-Code-Extension-(for-HSL)) guide for detailed information on extension development.
+
+**RELEASE V0.0.1 is here:**: https://github.com/zdmilot/VS-Code-Extension-for-HSL/releases/tag/v0.0.1
 
 ## Features
 
@@ -58,7 +60,7 @@ This extension supports the following HSL file formats:
    - `raise` - Error raising statement
    - `trace` - Trace output
 
-For more detailed guidance on developing and extending this extension, visit the [How to create a VS Code Extension (for HSL)](https://pig.abbvienet.com/orgs/VENUS-Library-Development/discussions/3) documentation.
+For more detailed guidance on developing and extending this extension, visit the [How to create a VS Code Extension (for HSL)](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki/How-to-create-a-VS-Code-Extension-(for-HSL)) documentation.
 
 ## Requirements
 
