@@ -2,22 +2,22 @@
 
 A VS Code extension providing comprehensive syntax highlighting, code snippets, and language support for **HSL (Hamilton Standard Language)**.
 
-> 📖 **Learning Resources**: Check out the [How to create a VS Code Extension (for HSL)](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki/How-to-create-a-VS-Code-Extension-(for-HSL)) guide for detailed information on extension development.
+> **Learning Resources**: Check out the [How to create a VS Code Extension (for HSL)](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki/How-to-create-a-VS-Code-Extension-(for-HSL)) guide for detailed information on extension development.
 
 **RELEASE V0.0.1 is here:**: https://github.com/zdmilot/VS-Code-Extension-for-HSL/releases/tag/v0.0.1
 
 ## Features
 
-- ✅ **Syntax Highlighting**: Full HSL syntax highlighting with support for keywords, data types, operators, and comments
-- ✅ **Code Snippets**: Pre-built templates for common HSL patterns:
+- **Syntax Highlighting**: Full HSL syntax highlighting with support for keywords, data types, operators, and comments
+- **Code Snippets**: Pre-built templates for common HSL patterns:
   - Function declarations
   - Method definitions
   - Namespace blocks
   - Error handling with `err.Raise`
   - Trace output
-- ✅ **Bracket Matching & Auto-closing**: Automatic bracket pairing for `{}`, `[]`, `()`, and quotes
-- ✅ **Code Folding**: Support for region-based code folding using `// #region` and `// #endregion` markers
-- ✅ **Language Configuration**: Proper handling of HSL comments, keywords, and operators
+- **Bracket Matching & Auto-closing**: Automatic bracket pairing for `{}`, `[]`, `()`, and quotes
+- **Code Folding**: Support for region-based code folding using `// #region` and `// #endregion` markers
+- **Language Configuration**: Proper handling of HSL comments, keywords, and operators
 
 ## Supported File Extensions
 
@@ -68,11 +68,11 @@ For more detailed guidance on developing and extending this extension, visit the
 
 ## Known Issues
 
-None at this time. Please report any issues on the extension's repository.
+None at this time. Please report any issues on the extension's repository under issues.
 
 ## Release Notes
 
-### 1.0.1
+### 0.0.1
 
 Initial release of HSL Language Support featuring:
 - Full syntax highlighting for Hamilton Standard Language
@@ -83,7 +83,7 @@ Initial release of HSL Language Support featuring:
 
 ## Additional Resources
 
-- **[How to create a VS Code Extension (for HSL)](https://pig.abbvienet.com/orgs/VENUS-Library-Development/discussions/3)** - Comprehensive guide for HSL extension development and best practices
+- **[How to create a VS Code Extension (for HSL)]([https://pig.abbvienet.com/orgs/VENUS-Library-Development/discussions/3](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki/How-to-create-a-VS-Code-Extension-(for-HSL)))** - Comprehensive guide for HSL extension development and best practices
 - [VS Code Extension API Documentation](https://code.visualstudio.com/api)
 - [TextMate Grammar Documentation](https://macromates.com/manual/en/language_grammars)
 
