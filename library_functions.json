@@ -1,0 +1,322 @@
+[
+  {
+    "name": "Sin",
+    "signature": "(x)",
+    "description": "Sine of x x in radian, integer or float"
+  },
+  {
+    "name": "Cos",
+    "signature": "(x)",
+    "description": "Cosine of x x in radian, integer or float"
+  },
+  {
+    "name": "Tan",
+    "signature": "(x)",
+    "description": "Tangent of x x in radian, integer or float"
+  },
+  {
+    "name": "ASin",
+    "signature": "(x)",
+    "description": "Arcsine of x in [-1, 1] x integer or float Undefined, if x not in [-1, 1]"
+  },
+  {
+    "name": "ACos",
+    "signature": "(x)",
+    "description": "Arccosine of x in [-1, 1] x integer or float Undefined, if x not in [-1, 1]"
+  },
+  {
+    "name": "ATan",
+    "signature": "(x)",
+    "description": "Arctangent of x x integer or float"
+  },
+  {
+    "name": "Exp",
+    "signature": "(x)",
+    "description": "Exponential function ex x integer or float"
+  },
+  {
+    "name": "Log",
+    "signature": "(x)",
+    "description": "Natural logarithm ln( x), x > 0 x integer or float Undefined, if x <= 0"
+  },
+  {
+    "name": "Log10",
+    "signature": "(x)",
+    "description": "Logarithm to the base 10 log10(x), x > 0 x integer or float Undefined, if x <= 0"
+  },
+  {
+    "name": "Ceiling",
+    "signature": "(x [,returnFloat])",
+    "description": "Returns the smallest integral value, not smaller than x. Parameter x [in] Floating-point or integer value. returnFloat [in] If not zero, the function return value has type float (integer, optional, defaults to 0)."
+  },
+  {
+    "name": "Floor",
+    "signature": "(x [,returnFloat])",
+    "description": "Returns the largest integral value, not larger than x. Parameter x [in] Floating-point or integer value. returnFloat [in] If not zero, the function return value has type float (integer, optional, defaults to 0)."
+  },
+  {
+    "name": "IStr",
+    "signature": "(inum)",
+    "description": "Converts the integer inum into the corresponding character string. Parameter inum The integer to convert. Return The string representation of the integer inum."
+  },
+  {
+    "name": "FStr",
+    "signature": "( fnum [,languageSpecific] [,precision])",
+    "description": "Converts the floating point number fnum into the corresponding character string. Parameter fnum The float to convert. languageSpecific Specifies whether to use the decimal symbol in the Regional Settings to write the string representation of the floating point number (integer, hslTrue or hslFalse). precision An integer that indicates the number of significant digits or significant decimal digits used for floating-point display. Default precision is set to seven (7). The precision indicates the total number of significant digits. Return The string representation of the float fnum."
+  },
+  {
+    "name": "IVal",
+    "signature": "(istr)",
+    "description": "Converts the sequence of digits, contained in the character string istr, into the corresponding integer. The sequence of digits is interpreted decimal. If the sequence begins with 0x, it is interpreted hexadecimal. Conversion aborts at the first character in istr, which is neither a digit nor one of the characters \"+\" or \"-\". Parameter istr The string to convert. Return The numeric value of the sequence of digits contained in the character string istr (integer). Zero (0), if the character string can not be converted into a number. LONG_MAX (LONG_MIN) if the conversion results in an overflow. Note: This function is obsolete . New applications should use IVal2 instead of IVal ."
+  },
+  {
+    "name": "IVal2",
+    "signature": "(istr)",
+    "description": "This function has the same behavior as function IVal , except that it generates a run-time error if the character string cannot be converted into a number."
+  },
+  {
+    "name": "FVal",
+    "signature": "(fstr)",
+    "description": "Converts the sequence of digits, contained in the character string fstr, into the corresponding floating point number. Conversion aborts with the first character in fstr, which is neither a digit nor one of the characters \"+\", \"-\", \"e\", or \"E\". Parameter fstr The string to convert. Return The numeric value of the sequence of digits contained in the character string fstr (float). Zero (0), if the character string cannot be converted into a number. DBL_MAX (DBL_MIN) if the conversion results in an overflow. Note: This function is obsolete . New applications should use FVal2 instead of FVal ."
+  },
+  {
+    "name": "FVal2",
+    "signature": "(fstr)",
+    "description": "This function has the same behavior as function FVal , except that it generates a run-time error if the character string cannot be converted into a number."
+  },
+  {
+    "name": "Trace",
+    "signature": "([...])",
+    "description": "Trace function with variable argument list. Parameter The values to be traced (integers, floats and strings)."
+  },
+  {
+    "name": "FormatTrace",
+    "signature": "( source, action, status [, ... ])",
+    "description": "Function with variable argument list to trace formated strings. Parameter source Source (string), e.g., System. action Action (string), e.g., Pipette. status Action status (integer). It can be one of the following predefined values:"
+  },
+  {
+    "name": "InputBox",
+    "signature": "( prompt, title, type [,default] [,timeout])",
+    "description": "Displays the input request prompt in a dialog box and returns the value of the specified type entered. Parameter prompt The input request prompt to display (string). title The title of the dialog box (string). type The parameter type specifies the type of the value to be entered by the user as follows:"
+  },
+  {
+    "name": "MessageBox",
+    "signature": "( message, title [, type] [,timeout])",
+    "description": "Displays a message in a message box and returns with a value, which identifies the button selected by the user. Parameter message The message to display (string). title The title of the message box (string). type The optional type of the message box is a numeric expression that is the sum of the values specifying the number and type of the buttons to display and the icon style to use (integer)."
+  },
+  {
+    "name": "Shell",
+    "signature": "( pathname, windowstyle, concurrency [,eventObj] [,exitCode])",
+    "description": "Runs an executable (exe, com, bat) and returns a non-zero value if the function was successful; otherwise it returns zero (0). The Shell function runs other programs synchronously or asynchronously as specified by the parameter concurrency. Parameter pathname The name of the program to execute and any required arguments or command-line options; may include directory and drive (string). windowstyle The parameter windowstyle specifies for graphical user interface (GUI) processes the style of the window in which the program is to run as follows (integer):"
+  },
+  {
+    "name": "Fork",
+    "signature": "(entryPoint)",
+    "description": "The Fork function creates a new thread for an HSL program. The creating thread must specify the entry point to the new thread. Typically, the entry point is the name of a function defined in the HSL source code. This function takes no arguments and returns no value. If a function has not been specified as synchronized, a program cannot have multiple threads simultaneously executing the same function. Parameter entryPoint The name of the entry point to the new thread (string). Return If the function succeeds, the return value is a handle (type variable) to the new thread. If the function fails, the return value is zero (0)."
+  },
+  {
+    "name": "Join",
+    "signature": "( handles, timeout)",
+    "description": "The Join function returns when one of the following occurs: All of the specified thread handles (or task identifiers) are in the signaled state. The time-out interval elapses. Parameter handles A reference to a single variable or to an array of variables containing thread handles (or task identifiers) returned by the Fork (or ActivateXxx ) function (single variable, or array of variables). timeount Specifies the amount of time to wait for all thread handles to be signaled (in seconds, non-negative floating-point number). Return Non-zero if the function succeeds; otherwise zero (0; e.g., timeout)."
+  },
+  {
+    "name": "GetBarcodeJoker",
+    "signature": "( barcodeJokerKey)",
+    "description": "Returns the value for the barcode joker mapped to the selected key (string). Parameter barcodeJokerKey Specifies the key that identifies the barcode joker value (string)."
+  },
+  {
+    "name": "GetType",
+    "signature": "(var)",
+    "description": "The GetType function retrieves the type of the value of a variable. Parameter var A reference to a variable (integer, float or string). Return One of the following string valued constants that indicates the type of the value of a variable:"
+  },
+  {
+    "name": "GetTime",
+    "signature": "(format)",
+    "description": "The GetTime function returns a string that contains the formatted time. Parameter format A formatting string (string). The value and meaning of the formatting codes for GetTime are listed below. If the formatting string is empty or an invalid format, the ISO format \"%H:%M:%S\" is used. %H Hour in 24-hour format (00 - 23). %I Hour in 12-hour format (01 - 12). %M Minute as decimal number (00 - 59). %p Current locale’s A.M./P.M. indicator for 12-hour clock. %S Second as decimal number (00 - 59). %X Time representation for current locale. Return A string that contains the formatted time."
+  },
+  {
+    "name": "GetDate",
+    "signature": "(format)",
+    "description": "The GetDate function returns a string that contains the formatted date. Parameter format A formatting string (string). The value and meaning of the formatting codes for GetDate are listed below. If the formatting string is empty or an invalid format, the ISO format \"%Y-%m-%d\" is used. %a Abbreviated weekday name. %A Full weekday name. %b Abbreviated month name. %B Full month name. %d Day of month as decimal number (01 - 31). %m Month as decimal number (01 - 12). %x Date representation for current locale. %y Year without century, as decimal number (00 - 99). %Y Year with century, as decimal number. Return A string that contains the formatted date."
+  },
+  {
+    "name": "GetMethodFileName",
+    "signature": "( )",
+    "description": "The GetMethodFileName function retrieves the path and name of the topmost HSL source file that includes the current HSL source file. Usually, this is the name of the file containing the method. Return The path and name of the topmost HSL source file that includes the current HSL source file."
+  },
+  {
+    "name": "GetFileName",
+    "signature": "( )",
+    "description": "The GetFileName function retrieves the path and name of the current HSL source file. Return The path and name of the current HSL source file."
+  },
+  {
+    "name": "GetFunctionName",
+    "signature": "( )",
+    "description": "The GetFunctionName function retrieves the name of the current HSL function. Return The name of the current HSL function."
+  },
+  {
+    "name": "GetLineNumber",
+    "signature": "( )",
+    "description": "The GetLineNumber function retrieves the current line of the current HSL source file. Return The current line of the current HSL source file (string)."
+  },
+  {
+    "name": "GetRowNumber",
+    "signature": "( )",
+    "description": "The GetRowNumber function retrieves the current row of the current HSL source file. Return The current row of the current HSL source file (string; \"0\" if the current HSL source file contains no row information)."
+  },
+  {
+    "name": "GetColumnNumber",
+    "signature": "( )",
+    "description": "The GetColumnNumber function retrieves the the current column of the current HSL source file. Return The current column of the current HSL source file (string; \"0\" if the current HSL source file contains no column information)."
+  },
+  {
+    "name": "GetBinPath",
+    "signature": "( )",
+    "description": "The GetBinPath function retrieves the Vector binary path. Return The Vector binary path (fully qualified e.g., C:\\Program Files\\HAMILTON\\Bin)."
+  },
+  {
+    "name": "GetConfigPath",
+    "signature": "( )",
+    "description": "The GetConfigPath function retrieves the Vector configuration path. Return The Vector configuration path (fully qualified e.g., C:\\Program Files\\HAMILTON\\Config)."
+  },
+  {
+    "name": "GetLabwarePath",
+    "signature": "( )",
+    "description": "The GetLabwarePath function retrieves the Vector labware path. Return: The Vector labware path (fully qualified, e.g., C:\\Program Files\\HAMILTON\\Labware)."
+  },
+  {
+    "name": "GetLibraryPath",
+    "signature": "( )",
+    "description": "The GetLibraryPath function retrieves the Vector library path. Return The Vector library path (fully qualified e.g., C:\\Program Files\\HAMILTON\\Library)."
+  },
+  {
+    "name": "GetMethodsPath",
+    "signature": "( )",
+    "description": "The GetMethodsPath function retrieves the Vector methods path (contains deck layout and method files). Return The Vector methods path (fully qualified, e.g., C:\\Program Files\\HAMILTON\\Methods)."
+  },
+  {
+    "name": "GetLogFilesPath",
+    "signature": "( )",
+    "description": "The GetLogFilesPath function retrieves the Vector log files path (contains runtime generated log files). Return The Vector log files path (fully qualified, e.g., C:\\Program Files \\HAMILTON\\LogFiles)."
+  },
+  {
+    "name": "GetSystemPath",
+    "signature": "( )",
+    "description": "The GetSystemPath function retrieves the Vector system path (contains system files). Return The Vector system path (fully qualified, e.g., C:\\Program Files \\HAMILTON\\System)."
+  },
+  {
+    "name": "GetLanguage",
+    "signature": "()",
+    "description": "The GetLanguage function retrieves the Vector language (returns a three-letter symbol; refer to ISO standard 639 for a list of symbols). Return The Vector language."
+  },
+  {
+    "name": "GetIVDSystem",
+    "signature": "( )",
+    "description": "The GetIVDSystem function retrieves the IVD System installed flag from the System Registry (integer). Return Return value = 0 or 1 (default = 0, if not present)."
+  },
+  {
+    "name": "GetUniqueRunId",
+    "signature": "( )",
+    "description": "The GetUniqueRunId function returns the unique ID of the current run (string), e.g., \"42d75f353ff549ecb681121e81306741\"."
+  },
+  {
+    "name": "GetHWnd",
+    "signature": "( )",
+    "description": "The GetHWnd function returns the application's main window handle (integer)."
+  },
+  {
+    "name": "SearchPath",
+    "signature": "( fileName)",
+    "description": "The SearchPath function searches for the specified file. Parameter fileName The name of the file to search for (string). Receives the path and file name of the file found. The name of the file can be relative or absolute. The file is searched in the following directories in the following sequence: 1) in the current directory. 2) in the directory that is listed under the registry key Methods. 3) in the directory that is listed under the registry key Library. 4) in the directories that are listed in the PATH environment variable. Return If the function succeeds, the return value is the path name of the first file found (can be an empty string if the file was not found)."
+  },
+  {
+    "name": "AlignSequences",
+    "signature": "( maxOnly [, ... ])",
+    "description": "Aligns the max. number of positions - allowed to process per step - of the specified sequences, and optionally aligns the current total number of positions of the sequences, too. Parameter maxOnly Specifies whether only the max. number of positions - allowed to process per step - of the sequences should be aligned (integer; hslTrue or hslFalse). If maxOnly evaluates to false, the current total number of positions of the sequences are also aligned and uses the smallest of the given sequences as the driving sequence. [...] Variable argument list of comma separated sequence-multiplicity-pairs (integer). Example AlignSequences(hslTrue, tips, 1, samples, 1, plate, 2);"
+  },
+  {
+    "name": "GetUserName",
+    "signature": "( )",
+    "description": "The GetUserName function retrieves the name of the current user. This is the name of the user currently logged onto the system. Return If the function succeeds, the return value is the name of the user currently logged onto the system."
+  },
+  {
+    "name": "AddCheckSum",
+    "signature": "( fileName, commentDelimiter)",
+    "description": "The AddCheckSum function computes the checksum of the specified file and writes the checksum value to the end of the file. Parameter fileName The pathname of the file (string). commentDelimiter The single-line comment delimiter(string), e.g., \"//\". Return Non-zero if the function succeeds; otherwise zero (0). Requirements Access right: AllAccess or Programmer. Remarks Use a checksum to test the validity of the data."
+  },
+  {
+    "name": "VerifyCheckSum",
+    "signature": "( fileName)",
+    "description": "The VerifyCheckSum function verifies the checksum value of the specified file. Parameter fileName The pathname of the file (string). Return Non-zero if the verification completed successfully; otherwise zero (0). Remarks Use a checksum to test the validity of data."
+  },
+  {
+    "name": "RegisterAbortHandler",
+    "signature": "( abortHandler)",
+    "description": "The RegisterAbortHandler function registers abortHandler as a custom HSL function called before a method is aborted. One ore more abort handlers can be registered. A custom HSL abort handler can take no arguments and should neither return a value nor raise an exception. Parameter abortHandler The name of the HSL function called before a method is aborted (string). Example namespace MyLib { function OnAbortMyLib() { // cleanup } } function OnAbortMain() { // cleanup } method Main() { RegisterAbortHandler(\"MyLib::OnAbortMyLib\"); RegisterAbortHandler(\"OnAbortMain\"); }"
+  },
+  {
+    "name": "UnegisterAbortHandler",
+    "signature": "( abortHandler)",
+    "description": "The UnegisterAbortHandler function unregisters abortHandler as a custom HSL function called before a method is aborted. Parameter abortHandler The name of the HSL function to be unregistered (string)."
+  },
+  {
+    "name": "GetVectorDbTrackerObject",
+    "signature": "( )",
+    "description": "Returns the Vector Database Tracker object (object == IHxVectorDbTracking*)."
+  },
+  {
+    "name": "GetSimulationMode",
+    "signature": "( )",
+    "description": "Returns the simulation mode (0 = simulation off, 1 = full simulation)."
+  },
+  {
+    "name": "GetTimeScaleFactor",
+    "signature": "( )",
+    "description": "Returns the current time scale factor (float; defaults to 1.0). The time scale factor is used to scale: - task dependencies - activity durations Remark Timer durations can be scaled using the optional parameter 'scale' in the timer.SetTimer( ) function."
+  },
+  {
+    "name": "SetTimeScaleFactor",
+    "signature": "( timeScaleFactor )",
+    "description": "Sets the current time scale factor (float; defaults to 1.0). If the simulation mode is switched on, the time scale factor is used to scale: - task dependencies - activity durations Parameter timeScaleFactor [in] The new time scale factor (float; must be greater than zero). Remark Timer durations can be scaled using the optional parameter 'scale' in the timer.SetTimer( ) function."
+  },
+  {
+    "name": "IsDBNull",
+    "signature": "( value)",
+    "description": "Returns an indication whether the specified variable is of type null (VT_NULL). Parameter value [in] A variable. Return Non-zero if the specified variable is of type null (VT_NULL); otherwise zero (0)."
+  },
+  {
+    "name": "SetDBNull",
+    "signature": "( value)",
+    "description": "Sets the value of the specified variable to a null value (VT_NULL). Parameter value [in/out] A variable."
+  },
+  {
+    "name": "GetCommState",
+    "signature": "(port)",
+    "description": "The GetCommState function retrives the configuration information for a specified communications resource. The structure that contains the configuration information looks as shown below. The entries of the structure that retrive the configuration information must be accessible in the local scope. Parameter port The communications resource opened during the file-Open operation (file). Return Non-zero if the function succeeds; otherwise zero (0)."
+  },
+  {
+    "name": "SetCommState",
+    "signature": "( port, cfgFile)",
+    "description": "The SetCommState function configures a communications resource according to the specifications in a structure that contains the configuration information. The structure that contains the configuration information must look as shown below. Each entry in the structure is optional and overwrites the default value in parentheses. Parameter port The communications resource opened during the file-Open operation (file). cfgFile The name of the file that contains the configuration information (string; optional). If this parameter is omitted, the entries in the structure that contains the configuration information must be accessible in the local scope. Return Non-zero if the function succeeds; otherwise zero (0)."
+  },
+  {
+    "name": "GetCommTimeouts",
+    "signature": "( port)",
+    "description": "The GetCommTimeouts function retrives the time-out parameters for all read and write operations for a specified communications resource. The structure that contains the time-out information looks as shown below. The entries of the structure that retrive the configuration information must be accessible in the local scope. Parameter port The communications resource opened during the file-Open operation (file). Return Non-zero if the function succeeds; otherwise zero (0)."
+  },
+  {
+    "name": "SetCommTimeouts",
+    "signature": "( port, cfgFile)",
+    "description": "The SetCommTimeouts function sets the time-out parameters for all read and write operations on a specified communications resource. The structure that contains the time-out information must look as shown below. Each entry in the structure is optional and overwrites the default value in parentheses. Parameter port The communications resource opened during the file-Open operation (file). cfgFile The name of the file that contains the time-out information (string; optional). If this parameter is omitted, the entries in the structure that contains the time-out information must be accessible in the local scope. Return Non-zero if the function succeeds; otherwise zero (0)."
+  },
+  {
+    "name": "Translate",
+    "signature": "( text)",
+    "description": "This function handles translation of a text. If there exists a translation of the text given by the text parameter, the function returns the translated string, else the original text is returned. Parameter text The text to translate (string). Return Returns the translated text if available, else returns the original text . Example Assume that the method was written in English and the parameter text holds the English phrase \" This is an English text \". variable text; variable translatedText; text = \"This is an English text\"; translatedText = Translate(text); If for example a German translation of the method's texts like \" This is an English text \" is available and the language is set to German, the function Translate() returns the translated phrase \" Dies ist ein deutscher Text \". If no translation is found, Translate() returns the original phrase \" This is an English text \"."
+  },
+  {
+    "name": "GetDeviceRef",
+    "signature": "( systemDeckLayoutName, instrumentDeckName)",
+    "description": "Returns a reference to the global device with the specified system deck layout file name and contained instrument deck name. Parameter systemDeckLayoutName The name of a system deck layout file (.lay) containing one or more single deck layouts (string; can be empty). The name of the system deck layout file can be relative or absolute. The system deck layout file is searched in the following directories in the following sequence: In the same directory of the file that contains the declaration of the device object, and then in the directories of whatever files that include that file. In the directory that is listed under the registry key Methods. In the directory that is listed under the registry key Library. In the directories that are listed in the PATH environment variable. If the name of the system deck layout file is empty, the first device with a matching instrument deck name contained in its system deck layout file is returned. instrumentDeckName The name of a particular deck layout of in the system deck (string). instrumentKeyName The key name of an instrument registered in the registry (string). Return The reference to the global device with the specified system deck layout file name and contained instrument deck name if the function succeeds, otherwise the element function device.IsNullDevice( ) returns hslTrue. Example device ML_STAR(\"SystemLayout.lay\", \"ML_STAR\", hslTrue); //... function MyFunc() void { device ML_STAR_Ref(\"\", \"\", hslTrue); ML_STAR_Ref = GetDeviceRef(\"SystemLayout.lay\", \"ML_STAR\"); if (!ML_STAR_Ref.IsNullDevice()) { //... } //... }"
+  }
+]

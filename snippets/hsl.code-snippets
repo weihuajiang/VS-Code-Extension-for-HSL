@@ -40,5 +40,27 @@
     "prefix": "trace",
     "body": ["Trace(${1:var});"],
     "description": "Trace output"
+  },
+  "HSL CreateObject with Events": {
+    "prefix": "hslevents",
+    "body": [
+      "// declare event-enabled variable",
+      "variable withEvents(hslTrue);",
+      "object ${1:myObject};",
+      "",
+      "// create Automation object with event support",
+      "${1:myObject}.CreateObject(\"${2:ProgId}\", withEvents);"
+    ],
+    "description": "Create an Automation object with event support (withEvents)"
+  },
+  "HSL Event Handler": {
+    "prefix": "hsleventhandler",
+    "body": [
+      "function ${1:objectName}_${2:EventName}(${3:parameters})",
+      "{",
+      "   ${4:// handle event}",
+      "}"
+    ],
+    "description": "Event handler function for an Automation object (objectName_EventName pattern)"
   }
 }

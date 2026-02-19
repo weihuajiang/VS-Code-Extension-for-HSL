@@ -2,12 +2,25 @@
   "name": "hsl-language-support",
   "displayName": "HSL (Hamilton) Language Support",
   "description": "Syntax highlighting and snippets for Hamilton Standard Language (HSL)",
-  "version": "0.0.1",
-  "publisher": "your-name",
+  "version": "1.4.0",
+  "publisher": "ZacharyMilot",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": ["Programming Languages"],
+  "activationEvents": [
+    "onLanguage:hsl"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  },
   "contributes": {
     "languages": [
       {

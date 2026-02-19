@@ -30,11 +30,7 @@
       "patterns": [
         {
           "name": "keyword.control.preprocessor.hsl",
-          "match": "^\\s*#\\s*(include|ifndef|ifdef|endif|define|undef|else|elif|pragma)\\b"
-        },
-        {
-          "name": "string.quoted.double.include.hsl",
-          "match": "#\\s*include\\s+\"[^\"]+\""
+          "match": "^\\s*#\\s*(include|ifndef|ifdef|endif|define|pragma)\\b"
         }
       ]
     },
@@ -61,33 +57,41 @@
     "keywords": {
       "patterns": [
         {
-          "name": "keyword.reserved.hsl",
-          "match": "\\b(Keyword|activity|actionblock|executoronly|oncancelaction|oncanceltask|resource|reschedule|schedule|scheduleronly|schedulerprompt|workflow|debug|echo|__filename__)\\b"
+          "name": "keyword.scheduler.hsl",
+          "match": "\\b(activity|actionblock|executoronly|oncancelaction|oncanceltask|resource|reschedule|schedule|scheduleronly|schedulerprompt|workflow)\\b"
         },
         {
           "name": "keyword.control.hsl",
-          "match": "\\b(if|else|for|while|do|switch|case|default|break|continue|return|throw|try|catch)\\b"
+          "match": "\\b(if|else|for|while|break|return|goto|abort|resume|loop|next|pause|onerror|lock|unlock)\\b"
+        },
+        {
+          "name": "storage.type.hsl",
+          "match": "\\b(variable|string|sequence|device|resource|dialog|object|timer|event|file|char|short|long|float|void)\\b"
         },
         {
           "name": "storage.modifier.hsl",
-          "match": "\\b(private|public|protected|static|const)\\b"
+          "match": "\\b(private|static|const|global|synchronized)\\b"
         },
         {
           "name": "keyword.declaration.hsl",
-          "match": "\\b(namespace|function|method|dialog|class)\\b"
+          "match": "\\b(namespace|function|method|struct)\\b"
+        },
+        {
+          "name": "keyword.directive.hsl",
+          "match": "\\b(debug|echo)\\b"
+        },
+        {
+          "name": "keyword.other.hsl",
+          "match": "\\b(__filename__|error)\\b"
         }
       ]
     },
-
+    
     "typesAndConstants": {
       "patterns": [
         {
-          "name": "storage.type.hsl",
-          "match": "\\b(variable|integer|int|real|double|float|string|bool|boolean|object|void)\\b"
-        },
-        {
           "name": "constant.language.boolean.hsl",
-          "match": "\\b(hslTrue|hslFalse|true|false)\\b"
+          "match": "\\b(hslTrue|hslFalse)\\b"
         },
         {
           "name": "variable.other.member.hsl",
@@ -95,7 +99,7 @@
         },
         {
           "name": "keyword.operator.hsl",
-          "match": "(==|!=|<=|>=|=|<|>|\\+\\+|--|\\+|-|\\*|/|%|&&|\\|\\||!|\\+=|-=|\\*=|/=|::|\\.)"
+          "match": "(==|!=|<=|>=|=|<|>|\\+\\+|--|\\+|-|\\*|/|%|\\^|&&|\\|\\||&|\\||!|::|\\.)"
         }
       ]
     },
@@ -107,8 +111,11 @@
           "match": "\\bnamespace\\s+([A-Za-z_][A-Za-z0-9_:]*)\\b"
         },
         {
-          "name": "entity.name.namespace.hsl",
-          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*::\\s*([A-Za-z_][A-Za-z0-9_:]*)\\b"
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*::\\s*([A-Za-z_][A-Za-z0-9_:]*)\\b",
+          "captures": {
+            "1": { "name": "entity.name.namespace.hsl" },
+            "2": { "name": "entity.name.other.hsl" }
+          }
         }
       ]
     },
@@ -117,7 +124,7 @@
       "patterns": [
         {
           "name": "meta.function.declaration.hsl",
-          "match": "\\bfunction\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
+          "match": "\\bfunction\\s+((?:[A-Za-z_][A-Za-z0-9_]*::)*[A-Za-z_][A-Za-z0-9_]*)\\b",
           "captures": {
             "1": { "name": "entity.name.function.hsl" }
           }
