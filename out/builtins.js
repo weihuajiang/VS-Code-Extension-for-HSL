@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ELEMENT_FUNCTIONS = exports.BUILTIN_FUNCTIONS = void 0;
+exports.KEYWORDS = exports.ELEMENT_FUNCTIONS = exports.BUILTIN_FUNCTIONS = void 0;
 exports.buildCompletionItems = buildCompletionItems;
 const vscode = __importStar(require("vscode"));
 /**
@@ -1602,6 +1602,17 @@ exports.ELEMENT_FUNCTIONS = [
     },
 ];
 /**
+ * Canonical list of HSL reserved keywords.
+ * Add new entries here and the completion provider picks them up automatically.
+ */
+exports.KEYWORDS = [
+    {
+        name: "break",
+        description: "Exit the current loop",
+        documentation: "Stops execution of the innermost enclosing `for`, `while`, or `loop` statement.\n\nAfter `break` executes, control passes to the first statement following the loop.\n\n**Usage:** A `break` statement may only appear inside an iteration (loop) statement.",
+    },
+];
+/**
  * Convert the canonical lists into VS Code CompletionItem objects.
  * Called once at activation; the array is reused for every completion request.
  */
@@ -1623,6 +1634,13 @@ function buildCompletionItems() {
         item.filterText = `${fn.objectType}.${fn.name} ${fn.name}`;
         return item;
     });
-    return [...libraryItems, ...elementItems];
+    const keywordItems = exports.KEYWORDS.map((kw) => {
+        const item = new vscode.CompletionItem(kw.name, vscode.CompletionItemKind.Keyword);
+        item.detail = kw.description;
+        item.documentation = new vscode.MarkdownString(kw.documentation);
+        item.insertText = kw.name;
+        return item;
+    });
+    return [...libraryItems, ...elementItems, ...keywordItems];
 }
 //# sourceMappingURL=builtins.js.map

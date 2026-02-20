@@ -1826,6 +1826,29 @@ export const ELEMENT_FUNCTIONS: ElementFunction[] = [
   },
 ];
 
+/** Describes one HSL reserved keyword. */
+export interface KeywordEntry {
+  /** The keyword text (e.g. "break"). */
+  name: string;
+  /** One-line description for the completion list. */
+  description: string;
+  /** Longer documentation shown in the detail / docs panel. */
+  documentation: string;
+}
+
+/**
+ * Canonical list of HSL reserved keywords.
+ * Add new entries here and the completion provider picks them up automatically.
+ */
+export const KEYWORDS: KeywordEntry[] = [
+  {
+    name: "break",
+    description: "Exit the current loop",
+    documentation:
+      "Stops execution of the innermost enclosing `for`, `while`, or `loop` statement.\n\nAfter `break` executes, control passes to the first statement following the loop.\n\n**Usage:** A `break` statement may only appear inside an iteration (loop) statement.",
+  },
+];
+
 /**
  * Convert the canonical lists into VS Code CompletionItem objects.
  * Called once at activation; the array is reused for every completion request.
@@ -1858,5 +1881,16 @@ export function buildCompletionItems(): vscode.CompletionItem[] {
     return item;
   });
 
-  return [...libraryItems, ...elementItems];
+  const keywordItems = KEYWORDS.map((kw) => {
+    const item = new vscode.CompletionItem(
+      kw.name,
+      vscode.CompletionItemKind.Keyword
+    );
+    item.detail = kw.description;
+    item.documentation = new vscode.MarkdownString(kw.documentation);
+    item.insertText = kw.name;
+    return item;
+  });
+
+  return [...libraryItems, ...elementItems, ...keywordItems];
 }

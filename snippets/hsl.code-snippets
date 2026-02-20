@@ -62,5 +62,10 @@
       "}"
     ],
     "description": "Event handler function for an Automation object (objectName_EventName pattern)"
+  },
+  "break": {
+    "prefix": "break",
+    "body": ["break;"],
+    "description": "Exit the current loop (for, while, or loop)"
   }
 }
