@@ -5,6 +5,7 @@ import * as vscode from "vscode";
  * Currently checks for:
  *   - `=+` which should be `= ++` (pre-increment) or `+=` (compound add)
  *   - `=-` which should be `= --` (pre-decrement) or `-=` (compound subtract)
+ *   - Variable declarations that are not at the top of their scope
  */
 export function createHslDiagnostics(
   context: vscode.ExtensionContext
@@ -117,7 +118,186 @@ function refreshDiagnostics(
     }
   }
 
+  // Check that all variable declarations are at the top of their scope
+  checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics);
+
   collection.set(document.uri, diagnostics);
+}
+
+// ── Variable-declaration-at-top enforcement ─────────────────────────────
+
+/**
+ * Matches a variable declaration line: optional HSL storage modifiers
+ * followed by a type keyword and the start of an identifier.
+ */
+const DECL_PATTERN = new RegExp(
+  "^\\s*(?:(?:private|static|const|global|synchronized)\\s+)*" +
+    "(?:variable|string|sequence|device|resource|dialog|object|" +
+    "timer|event|file|char|short|long|float)\\s+\\w"
+);
+
+/** Matches a function or method header (with optional leading modifiers). */
+const FUNC_METHOD_HEADER =
+  /^\s*(?:(?:private|static|const|global|synchronized)\s+)*(?:function|method)\b/;
+
+/** Matches a namespace header (with optional leading modifiers). */
+const NAMESPACE_HEADER =
+  /^\s*(?:(?:private|static|const|global|synchronized)\s+)*namespace\b/;
+
+/** Matches a struct header (with optional leading modifiers). */
+const STRUCT_HEADER =
+  /^\s*(?:(?:private|static|const|global|synchronized)\s+)*struct\b/;
+
+/** Matches a preprocessor directive. */
+const PREPROCESSOR_LINE = /^\s*#/;
+
+type ScopeKind = "file" | "function" | "method" | "namespace" | "struct";
+
+interface ScopeState {
+  /** Brace depth at which this scope's opening `{` was counted. */
+  braceDepth: number;
+  /** True once a non-declaration statement has been seen at this scope level. */
+  sawCode: boolean;
+  /** Human-readable scope kind (used in diagnostic messages). */
+  kind: ScopeKind;
+}
+
+/**
+ * Ensures every variable declaration sits at the **top** of its enclosing
+ * scope (function / method / namespace / file).  Two situations are flagged:
+ *
+ * 1. The declaration appears *after* executable code in the same scope.
+ * 2. The declaration is inside a nested control-flow block (if / for / while …)
+ *    rather than directly at the scope level.
+ *
+ * Both cause a runtime error in the HSL compiler.
+ */
+function checkVariableDeclarationPlacement(
+  document: vscode.TextDocument,
+  ignoredRanges: OffsetRange[],
+  diagnostics: vscode.Diagnostic[]
+): void {
+  // The file itself is the outermost declaration scope.
+  const scopeStack: ScopeState[] = [
+    { braceDepth: 0, sawCode: false, kind: "file" },
+  ];
+  let braceDepth = 0;
+  let pendingKind: ScopeKind | null = null;
+
+  for (let lineIdx = 0; lineIdx < document.lineCount; lineIdx++) {
+    const line = document.lineAt(lineIdx);
+    const lineOffset = document.offsetAt(line.range.start);
+
+    // Build a version of the line with comments / strings blanked out so
+    // that keywords inside literals don't trigger false positives.
+    let clean = "";
+    for (let ci = 0; ci < line.text.length; ci++) {
+      clean += isInsideIgnoredRange(lineOffset + ci, ignoredRanges)
+        ? " "
+        : line.text[ci];
+    }
+
+    const trimmed = clean.trim();
+    if (trimmed === "" || PREPROCESSOR_LINE.test(trimmed)) {
+      continue;
+    }
+
+    // ── Phase 1: detect scope-opening headers ──────────────────────
+    let isScopeHeader = false;
+
+    if (FUNC_METHOD_HEADER.test(trimmed)) {
+      pendingKind = /\bfunction\b/.test(trimmed) ? "function" : "method";
+      isScopeHeader = true;
+    } else if (NAMESPACE_HEADER.test(trimmed)) {
+      pendingKind = "namespace";
+      isScopeHeader = true;
+    } else if (STRUCT_HEADER.test(trimmed)) {
+      pendingKind = "struct";
+      isScopeHeader = true;
+    }
+
+    if (isScopeHeader) {
+      // A scope-level definition counts as "code" in the enclosing scope,
+      // so later declarations in that enclosing scope are invalid.
+      const enclosing = scopeStack[scopeStack.length - 1];
+      if (enclosing && braceDepth === enclosing.braceDepth) {
+        enclosing.sawCode = true;
+      }
+    }
+
+    // ── Phase 2: track braces ──────────────────────────────────────
+    for (let ci = 0; ci < clean.length; ci++) {
+      if (clean[ci] === "{") {
+        braceDepth++;
+        if (pendingKind) {
+          scopeStack.push({
+            braceDepth,
+            sawCode: false,
+            kind: pendingKind,
+          });
+          pendingKind = null;
+        }
+      } else if (clean[ci] === "}") {
+        const top = scopeStack[scopeStack.length - 1];
+        if (top && braceDepth === top.braceDepth) {
+          scopeStack.pop();
+        }
+        braceDepth--;
+      }
+    }
+
+    // Skip lines that are purely headers or structural braces / semicolons
+    if (isScopeHeader || /^[{}\s;]*$/.test(trimmed)) {
+      continue;
+    }
+
+    // ── Phase 3: check variable declarations ───────────────────────
+    const scope = scopeStack[scopeStack.length - 1];
+    if (!scope) {
+      continue;
+    }
+
+    // Between a function / method header and its opening '{',
+    // declarations are parameters — not local variables.
+    if (
+      (pendingKind === "function" || pendingKind === "method") &&
+      DECL_PATTERN.test(trimmed)
+    ) {
+      continue;
+    }
+
+    if (DECL_PATTERN.test(trimmed)) {
+      const inSubBlock = braceDepth > scope.braceDepth;
+
+      if (inSubBlock || scope.sawCode) {
+        const startCol = line.firstNonWhitespaceCharacterIndex;
+        const endCol = line.text.trimEnd().length;
+        const range = new vscode.Range(lineIdx, startCol, lineIdx, endCol);
+
+        const reason = inSubBlock
+          ? `Variable declarations must be at the top of the enclosing ${scope.kind} scope, not inside a nested block. ` +
+            `Move this declaration to the top of the ${scope.kind}.`
+          : `Variable declarations must appear at the top of the ${scope.kind} scope, before any executable code. ` +
+            `In HSL, all variables must be declared at the beginning of each scope.`;
+
+        const diag = new vscode.Diagnostic(
+          range,
+          reason,
+          vscode.DiagnosticSeverity.Error
+        );
+        diag.source = "hsl";
+        diag.code = "declaration-not-at-top";
+        diagnostics.push(diag);
+      }
+      // A valid top-of-scope declaration does NOT flip sawCode.
+      continue;
+    }
+
+    // ── Phase 4: executable statement → mark scope as having code ──
+    if (braceDepth === scope.braceDepth) {
+      scope.sawCode = true;
+    }
+  }
 }
 
 // ── Helpers to skip strings / comments ──────────────────────────────────
