@@ -4,6 +4,10 @@
   "description": "Syntax highlighting and snippets for Hamilton Standard Language (HSL)",
   "version": "1.4.1",
   "publisher": "ZacharyMilot",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zdmilot/VS-Code-Extension-for-HSL.git"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },

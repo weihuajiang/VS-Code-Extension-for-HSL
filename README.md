@@ -83,7 +83,7 @@ Initial release of HSL Language Support featuring:
 
 ## Additional Resources
 
-- **[How to create a VS Code Extension (for HSL)]([https://pig.abbvienet.com/orgs/VENUS-Library-Development/discussions/3](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki/How-to-create-a-VS-Code-Extension-(for-HSL)))** - Comprehensive guide for HSL extension development and best practices
+- **[How to create a VS Code Extension (for HSL)](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki/How-to-create-a-VS-Code-Extension-(for-HSL))** - Comprehensive guide for HSL extension development and best practices
 - [VS Code Extension API Documentation](https://code.visualstudio.com/api)
 - [TextMate Grammar Documentation](https://macromates.com/manual/en/language_grammars)
 
