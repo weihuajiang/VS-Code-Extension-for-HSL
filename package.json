@@ -2,7 +2,7 @@
   "name": "hsl-language-support",
   "displayName": "HSL (Hamilton) Language Support",
   "description": "Syntax highlighting and snippets for Hamilton Standard Language (HSL)",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "publisher": "ZacharyMilot",
   "repository": {
     "type": "git",

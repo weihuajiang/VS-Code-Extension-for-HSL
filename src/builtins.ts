@@ -494,6 +494,30 @@ export const BUILTIN_FUNCTIONS: BuiltinFunction[] = [
       "Returns the Vector Database Tracker object (IHxVectorDbTracking*).\n\n**Return:** Tracker object.",
     insertText: "GetVectorDbTrackerObject()",
   },
+  {
+    name: "GetRecordsetObject",
+    signature: "()",
+    description: "Get the recordset object",
+    documentation:
+      "Returns the recordset object associated with the current data access context.\n\n**Return:** Recordset object (object).",
+    insertText: "GetRecordsetObject()",
+  },
+  {
+    name: "GetSequenceObject",
+    signature: "()",
+    description: "Get the sequence object",
+    documentation:
+      "Returns the sequence object.\n\n**Return:** Sequence object (object).",
+    insertText: "GetSequenceObject()",
+  },
+  {
+    name: "GetExecutorObject",
+    signature: "()",
+    description: "Get the executor object",
+    documentation:
+      "Returns the executor object associated with the current execution context.\n\n**Return:** Executor object (object == IHxExecute*).",
+    insertText: "GetExecutorObject()",
+  },
 
   // ── Simulation ───────────────────────────────────────────────────
   {
@@ -1620,6 +1644,60 @@ export const ELEMENT_FUNCTIONS: ElementFunction[] = [
     documentation:
       "Plays a sound specified by the file name provided or a system event.\n\n**Parameter:** `sound` — a string that specifies the sound to play. Can be a file name (relative or absolute) or a system sound alias. If empty, any currently playing waveform sound is stopped.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
     insertText: "PlaySound(${1:sound})",
+  },
+  {
+    objectType: "dialog",
+    name: "InitCustomDialog",
+    signature: "dialog.InitCustomDialog(dialogName)",
+    description: "Initializes a custom dialog by name",
+    documentation:
+      "Initializes a custom dialog by its name.\n\n**Parameter:** `dialogName` — the name of the custom dialog to initialize (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+    insertText: "InitCustomDialog(${1:dialogName})",
+  },
+  {
+    objectType: "dialog",
+    name: "ShowCustomDialog",
+    signature: "dialog.ShowCustomDialog([timeout])",
+    description: "Displays the custom dialog and returns the result",
+    documentation:
+      "Displays the custom dialog and returns the dialog result when done.\n\n**Parameter:** `timeout` — (optional) specifies the amount of time to wait before the dialog is automatically dismissed (in seconds, non-negative floating-point number). Default is hslInfinite.\n\n**Return:** The dialog result code.",
+    insertText: "ShowCustomDialog(${1:timeout})",
+  },
+  {
+    objectType: "dialog",
+    name: "GetCustomDialogProperty",
+    signature: "dialog.GetCustomDialogProperty(propertyName)",
+    description: "Gets a property value from the custom dialog",
+    documentation:
+      "Gets the value of a property from the custom dialog.\n\n**Parameter:** `propertyName` — the name of the property to retrieve (string).\n\n**Return:** The property value (integer, float, or string).",
+    insertText: "GetCustomDialogProperty(${1:propertyName})",
+  },
+  {
+    objectType: "dialog",
+    name: "SetCustomDialogProperty",
+    signature: "dialog.SetCustomDialogProperty(propertyName, propertyValue)",
+    description: "Sets a property value in the custom dialog",
+    documentation:
+      "Sets the value of a property in the custom dialog.\n\n**Parameters:**\n- `propertyName` — the name of the property to set (string).\n- `propertyValue` — the value to set (integer, float, or string).",
+    insertText: "SetCustomDialogProperty(${1:propertyName}, ${2:propertyValue})",
+  },
+  {
+    objectType: "dialog",
+    name: "GetCustomDialogArrayProperty",
+    signature: "dialog.GetCustomDialogArrayProperty(propertyName, arrayRef)",
+    description: "Gets an array property value from the custom dialog",
+    documentation:
+      "Gets the value of an array property from the custom dialog.\n\n**Parameters:**\n- `propertyName` — the name of the array property to retrieve (string).\n- `arrayRef` — a reference to an array to receive the property values.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+    insertText: "GetCustomDialogArrayProperty(${1:propertyName}, ${2:arrayRef})",
+  },
+  {
+    objectType: "dialog",
+    name: "SetCustomDialogArrayProperty",
+    signature: "dialog.SetCustomDialogArrayProperty(propertyName, arrayRef)",
+    description: "Sets an array property value in the custom dialog",
+    documentation:
+      "Sets the value of an array property in the custom dialog.\n\n**Parameters:**\n- `propertyName` — the name of the array property to set (string).\n- `arrayRef` — a reference to an array containing the property values.",
+    insertText: "SetCustomDialogArrayProperty(${1:propertyName}, ${2:arrayRef})",
   },
 
   // ── Timer ────────────────────────────────────────────────────────

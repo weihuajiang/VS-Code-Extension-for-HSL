@@ -58,15 +58,15 @@
       "patterns": [
         {
           "name": "keyword.scheduler.hsl",
-          "match": "\\b(activity|actionblock|executoronly|oncancelaction|oncanceltask|resource|reschedule|schedule|scheduleronly|schedulerprompt|workflow)\\b"
+          "match": "\\b(activity|Activity|actionblock|ActionBlock|executoronly|oncancelaction|oncanceltask|resource|reschedule|schedule|scheduleronly|schedulerprompt|workflow)\\b"
         },
         {
           "name": "keyword.control.hsl",
-          "match": "\\b(if|else|for|while|break|return|goto|abort|resume|loop|next|pause|onerror|lock|unlock)\\b"
+          "match": "\\b(if|else|for|while|break|return|goto|abort|resume|loop|next|pause|onerror|lock|unlock|exit|quit)\\b"
         },
         {
           "name": "storage.type.hsl",
-          "match": "\\b(variable|string|sequence|device|resource|dialog|object|timer|event|file|char|short|long|float|void)\\b"
+          "match": "\\b(variable|string|sequence|device|resource|dialog|object|timer|event|file|char|uchar|short|ushort|long|ulong|float|void|err)\\b"
         },
         {
           "name": "storage.modifier.hsl",
@@ -95,7 +95,7 @@
         },
         {
           "name": "constant.language.hsl",
-          "match": "\\b(hslInfinite|hslInteger|hslFloat|hslString|hslDate|hslOKOnly|hslOKCancel|hslAbortRetryIgnore|hslYesNoCancel|hslYesNo|hslRetryCancel|hslOK|hslCancel|hslAbort|hslRetry|hslIgnore|hslYes|hslNo|hslError|hslQuestion|hslExclamation|hslInformation|hslDefButton1|hslDefButton2|hslDefButton3|hslRead|hslWrite|hslAppend|hslCSVDelimited|hslTabDelimited|hslFixedLength|hslAsciiText|hslCurrent|hslFirst|hslLast|hslBegin|hslEnd|hslHide|hslShow|hslShowMaximized|hslShowMinimized|hslSynchronous|hslAsynchronous|hslNoParity|hslOddParity|hslEvenParity|hslMarkParity|hslSpaceParity|hslOneStopBit|hslOne5StopBits|hslTwoStopBits|hslNoHandshaking|hslXonXoff|hslRequestToSend|hslRequestToSendXonXoff|hslBinaryMode|hslASCIIMode|hslStoppable|hslNotStoppable|hslTimerExpired|hslTimerStopped|hslSoundAlias|hslSoundFileName|hslByLabwareId|hslByPositionId|hslWhite|hslBlack|hslDarkGray|hslGray|hslRed|hslDarkRed|hslYellow|hslDarkYellow|hslGreen|hslDarkGreen|hslCyan|hslDarkCyan|hslBlue|hslDarkBlue|hslMagenta|hslDarkMagenta|hslSchedulingStart|hslLatestTaskStart|hslLatestTaskEnd|hslUseDefault|HSL_RUNTIME|HSL_SCHEDULE|HSL_ACTION_METHOD)\\b"
+          "match": "\\b(hslInfinite|hslInteger|hslFloat|hslString|hslDate|hslOKOnly|hslOKCancel|hslAbortRetryIgnore|hslYesNoCancel|hslYesNo|hslRetryCancel|hslCancelTryContinue|hslOK|hslCancel|hslAbort|hslRetry|hslIgnore|hslYes|hslNo|hslError|hslQuestion|hslExclamation|hslInformation|hslDefButton1|hslDefButton2|hslDefButton3|hslRead|hslWrite|hslAppend|hslCSVDelimited|hslTabDelimited|hslFixedLength|hslAsciiText|hslCurrent|hslFirst|hslLast|hslBegin|hslEnd|hslHide|hslShow|hslShowMaximized|hslShowMinimized|hslSynchronous|hslAsynchronous|hslNoParity|hslOddParity|hslEvenParity|hslMarkParity|hslSpaceParity|hslOneStopBit|hslOne5StopBits|hslTwoStopBits|hslNoHandshaking|hslXonXoff|hslRequestToSend|hslRequestToSendXonXoff|hslBinaryMode|hslASCIIMode|hslStoppable|hslNotStoppable|hslTimerExpired|hslTimerStopped|hslSoundAlias|hslSoundFileName|hslByLabwareId|hslByPositionId|hslWhite|hslBlack|hslDarkGray|hslGray|hslRed|hslDarkRed|hslYellow|hslDarkYellow|hslGreen|hslDarkGreen|hslCyan|hslDarkCyan|hslBlue|hslDarkBlue|hslMagenta|hslDarkMagenta|hslSchedulingStart|hslLatestTaskStart|hslLatestTaskEnd|hslUseDefault|HSL_RUNTIME|HSL_SCHEDULE|HSL_ACTION_METHOD)\\b"
         },
         {
           "name": "variable.other.member.hsl",
