@@ -67,5 +67,122 @@
     "prefix": "break",
     "body": ["break;"],
     "description": "Exit the current loop (for, while, or loop)"
+  },
+  "HSL For Loop": {
+    "prefix": "for",
+    "body": [
+      "for (${1:i} = ${2:0}; ${1:i} < ${3:count}; ${1:i}++)",
+      "{",
+      "   ${4:// TODO}",
+      "}"
+    ],
+    "description": "For loop with counter variable"
+  },
+  "HSL While Loop": {
+    "prefix": "while",
+    "body": [
+      "while (${1:condition})",
+      "{",
+      "   ${2:// TODO}",
+      "}"
+    ],
+    "description": "While loop — repeats while condition is non-zero"
+  },
+  "HSL Loop Statement": {
+    "prefix": "loop",
+    "body": [
+      "loop (${1:count})",
+      "{",
+      "   ${2:// TODO}",
+      "}"
+    ],
+    "description": "Loop statement — executes exactly N times"
+  },
+  "HSL Error Handler": {
+    "prefix": "onerror",
+    "body": [
+      "onerror goto ${1:ErrorHandler};",
+      "${2:// code that might error}",
+      "return;",
+      "",
+      "${1:ErrorHandler}:",
+      "{",
+      "   ${3:err.Clear();}",
+      "   ${4:abort;}",
+      "}"
+    ],
+    "description": "Error handling pattern with onerror goto label"
+  },
+  "HSL Include Guard": {
+    "prefix": "hslguard",
+    "body": [
+      "#ifndef __${1:LibraryName}_hsl__",
+      "#define __${1:LibraryName}_hsl__ 1",
+      "",
+      "${0:// library content}",
+      "",
+      "#endif"
+    ],
+    "description": "Include guard for HSL library files (#ifndef/#define/#endif)"
+  },
+  "HSL Struct Definition": {
+    "prefix": "struct",
+    "body": [
+      "struct",
+      "{",
+      "   ${1:variable member1;} ",
+      "} ${2:structName};"
+    ],
+    "description": "Define a structure with named data members"
+  },
+  "HSL If/Else": {
+    "prefix": "ifelse",
+    "body": [
+      "if (${1:condition})",
+      "{",
+      "   ${2:// true branch}",
+      "}",
+      "else",
+      "{",
+      "   ${3:// false branch}",
+      "}"
+    ],
+    "description": "If/else conditional statement"
+  },
+  "HSL Fork/Join": {
+    "prefix": "hslfork",
+    "body": [
+      "variable ${1:handle};",
+      "variable ${2:handles}[];",
+      "",
+      "${1:handle} = Fork(\"${3:FunctionName}\");",
+      "if (0 == ${1:handle})",
+      "   err.Raise(0, \"Failed to fork ${3:FunctionName}\");",
+      "${2:handles}.AddAsLast(${1:handle});",
+      "",
+      "// wait for all threads to complete",
+      "variable ${4:rc};",
+      "${4:rc} = Join(${2:handles}, ${5:120});",
+      "if (0 == ${4:rc})",
+      "   err.Raise(1, \"Failed to join handles\");"
+    ],
+    "description": "Parallel execution pattern with Fork and Join"
+  },
+  "HSL Lock/Unlock": {
+    "prefix": "hsllock",
+    "body": [
+      "lock;",
+      "onerror goto ${1:LockError};",
+      "${2:// critical section}",
+      "onerror goto 0;",
+      "unlock;",
+      "",
+      "${1:LockError}:",
+      "{",
+      "   unlock;",
+      "   ${3:// handle error}",
+      "}"
+    ],
+    "description": "Lock/unlock pattern for uninterruptible execution"
   }
 }

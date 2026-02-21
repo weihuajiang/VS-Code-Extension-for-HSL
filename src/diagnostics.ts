@@ -3,8 +3,8 @@ import * as vscode from "vscode";
 /**
  * Creates and returns a DiagnosticCollection that validates HSL syntax.
  * Currently checks for:
- *   - `=+` which should be `= ++` (pre-increment) or `+=` (compound add)
- *   - `=-` which should be `= --` (pre-decrement) or `-=` (compound subtract)
+ *   - `=+` which should be `= +` (assign positive) or `= ++` (assign pre-increment)
+ *   - `=-` which should be `= -` (assign negative) or `= --` (assign pre-decrement)
  *   - Variable declarations that are not at the top of their scope
  */
 export function createHslDiagnostics(
@@ -86,7 +86,7 @@ function refreshDiagnostics(
       );
       const diag = new vscode.Diagnostic(
         range,
-        "'=+' is not valid HSL. Did you mean '+=' (compound addition) or '= ++' (assign pre-increment)?",
+        "'=+' is not valid HSL. Did you mean '= +' (assign positive value) or '= ++' (assign pre-increment)? Note: HSL does not have compound assignment operators like '+='.",
         vscode.DiagnosticSeverity.Error
       );
       diag.source = "hsl";
@@ -109,7 +109,7 @@ function refreshDiagnostics(
       );
       const diag = new vscode.Diagnostic(
         range,
-        "'=-' is not valid HSL. Did you mean '-=' (compound subtraction) or '= --' (assign pre-decrement)?",
+        "'=-' is not valid HSL. Did you mean '= -' (assign negative value) or '= --' (assign pre-decrement)? Note: HSL does not have compound assignment operators like '-='.",
         vscode.DiagnosticSeverity.Error
       );
       diag.source = "hsl";

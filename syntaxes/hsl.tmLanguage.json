@@ -94,8 +94,16 @@
           "match": "\\b(hslTrue|hslFalse)\\b"
         },
         {
+          "name": "constant.language.hsl",
+          "match": "\\b(hslInfinite|hslInteger|hslFloat|hslString|hslDate|hslOKOnly|hslOKCancel|hslAbortRetryIgnore|hslYesNoCancel|hslYesNo|hslRetryCancel|hslOK|hslCancel|hslAbort|hslRetry|hslIgnore|hslYes|hslNo|hslError|hslQuestion|hslExclamation|hslInformation|hslDefButton1|hslDefButton2|hslDefButton3|hslRead|hslWrite|hslAppend|hslCSVDelimited|hslTabDelimited|hslFixedLength|hslAsciiText|hslCurrent|hslFirst|hslLast|hslBegin|hslEnd|hslHide|hslShow|hslShowMaximized|hslShowMinimized|hslSynchronous|hslAsynchronous|hslNoParity|hslOddParity|hslEvenParity|hslMarkParity|hslSpaceParity|hslOneStopBit|hslOne5StopBits|hslTwoStopBits|hslNoHandshaking|hslXonXoff|hslRequestToSend|hslRequestToSendXonXoff|hslBinaryMode|hslASCIIMode|hslStoppable|hslNotStoppable|hslTimerExpired|hslTimerStopped|hslSoundAlias|hslSoundFileName|hslByLabwareId|hslByPositionId|hslWhite|hslBlack|hslDarkGray|hslGray|hslRed|hslDarkRed|hslYellow|hslDarkYellow|hslGreen|hslDarkGreen|hslCyan|hslDarkCyan|hslBlue|hslDarkBlue|hslMagenta|hslDarkMagenta|hslSchedulingStart|hslLatestTaskStart|hslLatestTaskEnd|hslUseDefault|HSL_RUNTIME|HSL_SCHEDULE|HSL_ACTION_METHOD)\\b"
+        },
+        {
           "name": "variable.other.member.hsl",
           "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\[\\])"
+        },
+        {
+          "name": "keyword.operator.runtime-parse.hsl",
+          "match": "<<"
         },
         {
           "name": "keyword.operator.hsl",
@@ -148,7 +156,7 @@
       "patterns": [
         {
           "name": "support.function.builtin.hsl",
-          "match": "\\b(Trace|GetFunctionName|Sleep|Wait|MessageBox)\\b"
+          "match": "\\b(Sin|Cos|Tan|ASin|ACos|ATan|Exp|Log|Log10|Ceiling|Floor|IStr|FStr|IVal|IVal2|FVal|FVal2|Trace|FormatTrace|InputBox|MessageBox|Shell|Fork|Join|GetBarcodeJoker|GetType|GetTime|GetDate|GetMethodFileName|GetFileName|GetFunctionName|GetLineNumber|GetRowNumber|GetColumnNumber|GetBinPath|GetConfigPath|GetLabwarePath|GetLibraryPath|GetMethodsPath|GetLogFilesPath|GetSystemPath|GetLanguage|GetIVDSystem|GetUniqueRunId|GetHWnd|SearchPath|AlignSequences|GetUserName|AddCheckSum|VerifyCheckSum|RegisterAbortHandler|UnregisterAbortHandler|GetVectorDbTrackerObject|GetSimulationMode|GetTimeScaleFactor|SetTimeScaleFactor|IsDBNull|SetDBNull|GetCommState|SetCommState|GetCommTimeouts|SetCommTimeouts|Translate|GetDeviceRef|RegisterMethod|ActivateAt|ActivateDelay|ActivateAfter|ActivateBefore|GetTaskIds|GetCurrentTaskId|GetCurrentTaskViewName|GetTaskViewName|GetMethodViewName|GetCurrentActivityViewName|GetCurrentActivityDuration|GetCurrentActivityPlannedDuration|GetCancelledActivityViewName|GetWorkflowFileName|TaskIsCancelable|CancelTask|TaskIsUnschedulable|UnscheduleTask|GetTaskStatus|GetTaskCancelReason|ValidateTaskResources|GetMethodProperties|SetMethodProperties|SetTaskProperties|SetTaskViewName|EnableReschedule|DisableReschedule|RescheduleIsEnabled|GetSchedulerSettings|SetSchedulerSettings|GetSchedulerSettings2|SetSchedulerSettings2|GetRunState|SetTaskDescription|SetCurrentActivityDescription|GetEstimatedActivityDuration|ResetActivityDurationLog|PreActivity|PostActivity)\\b"
         },
         {
           "name": "support.function.builtin.hsl",
@@ -156,7 +164,7 @@
         },
         {
           "name": "support.function.builtin.hsl",
-          "match": "\\b(GetSize|SetSize|AddAsLast|GetAt|SetAt|CreateObject)\\b"
+          "match": "\\b(GetSize|SetSize|AddAsLast|GetAt|SetAt|ElementAt|InsertElementAt|RemoveElementAt|CreateObject|ReleaseObject)\\b"
         },
         {
           "name": "entity.name.function.call.hsl",

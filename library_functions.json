@@ -255,9 +255,9 @@
     "description": "The RegisterAbortHandler function registers abortHandler as a custom HSL function called before a method is aborted. One ore more abort handlers can be registered. A custom HSL abort handler can take no arguments and should neither return a value nor raise an exception. Parameter abortHandler The name of the HSL function called before a method is aborted (string). Example namespace MyLib { function OnAbortMyLib() { // cleanup } } function OnAbortMain() { // cleanup } method Main() { RegisterAbortHandler(\"MyLib::OnAbortMyLib\"); RegisterAbortHandler(\"OnAbortMain\"); }"
   },
   {
-    "name": "UnegisterAbortHandler",
+    "name": "UnregisterAbortHandler",
     "signature": "( abortHandler)",
-    "description": "The UnegisterAbortHandler function unregisters abortHandler as a custom HSL function called before a method is aborted. Parameter abortHandler The name of the HSL function to be unregistered (string)."
+    "description": "The UnregisterAbortHandler function unregisters abortHandler as a custom HSL function called before a method is aborted. Parameter abortHandler The name of the HSL function to be unregistered (string)."
   },
   {
     "name": "GetVectorDbTrackerObject",
