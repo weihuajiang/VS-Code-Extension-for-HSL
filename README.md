@@ -1,89 +1,168 @@
-# HSL (Hamilton) Language Support
+# HSL (Hamilton) Language Support for VS Code
 
-A VS Code extension providing comprehensive syntax highlighting, code snippets, and language support for **HSL (Hamilton Standard Language)**.
+> **📥 Download**: Get the latest release and `.vsix` file from the [Releases Page](https://github.com/zdmilot/VS-Code-Extension-for-HSL/releases)
 
-> **Learning Resources**: Check out the [How to create a VS Code Extension (for HSL)](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki/How-to-create-a-VS-Code-Extension-(for-HSL)) guide for detailed information on extension development.
+---
 
-**RELEASE V0.0.1 is here:**: https://github.com/zdmilot/VS-Code-Extension-for-HSL/releases/tag/v0.0.1
+A VS Code extension providing comprehensive language support for **HSL (Hamilton Standard Language)** — the programming language used for Hamilton liquid handling robots. This extension brings modern IDE features to HSL development, including syntax highlighting, intelligent code completion, diagnostics, and code snippets.
+
+> **⚠️ Beta Notice**: This extension is currently in beta and is not yet available on the VS Code Marketplace. Please follow the manual installation instructions below.
+
+---
+
+## Manual Installation
+
+Since this extension is in beta, you need to install it manually using the `.vsix` file:
+
+### Step 1: Download the Extension
+1. Go to the [Releases Page](https://github.com/zdmilot/VS-Code-Extension-for-HSL/releases)
+2. Download the latest `.vsix` file (e.g., `hsl-language-support-x.x.x.vsix`)
+
+### Step 2: Install in VS Code
+
+**Option A: Using the VS Code UI**
+1. Open VS Code
+2. Press `Ctrl+Shift+X` to open the Extensions view
+3. Click the `...` (More Actions) button in the top-right of the Extensions pane
+4. Select **Install from VSIX...**
+5. Navigate to the downloaded `.vsix` file and select it
+6. Reload VS Code when prompted
+
+**Option B: Using the Command Line**
+```powershell
+code --install-extension path\to\hsl-language-support-x.x.x.vsix
+```
+
+**Option C: Using the Command Palette**
+1. Press `Ctrl+Shift+P` to open the Command Palette
+2. Type `Extensions: Install from VSIX...` and select it
+3. Navigate to the downloaded `.vsix` file and select it
+
+---
 
 ## Features
 
-- **Syntax Highlighting**: Full HSL syntax highlighting with support for keywords, data types, operators, and comments
-- **Code Snippets**: Pre-built templates for common HSL patterns:
-  - Function declarations
-  - Method definitions
-  - Namespace blocks
-  - Error handling with `err.Raise`
-  - Trace output
-- **Bracket Matching & Auto-closing**: Automatic bracket pairing for `{}`, `[]`, `()`, and quotes
-- **Code Folding**: Support for region-based code folding using `// #region` and `// #endregion` markers
-- **Language Configuration**: Proper handling of HSL comments, keywords, and operators
+### Syntax Highlighting
+Full HSL syntax highlighting with support for:
+- Keywords and control flow statements
+- Data types and modifiers
+- Operators and punctuation
+- Single-line (`//`) and block (`/* */`) comments
+- String literals and numeric constants
+
+### Intelligent Code Completion
+- **Built-in Functions**: Auto-complete for HSL's extensive library of built-in functions including math, string manipulation, file I/O, and more
+- **Element Methods**: Context-aware completion for object methods (sequence, device, file, timer, etc.)
+- **Documentation**: Inline documentation and parameter hints for all completions
+
+### Real-Time Diagnostics
+The extension analyzes your code as you type and flags common errors:
+- Invalid operator combinations (`=+` and `=-` which don't exist in HSL)
+- Variable declarations not at the top of their scope (HSL requirement)
+- Syntax validation with clear error messages and suggestions
+
+### Code Snippets
+Pre-built templates for common HSL patterns — just type the prefix and press `Tab`:
+
+| Prefix | Description |
+|--------|-------------|
+| `hslfunc` | Function template |
+| `hslmethod` | Method template |
+| `hslns` | Namespace block |
+| `hslguard` | Include guard for library files |
+| `for` | For loop |
+| `while` | While loop |
+| `loop` | Loop statement (fixed iterations) |
+| `ifelse` | If/else conditional |
+| `onerror` | Error handling pattern |
+| `raise` | Error raising statement (`err.Raise`) |
+| `trace` | Trace output |
+| `struct` | Struct definition |
+| `hslevents` | CreateObject with event support |
+| `hsleventhandler` | Event handler function |
+| `hslfork` | Fork/Join parallel execution |
+| `hsllock` | Lock/unlock critical section |
+
+### Bracket Matching & Auto-Closing
+- Automatic bracket pairing for `{}`, `[]`, `()`, and quotes
+- Smart closing of brackets and strings
+
+### Code Folding
+- Support for region-based code folding using `// #region` and `// #endregion` markers
+- Automatic folding for functions, namespaces, and code blocks
+
+---
 
 ## Supported File Extensions
 
-This extension supports the following HSL file formats:
-- `.hsl` - Standard HSL source files
-- `.hs_` - HSL variant files
-- `.stp` - Hamilton step files
+| Extension | Description |
+|-----------|-------------|
+| `.hsl` | Standard HSL source files |
+| `.hs_` | HSL library/header files |
+| `.sub` | HSL submethod files |
 
-## Language Support
+---
+
+## Language Reference
 
 ### Keywords
-- Control flow: `if`, `else`, `for`, `while`, `do`, `switch`, `case`, `default`, `break`, `continue`, `return`
-- Exception handling: `throw`, `try`, `catch`
-- HSL-specific: `activity`, `actionblock`, `executoronly`, `oncancelaction`, `oncanceltask`, `resource`, `reschedule`, `schedule`, `scheduleronly`, `schedulerprompt`, `workflow`
-- Declarations: `namespace`, `function`, `method`, `dialog`, `class`
-- Modifiers: `private`, `public`, `protected`, `static`, `const`
-- Debug: `debug`, `echo`
+- **Control Flow**: `if`, `else`, `for`, `while`, `do`, `loop`, `switch`, `case`, `default`, `break`, `continue`, `return`
+- **Exception Handling**: `onerror`, `goto`, `abort`, `throw`, `try`, `catch`
+- **Declarations**: `namespace`, `function`, `method`, `dialog`, `class`, `struct`
+- **Modifiers**: `private`, `public`, `protected`, `static`, `const`, `global`, `synchronized`
+- **Parallel Execution**: `fork`, `join`, `lock`, `unlock`
+- **HSL Scheduler**: `activity`, `actionblock`, `executoronly`, `oncancelaction`, `oncanceltask`, `resource`, `reschedule`, `schedule`, `scheduleronly`, `schedulerprompt`, `workflow`
 
-### Supported Data Types
-- Primitives: `integer`, `int`, `real`, `double`, `float`, `string`, `bool`, `boolean`
-- Complex: `variable`, `object`, `void`
-- Constants: `hslTrue`, `hslFalse`, `true`, `false`
+### Data Types
+- **Primitives**: `variable`, `string`, `integer`, `float`, `char`, `short`, `long`
+- **Objects**: `object`, `sequence`, `device`, `resource`, `dialog`, `timer`, `event`, `file`
+- **Constants**: `hslTrue`, `hslFalse`
 
-### Built-in Functions
-- `Trace()` - Output trace information
-- `GetFunctionName()` - Get current function name
-- `Sleep()` - Pause execution
-- `Wait()` - Wait for condition
-- `MessageBox()` - Display message dialog
-- `err.Raise()` - Raise error with message
+### Built-in Function Categories
+The extension provides auto-completion for 100+ built-in HSL functions:
+- **Math**: `Sin`, `Cos`, `Tan`, `Exp`, `Log`, `Sqrt`, `Abs`, `Round`, `Floor`, `Ceiling`
+- **String**: `StrGetLength`, `StrMid`, `StrFind`, `StrReplace`, `StrTrimLeft`, `StrTrimRight`
+- **Conversion**: `IStr`, `FStr`, `IVal`, `FVal`, `StrConcat`
+- **Sequence**: `GetTotal`, `SetTotal`, `Add`, `Remove`, `GetAt`, `SetAt`
+- **File I/O**: `Open`, `Close`, `Read`, `Write`, `ReadString`, `WriteString`
+- **System**: `Trace`, `Sleep`, `Wait`, `MessageBox`, `GetFunctionName`, `GetTime`
+- **Error Handling**: `err.Raise`, `err.Clear`, `err.GetId`, `err.GetDescription`
 
-## Quick Start
-
-1. **Install** the extension from the VS Code Marketplace
-2. **Open** or create a file with `.hsl`, `.hs_`, or `.stp` extension
-3. **Use snippets** by typing:
-   - `hslfunc` - Function template
-   - `hslmethod` - Method template
-   - `hslns` - Namespace block
-   - `raise` - Error raising statement
-   - `trace` - Trace output
-
-For more detailed guidance on developing and extending this extension, visit the [How to create a VS Code Extension (for HSL)](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki/How-to-create-a-VS-Code-Extension-(for-HSL)) documentation.
+---
 
 ## Requirements
 
 - VS Code 1.85.0 or later
+- Windows (Hamilton VENUS software environment)
+
+---
+
+## Getting Started
+
+1. **Install** the extension using the manual installation steps above
+2. **Open** or create a file with `.hsl`, `.hs_`, or `.sub` extension
+3. **Start coding** — syntax highlighting activates automatically
+4. **Use snippets** by typing a prefix (e.g., `hslfunc`) and pressing `Tab`
+5. **Explore completions** by pressing `Ctrl+Space` to see available functions
+
+---
 
 ## Known Issues
 
-None at this time. Please report any issues on the extension's repository under issues.
+This is a beta release. Please report any issues on the [GitHub Issues](https://github.com/zdmilot/VS-Code-Extension-for-HSL/issues) page.
 
-## Release Notes
+---
 
-### 0.0.1
+## Contributing
 
-Initial release of HSL Language Support featuring:
-- Full syntax highlighting for Hamilton Standard Language
-- Code snippet templates for common patterns
-- Bracket matching and auto-closing pairs
-- Code folding support
-- Comprehensive language configuration
+Contributions are welcome! Visit the [GitHub Repository](https://github.com/zdmilot/VS-Code-Extension-for-HSL) to:
+- Report bugs or request features
+- Submit pull requests
+- View the source code
 
-## Additional Resources
+---
 
-- **[How to create a VS Code Extension (for HSL)](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki/How-to-create-a-VS-Code-Extension-(for-HSL))** - Comprehensive guide for HSL extension development and best practices
-- [VS Code Extension API Documentation](https://code.visualstudio.com/api)
-- [TextMate Grammar Documentation](https://macromates.com/manual/en/language_grammars)
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
