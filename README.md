@@ -58,8 +58,39 @@ Full HSL syntax highlighting with support for:
 ### Real-Time Diagnostics
 The extension analyzes your code as you type and flags common errors:
 - Invalid operator combinations (`=+` and `=-` which don't exist in HSL)
-- Variable declarations not at the top of their scope (HSL requirement)
+- Variable declarations not at the top of their code block (HSL requirement)
 - Syntax validation with clear error messages and suggestions
+
+### Variable Declaration Scope Rule
+In HSL, local variables must be declared at the beginning of a **code block** (`{ ... }`).
+
+- A function/namespace body is a code block.
+- A nested `{ ... }` inside a function is also a new code block.
+- Declarations are valid at the top of that nested block, even if they appear later in the outer function.
+- Declarations after executable statements in the **same** block are invalid.
+
+Valid pattern (nested block scope, as used in `CSVToArrayTable`):
+
+```hsl
+ArrayTable::Build::Create(strDescription, arrColumnNames, o_tblValues);
+
+{
+	variable intReadResult;
+	variable blnSkipRow;
+	variable strCheck;
+
+	strLine = f.ReadString();
+	intReadResult = strLine.GetLength();
+	// ... processing logic
+}
+```
+
+Invalid pattern (declaration after statements in the same block):
+
+```hsl
+strLine = f.ReadString();
+variable intReadResult;   // Invalid in this block
+```
 
 ### Code Snippets
 Pre-built templates for common HSL patterns — just type the prefix and press `Tab`:

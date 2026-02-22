@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { buildCompletionItems } from "./builtins";
 import { createHslDiagnostics } from "./diagnostics";
+import { registerHslIntelliSense } from "./hslIntellisense";
 
 /**
  * Called once when the extension is activated.
@@ -26,6 +27,8 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   context.subscriptions.push(completionProvider);
+
+  registerHslIntelliSense(context);
 
   // Register HSL diagnostics (syntax validation)
   createHslDiagnostics(context);

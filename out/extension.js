@@ -38,6 +38,7 @@ exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
 const builtins_1 = require("./builtins");
 const diagnostics_1 = require("./diagnostics");
+const hslIntellisense_1 = require("./hslIntellisense");
 /**
  * Called once when the extension is activated.
  * Registers all language-feature providers for HSL files.
@@ -52,6 +53,7 @@ function activate(context) {
         },
     });
     context.subscriptions.push(completionProvider);
+    (0, hslIntellisense_1.registerHslIntelliSense)(context);
     // Register HSL diagnostics (syntax validation)
     (0, diagnostics_1.createHslDiagnostics)(context);
 }

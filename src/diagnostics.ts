@@ -5,7 +5,7 @@ import * as vscode from "vscode";
  * Currently checks for:
  *   - `=+` which should be `= +` (assign positive) or `= ++` (assign pre-increment)
  *   - `=-` which should be `= -` (assign negative) or `= --` (assign pre-decrement)
- *   - Variable declarations that are not at the top of their scope
+ *   - Variable declarations that are not at the top of their code block
  */
 export function createHslDiagnostics(
   context: vscode.ExtensionContext
@@ -151,7 +151,13 @@ const STRUCT_HEADER =
 /** Matches a preprocessor directive. */
 const PREPROCESSOR_LINE = /^\s*#/;
 
-type ScopeKind = "file" | "function" | "method" | "namespace" | "struct";
+type ScopeKind =
+  | "file"
+  | "function"
+  | "method"
+  | "namespace"
+  | "struct"
+  | "block";
 
 interface ScopeState {
   /** Brace depth at which this scope's opening `{` was counted. */
@@ -164,13 +170,9 @@ interface ScopeState {
 
 /**
  * Ensures every variable declaration sits at the **top** of its enclosing
- * scope (function / method / namespace / file).  Two situations are flagged:
- *
- * 1. The declaration appears *after* executable code in the same scope.
- * 2. The declaration is inside a nested control-flow block (if / for / while …)
- *    rather than directly at the scope level.
- *
- * Both cause a runtime error in the HSL compiler.
+ * code block (`{ ... }`, function/method/namespace/struct body, or file scope).
+ * A declaration is flagged only when it appears *after* executable code in the
+ * same block.
  */
 function checkVariableDeclarationPlacement(
   document: vscode.TextDocument,
@@ -187,6 +189,8 @@ function checkVariableDeclarationPlacement(
   for (let lineIdx = 0; lineIdx < document.lineCount; lineIdx++) {
     const line = document.lineAt(lineIdx);
     const lineOffset = document.offsetAt(line.range.start);
+    const lineStartDepth = braceDepth;
+    const scopeAtLineStart = scopeStack[scopeStack.length - 1];
 
     // Build a version of the line with comments / strings blanked out so
     // that keywords inside literals don't trigger false positives.
@@ -229,14 +233,12 @@ function checkVariableDeclarationPlacement(
     for (let ci = 0; ci < clean.length; ci++) {
       if (clean[ci] === "{") {
         braceDepth++;
-        if (pendingKind) {
-          scopeStack.push({
-            braceDepth,
-            sawCode: false,
-            kind: pendingKind,
-          });
-          pendingKind = null;
-        }
+        scopeStack.push({
+          braceDepth,
+          sawCode: false,
+          kind: pendingKind ?? "block",
+        });
+        pendingKind = null;
       } else if (clean[ci] === "}") {
         const top = scopeStack[scopeStack.length - 1];
         if (top && braceDepth === top.braceDepth) {
@@ -267,18 +269,17 @@ function checkVariableDeclarationPlacement(
     }
 
     if (DECL_PATTERN.test(trimmed)) {
-      const inSubBlock = braceDepth > scope.braceDepth;
-
-      if (inSubBlock || scope.sawCode) {
+      if (scope.sawCode) {
         const startCol = line.firstNonWhitespaceCharacterIndex;
         const endCol = line.text.trimEnd().length;
         const range = new vscode.Range(lineIdx, startCol, lineIdx, endCol);
 
-        const reason = inSubBlock
-          ? `Variable declarations must be at the top of the enclosing ${scope.kind} scope, not inside a nested block. ` +
-            `Move this declaration to the top of the ${scope.kind}.`
-          : `Variable declarations must appear at the top of the ${scope.kind} scope, before any executable code. ` +
-            `In HSL, all variables must be declared at the beginning of each scope.`;
+        const scopeLabel =
+          scope.kind === "block" ? "code block" : `${scope.kind} scope`;
+
+        const reason =
+          `Variable declarations must appear at the top of the ${scopeLabel}, before any executable code. ` +
+          `In HSL, variables must be declared at the beginning of each code block.`;
 
         const diag = new vscode.Diagnostic(
           range,
@@ -294,8 +295,8 @@ function checkVariableDeclarationPlacement(
     }
 
     // ── Phase 4: executable statement → mark scope as having code ──
-    if (braceDepth === scope.braceDepth) {
-      scope.sawCode = true;
+    if (scopeAtLineStart && lineStartDepth === scopeAtLineStart.braceDepth) {
+      scopeAtLineStart.sawCode = true;
     }
   }
 }
