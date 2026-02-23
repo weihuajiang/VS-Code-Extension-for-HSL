@@ -126,6 +126,9 @@ async function refreshDiagnostics(
   // Check function call argument counts against known signatures
   await checkFunctionCallArity(document, diagnostics);
 
+  // Check that every function has both a declaration (prototype) and definition (implementation)
+  checkFunctionDeclarationDefinitionPairing(document, ignoredRanges, diagnostics);
+
   collection.set(document.uri, diagnostics);
 }
 
@@ -1136,4 +1139,307 @@ function isInsideIgnoredRange(offset: number, ranges: OffsetRange[]): boolean {
     }
   }
   return false;
+}
+
+// ── Function declaration / definition pairing enforcement ───────────────
+
+interface FunctionRecord {
+  /** Normalised key that identifies identical signatures. */
+  signatureKey: string;
+  /** Human-readable display name for diagnostic messages. */
+  displayName: string;
+  /** Whether this is a prototype (`;`) or an implementation (`{ … }`). */
+  kind: "declaration" | "definition";
+  /** Line index where the function header starts. */
+  lineIndex: number;
+  /** Column of the function name within that line. */
+  nameCol: number;
+  /** Length of the function name. */
+  nameLen: number;
+}
+
+/**
+ * Ensure that every function within the document has both a declaration
+ * (prototype ending with `;`) and a definition (implementation with `{ … }`).
+ */
+function checkFunctionDeclarationDefinitionPairing(
+  document: vscode.TextDocument,
+  ignoredRanges: OffsetRange[],
+  diagnostics: vscode.Diagnostic[]
+): void {
+  const fullText = document.getText();
+  const cleanText = buildMaskedText(fullText, ignoredRanges);
+  const records = collectFunctionRecords(cleanText);
+
+  // Group records by signature key
+  const byKey = new Map<string, FunctionRecord[]>();
+  for (const rec of records) {
+    const group = byKey.get(rec.signatureKey) ?? [];
+    group.push(rec);
+    byKey.set(rec.signatureKey, group);
+  }
+
+  for (const [_key, group] of byKey) {
+    const declarations = group.filter((r) => r.kind === "declaration");
+    const definitions = group.filter((r) => r.kind === "definition");
+
+    if (declarations.length > 0 && definitions.length === 0) {
+      for (const decl of declarations) {
+        const range = new vscode.Range(
+          decl.lineIndex,
+          decl.nameCol,
+          decl.lineIndex,
+          decl.nameCol + decl.nameLen
+        );
+        const diag = new vscode.Diagnostic(
+          range,
+          `Missing definition for function '${decl.displayName}'.`,
+          vscode.DiagnosticSeverity.Error
+        );
+        diag.source = "hsl";
+        diag.code = "missing-function-definition";
+        diagnostics.push(diag);
+      }
+    }
+
+    if (definitions.length > 0 && declarations.length === 0) {
+      for (const def of definitions) {
+        const range = new vscode.Range(
+          def.lineIndex,
+          def.nameCol,
+          def.lineIndex,
+          def.nameCol + def.nameLen
+        );
+        const diag = new vscode.Diagnostic(
+          range,
+          `Missing declaration for function '${def.displayName}'.`,
+          vscode.DiagnosticSeverity.Error
+        );
+        diag.source = "hsl";
+        diag.code = "missing-function-declaration";
+        diagnostics.push(diag);
+      }
+    }
+
+    if (definitions.length > 1) {
+      for (const def of definitions) {
+        const range = new vscode.Range(
+          def.lineIndex,
+          def.nameCol,
+          def.lineIndex,
+          def.nameCol + def.nameLen
+        );
+        const diag = new vscode.Diagnostic(
+          range,
+          `Duplicate definition for function '${def.displayName}'.`,
+          vscode.DiagnosticSeverity.Error
+        );
+        diag.source = "hsl";
+        diag.code = "duplicate-function-definition";
+        diagnostics.push(diag);
+      }
+    }
+  }
+}
+
+/**
+ * Walk through the comment/string-masked source text and collect every
+ * function header, classifying each as either a declaration or definition.
+ */
+function collectFunctionRecords(cleanText: string): FunctionRecord[] {
+  const records: FunctionRecord[] = [];
+  const cleanLines = cleanText.split(/\r?\n/);
+
+  const namespaceStack: Array<{ name: string; depth: number }> = [];
+  let braceDepth = 0;
+  let pendingNamespace: string | null = null;
+
+  let collectingFunction = false;
+  let functionStartLine = -1;
+  let functionHeaderParts: string[] = [];
+
+  for (let lineIndex = 0; lineIndex < cleanLines.length; lineIndex++) {
+    const cleanLine = cleanLines[lineIndex];
+
+    if (!collectingFunction) {
+      // Detect namespace header
+      const nsMatch =
+        /^\s*(?:(?:private|public|static|global|const|synchronized)\s+)*namespace\s+([A-Za-z_]\w*)\b/.exec(
+          cleanLine
+        );
+      if (nsMatch) {
+        pendingNamespace = nsMatch[1];
+      }
+
+      // Detect function header start
+      if (
+        /^\s*(?:(?:private|public|static|global|const|synchronized)\s+)*function\b/.test(
+          cleanLine
+        )
+      ) {
+        collectingFunction = true;
+        functionStartLine = lineIndex;
+        functionHeaderParts = [cleanLine];
+      }
+    } else {
+      functionHeaderParts.push(cleanLine);
+    }
+
+    if (collectingFunction) {
+      const joinedClean = functionHeaderParts.join("\n");
+      const openParens = (joinedClean.match(/\(/g) || []).length;
+      const closeParens = (joinedClean.match(/\)/g) || []).length;
+      const parenDelta = openParens - closeParens;
+
+      if (parenDelta <= 0 && /[;{]/.test(joinedClean)) {
+        // Extract function components
+        const fnMatch =
+          /^\s*((?:(?:private|public|static|global|const|synchronized)\s+)*)function\s+([A-Za-z_]\w*)\s*\(([\s\S]*?)\)\s*([A-Za-z_]\w*)\s*(;|\{)/m.exec(
+            joinedClean
+          );
+
+        if (fnMatch) {
+          const modifiers = fnMatch[1] ?? "";
+          const name = fnMatch[2];
+          const paramsRaw = fnMatch[3] ?? "";
+          const returnTypeText = fnMatch[4] ?? "variable";
+          const terminator = fnMatch[5];
+
+          const kind: "declaration" | "definition" =
+            terminator === ";" ? "declaration" : "definition";
+
+          // Compute fully-qualified namespace prefix
+          const nsPrefix = namespaceStack.map((n) => n.name).join("::");
+          const qualifiedName =
+            nsPrefix.length > 0 ? `${nsPrefix}::${name}` : name;
+
+          // Normalise parameter signature (types only, no names)
+          const paramSig = buildNormalizedParamSignature(paramsRaw);
+
+          // Include private / static in the key so mismatches are caught
+          const modParts: string[] = [];
+          if (/\bprivate\b/i.test(modifiers)) {
+            modParts.push("private");
+          }
+          if (/\bstatic\b/i.test(modifiers)) {
+            modParts.push("static");
+          }
+          const modKey = modParts.join(" ");
+
+          const signatureKey =
+            `${modKey}|${nsPrefix.toLowerCase()}|${name.toLowerCase()}|${paramSig}|${returnTypeText.toLowerCase()}`;
+
+          // Locate the function name within the starting line for a precise range
+          const startLineText = cleanLines[functionStartLine];
+          const funcKwIdx = startLineText.indexOf("function");
+          const nameIdx =
+            funcKwIdx >= 0
+              ? startLineText.indexOf(name, funcKwIdx + 8)
+              : startLineText.indexOf(name);
+          const nameCol = nameIdx >= 0 ? nameIdx : 0;
+
+          records.push({
+            signatureKey,
+            displayName: qualifiedName,
+            kind,
+            lineIndex: functionStartLine,
+            nameCol,
+            nameLen: name.length,
+          });
+        }
+
+        collectingFunction = false;
+        functionStartLine = -1;
+        functionHeaderParts = [];
+      }
+    }
+
+    // ── Track braces for namespace management ──────────────────────
+    for (const ch of cleanLine) {
+      if (ch === "{") {
+        braceDepth++;
+        if (pendingNamespace) {
+          namespaceStack.push({
+            name: pendingNamespace,
+            depth: braceDepth,
+          });
+          pendingNamespace = null;
+        }
+      } else if (ch === "}") {
+        while (
+          namespaceStack.length > 0 &&
+          namespaceStack[namespaceStack.length - 1].depth >= braceDepth
+        ) {
+          namespaceStack.pop();
+        }
+        braceDepth = Math.max(0, braceDepth - 1);
+      }
+    }
+  }
+
+  return records;
+}
+
+/**
+ * Normalise a raw parameter list into a canonical form that only retains
+ * the type, by-ref marker `&`, and array marker `[]` for each parameter.
+ * Parameter names and default values are discarded.
+ *
+ * Example input:  `variable i_tblValues[], variable& o_x, string s`
+ * Example output: `variable[],variable&,string`
+ */
+function buildNormalizedParamSignature(paramsRaw: string): string {
+  const parts = splitArgsForSignature(paramsRaw).filter(
+    (p) => p.toLowerCase() !== "void"
+  );
+
+  return parts
+    .map((p) => {
+      // Strip default value
+      const noDefault = p.includes("=")
+        ? p.slice(0, p.indexOf("=")).trim()
+        : p.trim();
+      // Detect array suffix
+      const isArray = /\[\]\s*$/.test(noDefault);
+      const noArray = noDefault.replace(/\[\]\s*$/, "").trim();
+      // Detect by-ref
+      const isByRef = noArray.includes("&");
+      const noRef = noArray.replace(/&/g, "").trim();
+      // Type is the first token
+      const tokens = noRef.split(/\s+/).filter((t) => t.length > 0);
+      const typeText = tokens.length > 0 ? tokens[0].toLowerCase() : "";
+      return `${typeText}${isByRef ? "&" : ""}${isArray ? "[]" : ""}`;
+    })
+    .join(",");
+}
+
+/**
+ * Split a parameter list by commas, respecting nested parentheses and brackets.
+ */
+function splitArgsForSignature(paramList: string): string[] {
+  const parts: string[] = [];
+  let current = "";
+  let depth = 0;
+  for (const c of paramList) {
+    if (c === "(" || c === "[") {
+      depth++;
+      current += c;
+      continue;
+    }
+    if (c === ")" || c === "]") {
+      depth = Math.max(0, depth - 1);
+      current += c;
+      continue;
+    }
+    if (c === "," && depth === 0) {
+      parts.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += c;
+  }
+  if (current.trim().length > 0) {
+    parts.push(current.trim());
+  }
+  return parts.filter((p) => p.length > 0);
 }
