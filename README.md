@@ -1,42 +1,11 @@
 # HSL (Hamilton) Language Support for VS Code
 
-> **📥 Download**: Get the latest release and `.vsix` file from the [Releases Page](https://github.com/zdmilot/VS-Code-Extension-for-HSL/releases)
+***Get the latest release and `.vsix` file from the [Releases Page](https://github.com/zdmilot/VS-Code-Extension-for-HSL/releases)***
 
 ---
 
-A VS Code extension providing comprehensive language support for **HSL (Hamilton Standard Language)** — the programming language used for Hamilton liquid handling robots. This extension brings modern IDE features to HSL development, including syntax highlighting, intelligent code completion, diagnostics, and code snippets.
-
-> **⚠️ Beta Notice**: This extension is currently in beta and is not yet available on the VS Code Marketplace. Please follow the manual installation instructions below.
-
----
-
-## Manual Installation
-
-Since this extension is in beta, you need to install it manually using the `.vsix` file:
-
-### Step 1: Download the Extension
-1. Go to the [Releases Page](https://github.com/zdmilot/VS-Code-Extension-for-HSL/releases)
-2. Download the latest `.vsix` file (e.g., `hsl-language-support-x.x.x.vsix`)
-
-### Step 2: Install in VS Code
-
-**Option A: Using the VS Code UI**
-1. Open VS Code
-2. Press `Ctrl+Shift+X` to open the Extensions view
-3. Click the `...` (More Actions) button in the top-right of the Extensions pane
-4. Select **Install from VSIX...**
-5. Navigate to the downloaded `.vsix` file and select it
-6. Reload VS Code when prompted
-
-**Option B: Using the Command Line**
-```powershell
-code --install-extension path\to\hsl-language-support-x.x.x.vsix
-```
-
-**Option C: Using the Command Palette**
-1. Press `Ctrl+Shift+P` to open the Command Palette
-2. Type `Extensions: Install from VSIX...` and select it
-3. Navigate to the downloaded `.vsix` file and select it
+A VS Code extension providing comprehensive language support for **HSL (Hamilton Standard Language)** — the programming language used for Hamilton liquid handling robots (VANTAGE, STAR, STAR-V, Nibus, etc). 
+This extension brings modern IDE features to HSL development, including syntax highlighting, intelligent code completion, diagnostics, and code snippets.
 
 ---
 
@@ -51,13 +20,15 @@ Full HSL syntax highlighting with support for:
 - String literals and numeric constants
 
 ### Intelligent Code Completion
-- **Built-in Functions**: Auto-complete for HSL's extensive library of built-in functions including math, string manipulation, file I/O, and more
+- **Built-in Functions**: Auto-complete for VENUS's extensive library of built-in functions including math, string manipulation, file I/O, and more
+- **Library Functions**: Auto-complete for library functions when additional libraries are installed or created within the `Hamilton/Libraries` directory
 - **Element Methods**: Context-aware completion for object methods (sequence, device, file, timer, etc.)
 - **Documentation**: Inline documentation and parameter hints for all completions
 
 ### Real-Time Diagnostics
 The extension analyzes your code as you type and flags common errors:
 - Invalid operator combinations (`=+` and `=-` which don't exist in HSL)
+- Function parameter validation with clear and descriptive variable definition requirment messaging
 - Variable declarations not at the top of their code block (HSL requirement)
 - Syntax validation with clear error messages and suggestions
 
@@ -65,32 +36,11 @@ The extension analyzes your code as you type and flags common errors:
 In HSL, local variables must be declared at the beginning of a **code block** (`{ ... }`).
 
 - A function/namespace body is a code block.
+- Can be after any `#include` or namespace declarations as long as the declaration happens as the first translation unit used within that particular code block
 - A nested `{ ... }` inside a function is also a new code block.
 - Declarations are valid at the top of that nested block, even if they appear later in the outer function.
 - Declarations after executable statements in the **same** block are invalid.
 
-Valid pattern (nested block scope, as used in `CSVToArrayTable`):
-
-```hsl
-ArrayTable::Build::Create(strDescription, arrColumnNames, o_tblValues);
-
-{
-	variable intReadResult;
-	variable blnSkipRow;
-	variable strCheck;
-
-	strLine = f.ReadString();
-	intReadResult = strLine.GetLength();
-	// ... processing logic
-}
-```
-
-Invalid pattern (declaration after statements in the same block):
-
-```hsl
-strLine = f.ReadString();
-variable intReadResult;   // Invalid in this block
-```
 
 ### Code Snippets
 Pre-built templates for common HSL patterns — just type the prefix and press `Tab`:
@@ -117,10 +67,6 @@ Pre-built templates for common HSL patterns — just type the prefix and press `
 ### Bracket Matching & Auto-Closing
 - Automatic bracket pairing for `{}`, `[]`, `()`, and quotes
 - Smart closing of brackets and strings
-
-### Code Folding
-- Support for region-based code folding using `// #region` and `// #endregion` markers
-- Automatic folding for functions, namespaces, and code blocks
 
 ---
 
@@ -164,23 +110,17 @@ The extension provides auto-completion for 100+ built-in HSL functions:
 ## Requirements
 
 - VS Code 1.85.0 or later
-- Windows (Hamilton VENUS software environment)
+- Hamilton VENUS 4 or later
 
 ---
 
 ## Getting Started
 
-1. **Install** the extension using the manual installation steps above
+1. **Install** the extension
 2. **Open** or create a file with `.hsl`, `.hs_`, or `.sub` extension
 3. **Start coding** — syntax highlighting activates automatically
 4. **Use snippets** by typing a prefix (e.g., `hslfunc`) and pressing `Tab`
 5. **Explore completions** by pressing `Ctrl+Space` to see available functions
-
----
-
-## Known Issues
-
-This is a beta release. Please report any issues on the [GitHub Issues](https://github.com/zdmilot/VS-Code-Extension-for-HSL/issues) page.
 
 ---
 
@@ -190,8 +130,6 @@ Contributions are welcome! Visit the [GitHub Repository](https://github.com/zdmi
 - Report bugs or request features
 - Submit pull requests
 - View the source code
-
----
 
 ## License
 
