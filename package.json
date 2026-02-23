@@ -2,7 +2,7 @@
   "name": "hsl-language-support",
   "displayName": "HSL (Hamilton) Language Support",
   "description": "Syntax highlighting and snippets for Hamilton Standard Language (HSL)",
-  "version": "1.6.8",
+  "version": "1.7.7",
   "publisher": "ZacharyMilot",
   "repository": {
     "type": "git",
@@ -12,6 +12,7 @@
     "vscode": "^1.85.0"
   },
   "categories": ["Programming Languages"],
+  "icon": "HSL.png",
   "main": "./out/extension.js",
   "activationEvents": ["onLanguage:hsl"],
   "scripts": {

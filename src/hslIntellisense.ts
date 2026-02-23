@@ -1,9 +1,83 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
+import { ELEMENT_FUNCTIONS, BUILTIN_FUNCTIONS, type ElementFunction } from "./builtins";
 
 const DEFAULT_LIBRARY_ROOT = "C:\\Program Files (x86)\\Hamilton\\Library";
 const INDEX_CACHE_FILE = "hsl-global-index-cache.json";
+
+/**
+ * Parse an element-function signature (e.g. "object.CreateObject(progId [, withEvents])")
+ * into HslParameter[].  Required params are outside brackets; optional ones are inside.
+ */
+function parseElementSignatureParams(signature: string): HslParameter[] {
+  const openParen = signature.indexOf("(");
+  const closeParen = signature.lastIndexOf(")");
+  if (openParen < 0 || closeParen <= openParen) {
+    return [];
+  }
+  const inner = signature.slice(openParen + 1, closeParen);
+  // Strip bracket notation but keep the param names inside
+  const flat = inner.replace(/[\[\]]/g, "");
+  const parts = flat
+    .split(",")
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0 && !p.includes("..."));
+
+  return parts.map((p) => ({
+    typeText: "variable",
+    nameText: p,
+    isByRef: false,
+    isArray: false,
+  }));
+}
+
+/** Convert a single ElementFunction to an HslFunctionSymbol. */
+function elementFunctionToSymbol(fn: ElementFunction): HslFunctionSymbol {
+  return {
+    name: fn.name,
+    qualifiedName: `${fn.objectType.charAt(0).toUpperCase() + fn.objectType.slice(1)}::${fn.name}`,
+    parameters: parseElementSignatureParams(fn.signature),
+    returnTypeText: "",
+    docComment: fn.documentation,
+    definedInFile: "(system)",
+    requiredInclude: { includeText: "", resolvedPath: "" },
+    isPrivate: false,
+  };
+}
+
+/**
+ * A map from lowercase method name → HslFunctionSymbol[] for every system-defined
+ * element function.  These always take priority over library-parsed symbols.
+ */
+const SYSTEM_ELEMENT_SYMBOL_MAP: Map<string, HslFunctionSymbol[]> = (() => {
+  const map = new Map<string, HslFunctionSymbol[]>();
+  for (const fn of ELEMENT_FUNCTIONS) {
+    const key = fn.name.toLowerCase();
+    const sym = elementFunctionToSymbol(fn);
+    const existing = map.get(key);
+    if (existing) {
+      existing.push(sym);
+    } else {
+      map.set(key, [sym]);
+    }
+  }
+  return map;
+})();
+
+/**
+ * A set of lowercase function names that are system-defined builtins (non-element).
+ * Used to prevent library-parsed symbols from overriding system definitions.
+ */
+const SYSTEM_BUILTIN_NAME_SET: Set<string> = new Set(
+  BUILTIN_FUNCTIONS.map((fn) => fn.name.toLowerCase())
+);
+
+/** Combined set: all system-defined names (builtins + element methods). */
+const SYSTEM_DEFINED_NAMES: Set<string> = new Set([
+  ...SYSTEM_BUILTIN_NAME_SET,
+  ...Array.from(SYSTEM_ELEMENT_SYMBOL_MAP.keys()),
+]);
 
 interface HslParameter {
   typeText: string;
@@ -443,7 +517,8 @@ class HslIndexService {
             return undefined;
           }
 
-          const symbol = await this.findBestSymbol(document, token);
+          const isMethod = this.isMethodCallContext(document, position);
+          const symbol = await this.findBestSymbol(document, token, isMethod);
           if (!symbol) {
             return undefined;
           }
@@ -462,7 +537,7 @@ class HslIndexService {
             return undefined;
           }
 
-          const symbol = await this.findBestSymbol(document, call.name);
+          const symbol = await this.findBestSymbol(document, call.name, call.isMethod);
           if (!symbol) {
             return undefined;
           }
@@ -657,8 +732,32 @@ class HslIndexService {
     return 0;
   }
 
-  private async findBestSymbol(document: vscode.TextDocument, symbolText: string): Promise<HslFunctionSymbol | undefined> {
+  private async findBestSymbol(document: vscode.TextDocument, symbolText: string, isMethodCall: boolean = false): Promise<HslFunctionSymbol | undefined> {
+    // For method calls (preceded by "."), system-defined element functions
+    // ALWAYS take priority over library-parsed symbols.
+    if (isMethodCall) {
+      const systemSymbols = SYSTEM_ELEMENT_SYMBOL_MAP.get(symbolText.toLowerCase());
+      if (systemSymbols && systemSymbols.length > 0) {
+        return systemSymbols[0];
+      }
+    }
+
     const visible = await this.getVisibleSymbolContext(document);
+
+    // For non-method calls, also check if the symbol shadows a system-defined
+    // name.  System definitions always win.
+    const lowerText = symbolText.toLowerCase();
+    const simpleName = symbolText.includes("::") ? symbolText.split("::").pop()!.toLowerCase() : lowerText;
+    if (SYSTEM_ELEMENT_SYMBOL_MAP.has(simpleName)) {
+      const systemSymbols = SYSTEM_ELEMENT_SYMBOL_MAP.get(simpleName)!;
+      // If the qualified name matches an element function's qualified name, use it
+      for (const sys of systemSymbols) {
+        if (sys.qualifiedName.toLowerCase() === lowerText) {
+          return sys;
+        }
+      }
+    }
+
     const visibleMatch =
       visible.symbols.find((s) => s.qualifiedName === symbolText) ??
       visible.symbols.find((s) => s.name === symbolText);
@@ -690,10 +789,28 @@ class HslIndexService {
     return token.length > 0 ? token : null;
   }
 
+  /**
+   * Returns true if the token at `position` is preceded by a `.`, indicating
+   * that it is a method call on an object (e.g. `obj.CreateObject`).
+   */
+  private isMethodCallContext(document: vscode.TextDocument, position: vscode.Position): boolean {
+    const line = document.lineAt(position.line).text;
+    let start = position.character;
+    while (start > 0 && /[A-Za-z0-9_:]/.test(line[start - 1])) {
+      start--;
+    }
+    // Walk backwards over any whitespace then check for '.'
+    let check = start - 1;
+    while (check >= 0 && (line[check] === " " || line[check] === "\t")) {
+      check--;
+    }
+    return check >= 0 && line[check] === ".";
+  }
+
   private findCallAtPosition(
     document: vscode.TextDocument,
     position: vscode.Position
-  ): { name: string; activeParameter: number } | null {
+  ): { name: string; activeParameter: number; isMethod: boolean } | null {
     const offset = document.offsetAt(position);
     const text = document.getText();
     let depth = 0;
@@ -739,7 +856,17 @@ class HslIndexService {
       }
     }
 
-    return { name, activeParameter };
+    // Detect if this call is a method call (preceded by ".")
+    let isMethod = false;
+    if (nameStart > 0) {
+      let dotCheck = nameStart - 1;
+      while (dotCheck >= 0 && (text[dotCheck] === " " || text[dotCheck] === "\t")) {
+        dotCheck--;
+      }
+      isMethod = dotCheck >= 0 && text[dotCheck] === ".";
+    }
+
+    return { name, activeParameter, isMethod };
   }
 
   private async ensureGlobalIndex(): Promise<void> {

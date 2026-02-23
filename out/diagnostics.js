@@ -146,7 +146,13 @@ async function checkFunctionCallArity(document, diagnostics) {
     const fullText = document.getText();
     const cleanText = buildArityMaskedText(fullText);
     const localArity = extractLocalFunctionArity(cleanText);
-    // Extend arity map with symbols from included library files
+    // Collect ALL library arity rules per simple function name so that method
+    // calls can be validated against every known overload, not just the first.
+    const libraryArityByName = new Map();
+    // Extend arity map with symbols from included library files.
+    // IMPORTANT: system-defined names (builtins + element methods) must NOT be
+    // overridden by library-parsed symbols.  Library files sometimes re-declare
+    // wrappers with fewer parameters than the real system function accepts.
     const indexService = (0, hslIntellisense_1.getHslIndexService)();
     if (indexService) {
         try {
@@ -158,12 +164,31 @@ async function checkFunctionCallArity(document, diagnostics) {
                     variadic: false,
                 };
                 const qualifiedKey = symbol.qualifiedName.toLowerCase();
-                if (!localArity.has(qualifiedKey)) {
-                    localArity.set(qualifiedKey, arity);
-                }
                 const simpleKey = symbol.name.toLowerCase();
-                if (!localArity.has(simpleKey) && !BUILTIN_ARITY_MAP.has(simpleKey)) {
-                    localArity.set(simpleKey, arity);
+                // Skip library symbols whose simple name collides with a system-
+                // defined element method (e.g. CreateObject, Open, ReleaseObject).
+                // The ELEMENT_METHOD_ARITY_MAP already contains the correct, more
+                // permissive arity for these — letting the library override it is
+                // the root cause of false-positive diagnostics.
+                const isSystemElementMethod = ELEMENT_METHOD_ARITY_MAP.has(simpleKey);
+                if (!isSystemElementMethod) {
+                    if (!localArity.has(qualifiedKey)) {
+                        localArity.set(qualifiedKey, arity);
+                    }
+                    if (!localArity.has(simpleKey) && !BUILTIN_ARITY_MAP.has(simpleKey)) {
+                        localArity.set(simpleKey, arity);
+                    }
+                }
+                // Always accumulate every unique arity rule per simple name so
+                // the method-call fallback has the most complete picture.
+                const existing = libraryArityByName.get(simpleKey);
+                if (existing) {
+                    if (!existing.some((e) => areArityRulesEqual(e, arity))) {
+                        existing.push(arity);
+                    }
+                }
+                else {
+                    libraryArityByName.set(simpleKey, [arity]);
                 }
             }
         }
@@ -187,7 +212,8 @@ async function checkFunctionCallArity(document, diagnostics) {
         if (closeParenIndex < 0) {
             continue;
         }
-        const argCount = countTopLevelArguments(cleanText.slice(openParenIndex + 1, closeParenIndex));
+        const innerArgsText = fullText.slice(openParenIndex + 1, closeParenIndex);
+        const argCount = countTopLevelArguments(innerArgsText);
         const fnName = qualifiedName.split("::").pop() ?? qualifiedName;
         const qualifiedKey = qualifiedName.toLowerCase();
         const simpleKey = fnName.toLowerCase();
@@ -198,6 +224,14 @@ async function checkFunctionCallArity(document, diagnostics) {
             continue;
         }
         if (argCount < rule.minArgs || (!rule.variadic && argCount > rule.maxArgs)) {
+            // Before flagging, check whether a system element function with the
+            // same simple name would accept this arg count.  Library files can
+            // define wrappers like Object::CreateObject(programId) with fewer
+            // params than the real system function (which also takes withEvents).
+            const elementRules = ELEMENT_METHOD_ARITY_MAP.get(simpleKey);
+            if (elementRules && elementRules.some((r) => isArityValid(r, argCount))) {
+                continue;
+            }
             const linePos = document.positionAt(nameStart);
             const range = new vscode.Range(linePos.line, linePos.character, linePos.line, linePos.character + qualifiedName.length);
             const expected = formatExpectedArity(rule);
@@ -208,7 +242,7 @@ async function checkFunctionCallArity(document, diagnostics) {
             continue;
         }
         if (simpleKey === "gettime" || simpleKey === "getdate") {
-            const args = splitTopLevelArguments(cleanText.slice(openParenIndex + 1, closeParenIndex));
+            const args = splitTopLevelArguments(innerArgsText);
             if (args.length === 1 && isObviouslyNonStringLiteral(args[0])) {
                 const linePos = document.positionAt(nameStart);
                 const range = new vscode.Range(linePos.line, linePos.character, linePos.line, linePos.character + qualifiedName.length);
@@ -222,25 +256,41 @@ async function checkFunctionCallArity(document, diagnostics) {
     const methodCallPattern = /\b[A-Za-z_]\w*(?:\[[^\]]+\])?\s*\.\s*([A-Za-z_]\w*)\s*\(/g;
     while ((match = methodCallPattern.exec(cleanText)) !== null) {
         const methodName = match[1];
-        const methodNameIndex = methodCallPattern.lastIndex - 1 - methodName.length;
+        // Find the actual start of the captured method name in the matched text
+        const fullMatchText = match[0];
+        const capturedOffset = fullMatchText.lastIndexOf(methodName);
+        const methodNameIndex = match.index + capturedOffset;
         const openParenIndex = methodCallPattern.lastIndex - 1;
         const closeParenIndex = findMatchingParen(cleanText, openParenIndex);
         if (closeParenIndex < 0) {
             continue;
         }
-        const argCount = countTopLevelArguments(cleanText.slice(openParenIndex + 1, closeParenIndex));
-        const rules = ELEMENT_METHOD_ARITY_MAP.get(methodName.toLowerCase());
+        const innerArgsText = fullText.slice(openParenIndex + 1, closeParenIndex);
+        const argCount = countTopLevelArguments(innerArgsText);
+        const methodKey = methodName.toLowerCase();
+        const rules = ELEMENT_METHOD_ARITY_MAP.get(methodKey);
         if (!rules || rules.length === 0) {
+            // Method is not a known element method — skip; we cannot validate it.
             continue;
         }
         const hasMatch = rules.some((rule) => isArityValid(rule, argCount));
         if (hasMatch) {
             continue;
         }
+        // Also check library-defined functions with the same simple name.
+        // The extension cannot determine the receiver type on a `.Method()` call,
+        // so if any known function with this name accepts this arg count, allow it.
+        const libraryRules = libraryArityByName.get(methodKey);
+        if (libraryRules && libraryRules.some((rule) => isArityValid(rule, argCount))) {
+            continue;
+        }
+        // Because we cannot determine the receiver's object type, the call might
+        // be valid for a library-defined object we haven't indexed.  Use Warning
+        // severity instead of Error to reflect this uncertainty.
         const linePos = document.positionAt(methodNameIndex);
         const range = new vscode.Range(linePos.line, linePos.character, linePos.line, linePos.character + methodName.length);
         const expected = formatExpectedArityOptions(rules);
-        const diagnostic = new vscode.Diagnostic(range, `Method '${methodName}' expects ${expected}, but ${argCount} argument${argCount === 1 ? "" : "s"} ${argCount === 1 ? "was" : "were"} provided.`, vscode.DiagnosticSeverity.Error);
+        const diagnostic = new vscode.Diagnostic(range, `Method '${methodName}' expects ${expected}, but ${argCount} argument${argCount === 1 ? "" : "s"} ${argCount === 1 ? "was" : "were"} provided. Note: the receiver's object type could not be determined; this may be a false positive if the object defines its own '${methodName}' method.`, vscode.DiagnosticSeverity.Warning);
         diagnostic.source = "hsl";
         diagnostic.code = "invalid-method-arity";
         diagnostics.push(diagnostic);
@@ -380,43 +430,7 @@ function findMatchingParen(text, openParenIndex) {
     return -1;
 }
 function countTopLevelArguments(innerArgs) {
-    if (innerArgs.trim() === "") {
-        return 0;
-    }
-    let depthParen = 0;
-    let depthBracket = 0;
-    let depthBrace = 0;
-    let commas = 0;
-    for (const ch of innerArgs) {
-        if (ch === "(") {
-            depthParen++;
-            continue;
-        }
-        if (ch === ")") {
-            depthParen = Math.max(0, depthParen - 1);
-            continue;
-        }
-        if (ch === "[") {
-            depthBracket++;
-            continue;
-        }
-        if (ch === "]") {
-            depthBracket = Math.max(0, depthBracket - 1);
-            continue;
-        }
-        if (ch === "{") {
-            depthBrace++;
-            continue;
-        }
-        if (ch === "}") {
-            depthBrace = Math.max(0, depthBrace - 1);
-            continue;
-        }
-        if (ch === "," && depthParen === 0 && depthBracket === 0 && depthBrace === 0) {
-            commas++;
-        }
-    }
-    return commas + 1;
+    return splitTopLevelArguments(innerArgs).length;
 }
 function formatExpectedArity(rule) {
     if (rule.variadic) {
@@ -458,7 +472,62 @@ function splitTopLevelArguments(innerArgs) {
     let depthBracket = 0;
     let depthBrace = 0;
     let current = "";
-    for (const ch of innerArgs) {
+    let inString = false;
+    let inLineComment = false;
+    let inBlockComment = false;
+    let escaped = false;
+    for (let i = 0; i < innerArgs.length; i++) {
+        const ch = innerArgs[i];
+        const next = i + 1 < innerArgs.length ? innerArgs[i + 1] : "";
+        if (inLineComment) {
+            current += ch;
+            if (ch === "\n") {
+                inLineComment = false;
+            }
+            continue;
+        }
+        if (inBlockComment) {
+            current += ch;
+            if (ch === "*" && next === "/") {
+                current += next;
+                i++;
+                inBlockComment = false;
+            }
+            continue;
+        }
+        if (inString) {
+            current += ch;
+            if (escaped) {
+                escaped = false;
+                continue;
+            }
+            if (ch === "\\") {
+                escaped = true;
+                continue;
+            }
+            if (ch === '"') {
+                inString = false;
+            }
+            continue;
+        }
+        if (ch === '"') {
+            current += ch;
+            inString = true;
+            escaped = false;
+            continue;
+        }
+        if (ch === "/" && next === "/") {
+            current += ch + next;
+            i++;
+            inLineComment = true;
+            continue;
+        }
+        if (ch === "/" && next === "*") {
+            current += ch + next;
+            i++;
+            inBlockComment = true;
+            continue;
+        }
         if (ch === "(") {
             depthParen++;
             current += ch;
@@ -559,6 +628,7 @@ const INLINE_INCLUDE_NAMESPACE = /^\s*(?:(?:private|static|const|global|synchron
  * same block.
  */
 function checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics) {
+    const includePreambleLines = collectIncludePreambleNamespaceLines(document, ignoredRanges);
     // The file itself is the outermost declaration scope.
     const scopeStack = [
         { braceDepth: 0, sawCode: false, kind: "file" },
@@ -577,6 +647,18 @@ function checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics)
             clean += isInsideIgnoredRange(lineOffset + ci, ignoredRanges)
                 ? " "
                 : line.text[ci];
+        }
+        if (includePreambleLines.has(lineIdx)) {
+            for (let ci = 0; ci < clean.length; ci++) {
+                if (clean[ci] === "{") {
+                    braceDepth++;
+                    continue;
+                }
+                if (clean[ci] === "}") {
+                    braceDepth = Math.max(0, braceDepth - 1);
+                }
+            }
+            continue;
         }
         const trimmed = clean.trim();
         if (trimmed === "" ||
@@ -599,10 +681,15 @@ function checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics)
             isScopeHeader = true;
         }
         if (isScopeHeader) {
-            // A scope-level definition counts as "code" in the enclosing scope,
-            // so later declarations in that enclosing scope are invalid.
+            // A function or method definition counts as "code" in the enclosing
+            // scope, so later declarations in that enclosing scope are invalid.
+            // Namespace (and struct) headers do NOT — variables may still appear
+            // after namespace blocks as long as no functions have been defined.
             const enclosing = scopeStack[scopeStack.length - 1];
-            if (enclosing && braceDepth === enclosing.braceDepth) {
+            if (enclosing &&
+                braceDepth === enclosing.braceDepth &&
+                pendingKind !== "namespace" &&
+                pendingKind !== "struct") {
                 enclosing.sawCode = true;
             }
         }
@@ -661,6 +748,81 @@ function checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics)
             scopeAtLineStart.sawCode = true;
         }
     }
+}
+function collectIncludePreambleNamespaceLines(document, ignoredRanges) {
+    const lines = [];
+    for (let lineIdx = 0; lineIdx < document.lineCount; lineIdx++) {
+        const line = document.lineAt(lineIdx);
+        const lineOffset = document.offsetAt(line.range.start);
+        let clean = "";
+        for (let ci = 0; ci < line.text.length; ci++) {
+            clean += isInsideIgnoredRange(lineOffset + ci, ignoredRanges)
+                ? " "
+                : line.text[ci];
+        }
+        lines.push(clean);
+    }
+    const includePreambleLines = new Set();
+    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+        const trimmed = lines[lineIdx].trim();
+        if (!NAMESPACE_HEADER.test(trimmed)) {
+            continue;
+        }
+        let openFound = false;
+        let localDepth = 0;
+        let endLine = -1;
+        for (let scanLine = lineIdx; scanLine < lines.length; scanLine++) {
+            const lineText = lines[scanLine];
+            for (let ci = 0; ci < lineText.length; ci++) {
+                const ch = lineText[ci];
+                if (ch === "{") {
+                    openFound = true;
+                    localDepth++;
+                    continue;
+                }
+                if (ch === "}" && openFound) {
+                    localDepth = Math.max(0, localDepth - 1);
+                    if (localDepth === 0) {
+                        endLine = scanLine;
+                        break;
+                    }
+                }
+            }
+            if (endLine >= 0) {
+                break;
+            }
+            if (!openFound && /;/.test(lineText)) {
+                break;
+            }
+        }
+        if (!openFound || endLine < 0) {
+            continue;
+        }
+        let hasInclude = false;
+        let hasNonPreambleContent = false;
+        for (let evalLine = lineIdx; evalLine <= endLine; evalLine++) {
+            const text = lines[evalLine].trim();
+            if (text === "" || /^[{}\s;]*$/.test(text)) {
+                continue;
+            }
+            if (/#\s*include\b/i.test(text)) {
+                hasInclude = true;
+            }
+            if (NAMESPACE_HEADER.test(text) || /^#/.test(text)) {
+                continue;
+            }
+            hasNonPreambleContent = true;
+            break;
+        }
+        if (!hasInclude || hasNonPreambleContent) {
+            continue;
+        }
+        for (let markLine = lineIdx; markLine <= endLine; markLine++) {
+            includePreambleLines.add(markLine);
+        }
+        lineIdx = endLine;
+    }
+    return includePreambleLines;
 }
 /**
  * Returns an array of [start, end) offset ranges that cover string literals
