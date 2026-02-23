@@ -548,6 +548,11 @@ const STRUCT_HEADER = /^\s*(?:(?:private|static|const|global|synchronized)\s+)*s
 /** Matches a preprocessor directive. */
 const PREPROCESSOR_LINE = /^\s*#/;
 /**
+ * Matches a one-line namespace wrapper used purely for `#include` preamble,
+ * e.g. `namespace _Method { #include "Lib\\File.hsl" }`.
+ */
+const INLINE_INCLUDE_NAMESPACE = /^\s*(?:(?:private|static|const|global|synchronized)\s+)*namespace\b[^{}]*\{\s*#\s*include\b[^{}]*\}\s*;?\s*$/i;
+/**
  * Ensures every variable declaration sits at the **top** of its enclosing
  * code block (`{ ... }`, function/method/namespace/struct body, or file scope).
  * A declaration is flagged only when it appears *after* executable code in the
@@ -574,7 +579,9 @@ function checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics)
                 : line.text[ci];
         }
         const trimmed = clean.trim();
-        if (trimmed === "" || PREPROCESSOR_LINE.test(trimmed)) {
+        if (trimmed === "" ||
+            PREPROCESSOR_LINE.test(trimmed) ||
+            INLINE_INCLUDE_NAMESPACE.test(trimmed)) {
             continue;
         }
         // ── Phase 1: detect scope-opening headers ──────────────────────
