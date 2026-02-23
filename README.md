@@ -1,9 +1,5 @@
 # HSL (Hamilton) Language Support for VS Code
 
-***Get the latest release and `.vsix` file from the [Releases Page](https://github.com/zdmilot/VS-Code-Extension-for-HSL/releases)***
-
----
-
 A VS Code extension providing comprehensive language support for **HSL (Hamilton Standard Language)** — the programming language used for Hamilton liquid handling robots (VANTAGE, STAR, STAR-V, Nibus, etc). 
 This extension brings modern IDE features to HSL development, including syntax highlighting, intelligent code completion, diagnostics, and code snippets.
 
