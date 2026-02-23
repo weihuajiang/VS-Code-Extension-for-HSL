@@ -690,6 +690,13 @@ const STRUCT_HEADER =
 /** Matches a preprocessor directive. */
 const PREPROCESSOR_LINE = /^\s*#/;
 
+/**
+ * Matches a one-line namespace wrapper used purely for `#include` preamble,
+ * e.g. `namespace _Method { #include "Lib\\File.hsl" }`.
+ */
+const INLINE_INCLUDE_NAMESPACE =
+  /^\s*(?:(?:private|static|const|global|synchronized)\s+)*namespace\b[^{}]*\{\s*#\s*include\b[^{}]*\}\s*;?\s*$/i;
+
 type ScopeKind =
   | "file"
   | "function"
@@ -741,7 +748,11 @@ function checkVariableDeclarationPlacement(
     }
 
     const trimmed = clean.trim();
-    if (trimmed === "" || PREPROCESSOR_LINE.test(trimmed)) {
+    if (
+      trimmed === "" ||
+      PREPROCESSOR_LINE.test(trimmed) ||
+      INLINE_INCLUDE_NAMESPACE.test(trimmed)
+    ) {
       continue;
     }
 
