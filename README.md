@@ -126,8 +126,3 @@ Contributions are welcome! Visit the [GitHub Repository](https://github.com/zdmi
 - Report bugs or request features
 - Submit pull requests
 - View the source code
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
