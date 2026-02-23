@@ -124,7 +124,7 @@ async function refreshDiagnostics(
   checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics);
 
   // Check function call argument counts against known signatures
-  await checkFunctionCallArity(document, ignoredRanges, diagnostics);
+  await checkFunctionCallArity(document, diagnostics);
 
   collection.set(document.uri, diagnostics);
 }
@@ -168,11 +168,10 @@ const ELEMENT_METHOD_ARITY_MAP = buildElementMethodArityMap();
 
 async function checkFunctionCallArity(
   document: vscode.TextDocument,
-  ignoredRanges: OffsetRange[],
   diagnostics: vscode.Diagnostic[]
 ): Promise<void> {
   const fullText = document.getText();
-  const cleanText = buildMaskedText(fullText, ignoredRanges);
+  const cleanText = buildArityMaskedText(fullText);
 
   const localArity = extractLocalFunctionArity(cleanText);
 
@@ -848,19 +847,63 @@ interface OffsetRange {
   end: number;
 }
 
+interface IgnoredSegment extends OffsetRange {
+  kind: "string" | "comment";
+}
+
 /**
  * Returns an array of [start, end) offset ranges that cover string literals
  * and comments so diagnostics can avoid false positives inside them.
  */
 function getIgnoredRanges(text: string): OffsetRange[] {
-  const ranges: OffsetRange[] = [];
+  return getIgnoredSegments(text).map(({ start, end }) => ({ start, end }));
+}
+
+function getIgnoredSegments(text: string): IgnoredSegment[] {
+  const ranges: IgnoredSegment[] = [];
   // Matches:  // line comment  |  /* block comment */  |  "string"
   const pattern = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|"(?:[^"\\]|\\.)*"/g;
   let m: RegExpExecArray | null;
   while ((m = pattern.exec(text)) !== null) {
-    ranges.push({ start: m.index, end: m.index + m[0].length });
+    ranges.push({
+      start: m.index,
+      end: m.index + m[0].length,
+      kind: m[0].startsWith('"') ? "string" : "comment",
+    });
   }
   return ranges;
+}
+
+
+function buildArityMaskedText(text: string): string {
+  const segments = getIgnoredSegments(text);
+  if (segments.length === 0) {
+    return text;
+  }
+
+  const ranges: OffsetRange[] = [];
+  const chars = [...text];
+
+  for (const segment of segments) {
+    if (segment.kind === "comment") {
+      ranges.push(segment);
+      continue;
+    }
+
+    const stringInnerStart = segment.start + 1;
+    const stringInnerEnd = Math.max(stringInnerStart, segment.end - 1);
+    ranges.push({ start: stringInnerStart, end: stringInnerEnd });
+  }
+
+  for (const range of ranges) {
+    for (let i = range.start; i < range.end && i < chars.length; i++) {
+      if (chars[i] !== "\n" && chars[i] !== "\r") {
+        chars[i] = " ";
+      }
+    }
+  }
+
+  return chars.join("");
 }
 
 function isInsideIgnoredRange(offset: number, ranges: OffsetRange[]): boolean {
