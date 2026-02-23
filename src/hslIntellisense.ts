@@ -844,6 +844,14 @@ class HslIndexService {
       return null;
     }
 
+    // If the line starts with "variable " or "variable& ", this is a variable
+    // declaration — parentheses are initialisers, not function calls.
+    const lineStart = text.lastIndexOf("\n", nameStart - 1) + 1;
+    const linePrefix = text.slice(lineStart, nameStart).trimStart();
+    if (/^variable&?\s/i.test(linePrefix)) {
+      return null;
+    }
+
     let activeParameter = 0;
     let nested = 0;
     for (let i = openIndex + 1; i < offset; i++) {

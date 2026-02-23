@@ -410,7 +410,17 @@ function extractLocalFunctionArity(cleanText) {
 function isLikelyDeclarationContext(cleanText, nameStart) {
     const contextStart = Math.max(0, nameStart - 80);
     const prefix = cleanText.slice(contextStart, nameStart);
-    return /\b(function|method|namespace)\s+$/.test(prefix);
+    if (/\b(function|method|namespace)\s+$/.test(prefix)) {
+        return true;
+    }
+    // If the line starts with "variable " or "variable& ", this is a variable
+    // declaration — parentheses are used for initialisation, not function calls.
+    const lineStart = cleanText.lastIndexOf("\n", nameStart - 1) + 1;
+    const linePrefix = cleanText.slice(lineStart, nameStart).trimStart();
+    if (/^variable&?\s/i.test(linePrefix)) {
+        return true;
+    }
+    return false;
 }
 function findMatchingParen(text, openParenIndex) {
     let depth = 0;
