@@ -54,7 +54,7 @@ interface GlobalCacheFile {
   records: CacheFileRecord[];
 }
 
-interface VisibleSymbolContext {
+export interface VisibleSymbolContext {
   symbols: HslFunctionSymbol[];
   visibleFiles: Set<string>;
 }
@@ -493,7 +493,7 @@ class HslIndexService {
     void this.ensureGlobalIndex();
   }
 
-  private async getVisibleSymbolContext(document: vscode.TextDocument): Promise<VisibleSymbolContext> {
+  public async getVisibleSymbolContext(document: vscode.TextDocument): Promise<VisibleSymbolContext> {
     const visited = new Set<string>();
     const symbols: HslFunctionSymbol[] = [];
     const visibleFiles = new Set<string>();
@@ -929,9 +929,16 @@ class HslIndexService {
   }
 }
 
+let indexServiceInstance: HslIndexService | null = null;
+
+export function getHslIndexService(): HslIndexService | null {
+  return indexServiceInstance;
+}
+
 export function registerHslIntelliSense(
   context: vscode.ExtensionContext
 ): void {
   const service = new HslIndexService(context);
+  indexServiceInstance = service;
   service.register(context);
 }

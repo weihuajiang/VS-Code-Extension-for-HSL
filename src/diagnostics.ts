@@ -1,4 +1,6 @@
 import * as vscode from "vscode";
+import { BUILTIN_FUNCTIONS, ELEMENT_FUNCTIONS } from "./builtins";
+import { getHslIndexService } from "./hslIntellisense";
 
 /**
  * Creates and returns a DiagnosticCollection that validates HSL syntax.
@@ -45,10 +47,10 @@ export function createHslDiagnostics(
 /**
  * Analyse the full document and publish diagnostics.
  */
-function refreshDiagnostics(
+async function refreshDiagnostics(
   document: vscode.TextDocument,
   collection: vscode.DiagnosticCollection
-): void {
+): Promise<void> {
   const diagnostics: vscode.Diagnostic[] = [];
 
   // Patterns: match `=+` or `=-` that are NOT part of `+=`, `-=`, `=++`, `=--`, `==`, `!=`, `<=`, `>=`
@@ -121,7 +123,545 @@ function refreshDiagnostics(
   // Check that all variable declarations are at the top of their scope
   checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics);
 
+  // Check function call argument counts against known signatures
+  await checkFunctionCallArity(document, ignoredRanges, diagnostics);
+
   collection.set(document.uri, diagnostics);
+}
+
+// ── Function call arity enforcement ──────────────────────────────────────
+
+interface ArityRule {
+  minArgs: number;
+  maxArgs: number;
+  variadic: boolean;
+}
+
+function buildBuiltinArityMap(): Map<string, ArityRule> {
+  const map = new Map<string, ArityRule>();
+  for (const fn of BUILTIN_FUNCTIONS) {
+    map.set(fn.name.toLowerCase(), parseSignatureArity(fn.signature));
+  }
+  return map;
+}
+
+const BUILTIN_ARITY_MAP = buildBuiltinArityMap();
+
+function buildElementMethodArityMap(): Map<string, ArityRule[]> {
+  const map = new Map<string, ArityRule[]>();
+  for (const fn of ELEMENT_FUNCTIONS) {
+    const key = fn.name.toLowerCase();
+    const rule = parseSignatureArity(fn.signature);
+    const existing = map.get(key);
+    if (existing) {
+      if (!existing.some((entry) => areArityRulesEqual(entry, rule))) {
+        existing.push(rule);
+      }
+      continue;
+    }
+    map.set(key, [rule]);
+  }
+  return map;
+}
+
+const ELEMENT_METHOD_ARITY_MAP = buildElementMethodArityMap();
+
+async function checkFunctionCallArity(
+  document: vscode.TextDocument,
+  ignoredRanges: OffsetRange[],
+  diagnostics: vscode.Diagnostic[]
+): Promise<void> {
+  const fullText = document.getText();
+  const cleanText = buildMaskedText(fullText, ignoredRanges);
+
+  const localArity = extractLocalFunctionArity(cleanText);
+
+  // Extend arity map with symbols from included library files
+  const indexService = getHslIndexService();
+  if (indexService) {
+    try {
+      const visible = await indexService.getVisibleSymbolContext(document);
+      for (const symbol of visible.symbols) {
+        const arity: ArityRule = {
+          minArgs: symbol.parameters.length,
+          maxArgs: symbol.parameters.length,
+          variadic: false,
+        };
+        const qualifiedKey = symbol.qualifiedName.toLowerCase();
+        if (!localArity.has(qualifiedKey)) {
+          localArity.set(qualifiedKey, arity);
+        }
+        const simpleKey = symbol.name.toLowerCase();
+        if (!localArity.has(simpleKey) && !BUILTIN_ARITY_MAP.has(simpleKey)) {
+          localArity.set(simpleKey, arity);
+        }
+      }
+    } catch {
+      // index not ready yet — continue with local-only checking
+    }
+  }
+
+  const callPattern = /\b([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*)\s*\(/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = callPattern.exec(cleanText)) !== null) {
+    const qualifiedName = match[1];
+    const nameStart = match.index;
+    const openParenIndex = callPattern.lastIndex - 1;
+
+    if (isLikelyDeclarationContext(cleanText, nameStart)) {
+      continue;
+    }
+
+    if (nameStart > 0 && cleanText[nameStart - 1] === ".") {
+      continue;
+    }
+
+    const closeParenIndex = findMatchingParen(cleanText, openParenIndex);
+    if (closeParenIndex < 0) {
+      continue;
+    }
+
+    const argCount = countTopLevelArguments(
+      cleanText.slice(openParenIndex + 1, closeParenIndex)
+    );
+
+    const fnName = qualifiedName.split("::").pop() ?? qualifiedName;
+    const qualifiedKey = qualifiedName.toLowerCase();
+    const simpleKey = fnName.toLowerCase();
+    const rule =
+      localArity.get(qualifiedKey) ??
+      localArity.get(simpleKey) ??
+      BUILTIN_ARITY_MAP.get(simpleKey);
+    if (!rule) {
+      continue;
+    }
+
+    if (argCount < rule.minArgs || (!rule.variadic && argCount > rule.maxArgs)) {
+      const linePos = document.positionAt(nameStart);
+      const range = new vscode.Range(
+        linePos.line,
+        linePos.character,
+        linePos.line,
+        linePos.character + qualifiedName.length
+      );
+
+      const expected = formatExpectedArity(rule);
+      const diagnostic = new vscode.Diagnostic(
+        range,
+        `Function '${qualifiedName}' expects ${expected}, but ${argCount} argument${argCount === 1 ? "" : "s"} ${argCount === 1 ? "was" : "were"} provided.`,
+        vscode.DiagnosticSeverity.Error
+      );
+      diagnostic.source = "hsl";
+      diagnostic.code = "invalid-function-arity";
+      diagnostics.push(diagnostic);
+      continue;
+    }
+
+    if (simpleKey === "gettime" || simpleKey === "getdate") {
+      const args = splitTopLevelArguments(
+        cleanText.slice(openParenIndex + 1, closeParenIndex)
+      );
+      if (args.length === 1 && isObviouslyNonStringLiteral(args[0])) {
+        const linePos = document.positionAt(nameStart);
+        const range = new vscode.Range(
+          linePos.line,
+          linePos.character,
+          linePos.line,
+          linePos.character + qualifiedName.length
+        );
+
+        const diagnostic = new vscode.Diagnostic(
+          range,
+          `Function '${qualifiedName}' requires a string 'format' argument.`,
+          vscode.DiagnosticSeverity.Error
+        );
+        diagnostic.source = "hsl";
+        diagnostic.code = "invalid-format-argument";
+        diagnostics.push(diagnostic);
+      }
+    }
+  }
+
+  const methodCallPattern = /\b[A-Za-z_]\w*(?:\[[^\]]+\])?\s*\.\s*([A-Za-z_]\w*)\s*\(/g;
+  while ((match = methodCallPattern.exec(cleanText)) !== null) {
+    const methodName = match[1];
+    const methodNameIndex = methodCallPattern.lastIndex - 1 - methodName.length;
+    const openParenIndex = methodCallPattern.lastIndex - 1;
+    const closeParenIndex = findMatchingParen(cleanText, openParenIndex);
+    if (closeParenIndex < 0) {
+      continue;
+    }
+
+    const argCount = countTopLevelArguments(
+      cleanText.slice(openParenIndex + 1, closeParenIndex)
+    );
+
+    const rules = ELEMENT_METHOD_ARITY_MAP.get(methodName.toLowerCase());
+    if (!rules || rules.length === 0) {
+      continue;
+    }
+
+    const hasMatch = rules.some((rule) => isArityValid(rule, argCount));
+    if (hasMatch) {
+      continue;
+    }
+
+    const linePos = document.positionAt(methodNameIndex);
+    const range = new vscode.Range(
+      linePos.line,
+      linePos.character,
+      linePos.line,
+      linePos.character + methodName.length
+    );
+
+    const expected = formatExpectedArityOptions(rules);
+    const diagnostic = new vscode.Diagnostic(
+      range,
+      `Method '${methodName}' expects ${expected}, but ${argCount} argument${argCount === 1 ? "" : "s"} ${argCount === 1 ? "was" : "were"} provided.`,
+      vscode.DiagnosticSeverity.Error
+    );
+    diagnostic.source = "hsl";
+    diagnostic.code = "invalid-method-arity";
+    diagnostics.push(diagnostic);
+  }
+}
+
+function parseSignatureArity(signature: string): ArityRule {
+  const trimmed = signature.trim();
+  const openParen = trimmed.indexOf("(");
+  const closeParen = trimmed.lastIndexOf(")");
+  const inner =
+    openParen >= 0 && closeParen > openParen
+      ? trimmed.slice(openParen + 1, closeParen)
+      : trimmed;
+
+  const outsideText = removeBracketGroups(inner);
+  const insideGroups = extractBracketGroups(inner);
+
+  const outside = parseArityText(outsideText);
+  let optionalCount = 0;
+  let variadic = outside.variadic;
+
+  for (const group of insideGroups) {
+    const parsed = parseArityText(group);
+    optionalCount += parsed.count;
+    variadic = variadic || parsed.variadic;
+  }
+
+  return {
+    minArgs: outside.count,
+    maxArgs: variadic ? Number.POSITIVE_INFINITY : outside.count + optionalCount,
+    variadic,
+  };
+}
+
+function removeBracketGroups(text: string): string {
+  let result = "";
+  let bracketDepth = 0;
+  for (const ch of text) {
+    if (ch === "[") {
+      bracketDepth++;
+      continue;
+    }
+    if (ch === "]") {
+      bracketDepth = Math.max(0, bracketDepth - 1);
+      continue;
+    }
+    if (bracketDepth === 0) {
+      result += ch;
+    }
+  }
+  return result;
+}
+
+function extractBracketGroups(text: string): string[] {
+  const groups: string[] = [];
+  let bracketDepth = 0;
+  let current = "";
+
+  for (const ch of text) {
+    if (ch === "[") {
+      if (bracketDepth === 0) {
+        current = "";
+      } else {
+        current += ch;
+      }
+      bracketDepth++;
+      continue;
+    }
+
+    if (ch === "]") {
+      if (bracketDepth > 1) {
+        current += ch;
+      }
+      bracketDepth = Math.max(0, bracketDepth - 1);
+      if (bracketDepth === 0) {
+        groups.push(current);
+      }
+      continue;
+    }
+
+    if (bracketDepth > 0) {
+      current += ch;
+    }
+  }
+
+  return groups;
+}
+
+function parseArityText(text: string): { count: number; variadic: boolean } {
+  const parts = text
+    .split(",")
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
+
+  let count = 0;
+  let variadic = false;
+
+  for (const token of parts) {
+    if (token.includes("...")) {
+      variadic = true;
+      continue;
+    }
+    count++;
+  }
+
+  return { count, variadic };
+}
+
+function areArityRulesEqual(left: ArityRule, right: ArityRule): boolean {
+  return (
+    left.minArgs === right.minArgs &&
+    left.maxArgs === right.maxArgs &&
+    left.variadic === right.variadic
+  );
+}
+
+function extractLocalFunctionArity(cleanText: string): Map<string, ArityRule> {
+  const map = new Map<string, ArityRule>();
+  const pattern =
+    /(^|\n)\s*(?:(?:private|public|static|global|const|synchronized)\s+)*function\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s*[A-Za-z_]\w*\s*(?:;|\{)/g;
+
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(cleanText)) !== null) {
+    const name = match[2].toLowerCase();
+    const params = match[3]
+      .split(",")
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0 && p !== "void");
+
+    map.set(name, {
+      minArgs: params.length,
+      maxArgs: params.length,
+      variadic: false,
+    });
+  }
+
+  return map;
+}
+
+function isLikelyDeclarationContext(cleanText: string, nameStart: number): boolean {
+  const contextStart = Math.max(0, nameStart - 80);
+  const prefix = cleanText.slice(contextStart, nameStart);
+  return /\b(function|method|namespace)\s+$/.test(prefix);
+}
+
+function findMatchingParen(text: string, openParenIndex: number): number {
+  let depth = 0;
+  for (let i = openParenIndex; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === "(") {
+      depth++;
+      continue;
+    }
+    if (ch === ")") {
+      depth--;
+      if (depth === 0) {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+
+function countTopLevelArguments(innerArgs: string): number {
+  if (innerArgs.trim() === "") {
+    return 0;
+  }
+
+  let depthParen = 0;
+  let depthBracket = 0;
+  let depthBrace = 0;
+  let commas = 0;
+
+  for (const ch of innerArgs) {
+    if (ch === "(") {
+      depthParen++;
+      continue;
+    }
+    if (ch === ")") {
+      depthParen = Math.max(0, depthParen - 1);
+      continue;
+    }
+    if (ch === "[") {
+      depthBracket++;
+      continue;
+    }
+    if (ch === "]") {
+      depthBracket = Math.max(0, depthBracket - 1);
+      continue;
+    }
+    if (ch === "{") {
+      depthBrace++;
+      continue;
+    }
+    if (ch === "}") {
+      depthBrace = Math.max(0, depthBrace - 1);
+      continue;
+    }
+    if (ch === "," && depthParen === 0 && depthBracket === 0 && depthBrace === 0) {
+      commas++;
+    }
+  }
+
+  return commas + 1;
+}
+
+function formatExpectedArity(rule: ArityRule): string {
+  if (rule.variadic) {
+    if (rule.minArgs === 0) {
+      return "zero or more arguments";
+    }
+    return `${rule.minArgs} or more arguments`;
+  }
+
+  if (rule.minArgs === rule.maxArgs) {
+    if (rule.minArgs === 1) {
+      return "exactly 1 argument";
+    }
+    return `exactly ${rule.minArgs} arguments`;
+  }
+
+  return `${rule.minArgs} to ${rule.maxArgs} arguments`;
+}
+
+function isArityValid(rule: ArityRule, argCount: number): boolean {
+  if (argCount < rule.minArgs) {
+    return false;
+  }
+  if (!rule.variadic && argCount > rule.maxArgs) {
+    return false;
+  }
+  return true;
+}
+
+function formatExpectedArityOptions(rules: ArityRule[]): string {
+  const uniqueLabels = Array.from(
+    new Set(rules.map((rule) => formatExpectedArity(rule)))
+  );
+
+  if (uniqueLabels.length === 1) {
+    return uniqueLabels[0];
+  }
+
+  return `one of: ${uniqueLabels.join("; ")}`;
+}
+
+function splitTopLevelArguments(innerArgs: string): string[] {
+  if (innerArgs.trim() === "") {
+    return [];
+  }
+
+  const args: string[] = [];
+  let depthParen = 0;
+  let depthBracket = 0;
+  let depthBrace = 0;
+  let current = "";
+
+  for (const ch of innerArgs) {
+    if (ch === "(") {
+      depthParen++;
+      current += ch;
+      continue;
+    }
+    if (ch === ")") {
+      depthParen = Math.max(0, depthParen - 1);
+      current += ch;
+      continue;
+    }
+    if (ch === "[") {
+      depthBracket++;
+      current += ch;
+      continue;
+    }
+    if (ch === "]") {
+      depthBracket = Math.max(0, depthBracket - 1);
+      current += ch;
+      continue;
+    }
+    if (ch === "{") {
+      depthBrace++;
+      current += ch;
+      continue;
+    }
+    if (ch === "}") {
+      depthBrace = Math.max(0, depthBrace - 1);
+      current += ch;
+      continue;
+    }
+
+    if (ch === "," && depthParen === 0 && depthBracket === 0 && depthBrace === 0) {
+      args.push(current.trim());
+      current = "";
+      continue;
+    }
+
+    current += ch;
+  }
+
+  if (current.trim().length > 0) {
+    args.push(current.trim());
+  }
+
+  return args;
+}
+
+function isObviouslyNonStringLiteral(argumentText: string): boolean {
+  const arg = argumentText.trim();
+  if (arg.length === 0) {
+    return false;
+  }
+
+  if (/^"(?:[^"\\]|\\.)*"$/.test(arg)) {
+    return false;
+  }
+
+  if (/^[+-]?(?:\d+\.\d*|\d*\.\d+|\d+)$/.test(arg)) {
+    return true;
+  }
+
+  if (/^(hslTrue|hslFalse)$/i.test(arg)) {
+    return true;
+  }
+
+  return false;
+}
+
+function buildMaskedText(text: string, ranges: OffsetRange[]): string {
+  if (ranges.length === 0) {
+    return text;
+  }
+
+  const chars = [...text];
+  for (const range of ranges) {
+    for (let i = range.start; i < range.end && i < chars.length; i++) {
+      if (chars[i] !== "\n" && chars[i] !== "\r") {
+        chars[i] = " ";
+      }
+    }
+  }
+  return chars.join("");
 }
 
 // ── Variable-declaration-at-top enforcement ─────────────────────────────

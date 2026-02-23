@@ -33,6 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getHslIndexService = getHslIndexService;
 exports.registerHslIntelliSense = registerHslIntelliSense;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
@@ -778,8 +779,13 @@ class HslIndexService {
         this.unresolvedIncludeCollection.set(document.uri, diagnostics);
     }
 }
+let indexServiceInstance = null;
+function getHslIndexService() {
+    return indexServiceInstance;
+}
 function registerHslIntelliSense(context) {
     const service = new HslIndexService(context);
+    indexServiceInstance = service;
     service.register(context);
 }
 //# sourceMappingURL=hslIntellisense.js.map
