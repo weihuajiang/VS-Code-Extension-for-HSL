@@ -405,7 +405,8 @@ async function* walkHslFiles(root) {
             yield* walkHslFiles(full);
             continue;
         }
-        if (entry.isFile() && full.toLowerCase().endsWith(".hsl")) {
+        const lower = full.toLowerCase();
+        if (entry.isFile() && (lower.endsWith(".hsl") || lower.endsWith(".hs_"))) {
             yield full;
         }
     }

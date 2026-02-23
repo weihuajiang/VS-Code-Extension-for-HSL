@@ -1,7 +1,7 @@
 # HSL (Hamilton) Language Support for VS Code
 
-A VS Code extension providing comprehensive language support for **HSL (Hamilton Standard Language)** — the programming language used for Hamilton liquid handling robots (VANTAGE, STAR, STAR-V, Nibus, etc). 
-This extension brings modern IDE features to HSL development, including syntax highlighting, intelligent code completion, diagnostics, and code snippets.
+A VS Code extension providing comprehensive language support for **HSL (Hamilton Standard Language)** — the programming language used for Hamilton liquid handling robots (VANTAGE, STAR, STAR-V, Nimbus, etc.).
+This extension brings modern IDE features to HSL development, including syntax highlighting, intelligent code completion, diagnostics, and snippets.
 
 ---
 
@@ -16,30 +16,29 @@ Full HSL syntax highlighting with support for:
 - String literals and numeric constants
 
 ### Intelligent Code Completion
-- **Built-in Functions**: Auto-complete for VENUS's extensive library of built-in functions including math, string manipulation, file I/O, and more
-- **Library Functions**: Auto-complete for library functions when additional libraries are installed or created within the `Hamilton/Libraries` directory
+- **Built-in Functions**: Auto-complete for VENUS's extensive built-in function set (math, string manipulation, file I/O, and more)
+- **Library Functions**: Auto-complete for functions found in installed HSL libraries
 - **Element Methods**: Context-aware completion for object methods (sequence, device, file, timer, etc.)
-- **Documentation**: Inline documentation and parameter hints for all completions
+- **Inline Docs & Signature Help**: Hover documentation and parameter hints for completions and function calls
 
 ### Real-Time Diagnostics
-The extension analyzes your code as you type and flags common errors:
-- Invalid operator combinations (`=+` and `=-` which don't exist in HSL)
-- Function parameter validation with clear and descriptive variable definition requirment messaging
+The extension analyzes your code as you type and flags common issues:
+- Invalid operator combinations (e.g., `=+` and `=-`, which do not exist in HSL)
+- Function call argument-count validation with clear, descriptive messaging
 - Variable declarations not at the top of their code block (HSL requirement)
-- Syntax validation with clear error messages and suggestions
+- General syntax validation with clear error messages and suggestions
 
 ### Variable Declaration Scope Rule
 In HSL, local variables must be declared at the beginning of a **code block** (`{ ... }`).
 
-- A function/namespace body is a code block.
-- Can be after any `#include` or namespace declarations as long as the declaration happens as the first translation unit used within that particular code block
+- A function or namespace body is a code block.
+- Declarations may appear after `#include` directives and/or namespace wrappers, as long as declarations are the first executable statements within that specific code block.
 - A nested `{ ... }` inside a function is also a new code block.
 - Declarations are valid at the top of that nested block, even if they appear later in the outer function.
 - Declarations after executable statements in the **same** block are invalid.
 
-
 ### Code Snippets
-Pre-built templates for common HSL patterns — just type the prefix and press `Tab`:
+Pre-built templates for common HSL patterns — type a prefix and press `Tab`:
 
 | Prefix | Description |
 |--------|-------------|
@@ -55,14 +54,10 @@ Pre-built templates for common HSL patterns — just type the prefix and press `
 | `raise` | Error raising statement (`err.Raise`) |
 | `trace` | Trace output |
 | `struct` | Struct definition |
-| `hslevents` | CreateObject with event support |
+| `hslevents` | `CreateObject` with event support |
 | `hsleventhandler` | Event handler function |
 | `hslfork` | Fork/Join parallel execution |
 | `hsllock` | Lock/unlock critical section |
-
-### Bracket Matching & Auto-Closing
-- Automatic bracket pairing for `{}`, `[]`, `()`, and quotes
-- Smart closing of brackets and strings
 
 ---
 
@@ -70,9 +65,26 @@ Pre-built templates for common HSL patterns — just type the prefix and press `
 
 | Extension | Description |
 |-----------|-------------|
-| `.hsl` | Standard HSL source files |
-| `.hs_` | HSL library/header files |
-| `.sub` | HSL submethod files |
+| `.hsl` | HSL source file (commonly used for declarations and/or headers, depending on library structure) |
+| `.hs_` | HSL source file (commonly used for implementation/source, depending on library structure) |
+| `.sub` | HSL submethod file |
+
+---
+
+## Library Discovery and Search Paths
+
+This extension mirrors the standard HSL/VENUS library discovery model. Because library locations are governed by the Hamilton installation and HSL runtime conventions, **the extension does not provide a setting to change library roots**.
+
+The extension discovers HSL libraries using the typical Hamilton installation library locations, such as:
+
+- `C:\Program Files (x86)\Hamilton\Library\...`
+
+It also resolves `#include "..."` directives commonly used in HSL libraries, including:
+- Absolute paths
+- UNC paths
+- Library-root-relative includes under the Hamilton library directory
+
+> Note: IntelliSense for library functions depends on the libraries being present on the machine where VS Code is running.
 
 ---
 
@@ -92,7 +104,7 @@ Pre-built templates for common HSL patterns — just type the prefix and press `
 - **Constants**: `hslTrue`, `hslFalse`
 
 ### Built-in Function Categories
-The extension provides auto-completion for 100+ built-in HSL functions:
+The extension provides auto-completion for 100+ built-in HSL functions, including:
 - **Math**: `Sin`, `Cos`, `Tan`, `Exp`, `Log`, `Sqrt`, `Abs`, `Round`, `Floor`, `Ceiling`
 - **String**: `StrGetLength`, `StrMid`, `StrFind`, `StrReplace`, `StrTrimLeft`, `StrTrimRight`
 - **Conversion**: `IStr`, `FStr`, `IVal`, `FVal`, `StrConcat`
@@ -108,21 +120,45 @@ The extension provides auto-completion for 100+ built-in HSL functions:
 - VS Code 1.85.0 or later
 - Hamilton VENUS 4 or later
 
+You can download and install Hamilton VENUS 4 from [Hamilton's official post on the forum](https://labautomation.io/t/download-hamilton-method-manager-2/727), or download it directly [here](https://download.hamiltonsupport.com/wl/?id=7kDYflsz630Vp9uLwYjGvCVb4Gp0i8sG).
+
 ---
 
 ## Getting Started
 
-1. **Install** the extension
-2. **Open** or create a file with `.hsl`, `.hs_`, or `.sub` extension
+1. **Install** the extension from the VS Code Marketplace
+2. **Open** (or create) a file with a `.hsl`, `.hs_`, or `.sub` extension
 3. **Start coding** — syntax highlighting activates automatically
 4. **Use snippets** by typing a prefix (e.g., `hslfunc`) and pressing `Tab`
-5. **Explore completions** by pressing `Ctrl+Space` to see available functions
+5. **Explore completions** by pressing `Ctrl+Space`
+
+---
+
+## Known Limitations / Non-Goals
+
+- This extension is not a full HSL compiler; parsing and analysis are heuristic and best-effort.
+- Diagnostics may not perfectly match every VENUS translator edge case.
+- Some IntelliSense and discovery features depend on HSL libraries being installed locally in expected system paths.
+- Initial indexing/discovery may take longer on first run; subsequent runs are typically faster due to caching.
+- There is currently no debugger or Run Control integration in VS Code; programs must be executed using Hamilton Run Control (`HxRun.exe`).
+
+---
+
+## Help & Support
+
+For additional help and support, check out the following resources:
+
+- **Wiki**: Visit the [GitHub Wiki](https://github.com/zdmilot/VS-Code-Extension-for-HSL/wiki) for documentation and guides.
+- **Forum**: Learn more about Hamilton HSL programming on the [Lab Automation Forum](https://labautomation.io/t/ways-to-learn-hamilton-hsl-code/1156/7).
+- **Issues**: Report bugs or request features on the [Issues page](https://github.com/zdmilot/VS-Code-Extension-for-HSL/issues).
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Visit the [GitHub Repository](https://github.com/zdmilot/VS-Code-Extension-for-HSL) to:
+Contributions are welcome. Visit the GitHub repository to:
 - Report bugs or request features
 - Submit pull requests
 - View the source code
+
+GitHub: https://github.com/zdmilot/VS-Code-Extension-for-HSL
