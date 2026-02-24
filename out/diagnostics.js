@@ -37,7 +37,8 @@ exports.createHslDiagnostics = createHslDiagnostics;
 const vscode = __importStar(require("vscode"));
 const builtins_1 = require("./builtins");
 const hslIntellisense_1 = require("./hslIntellisense");
-const fs = __importStar(require("fs"));
+const child_process_1 = require("child_process");
+const path = __importStar(require("path"));
 /**
  * Creates and returns a DiagnosticCollection that validates HSL syntax.
  * Currently checks for:
@@ -54,11 +55,14 @@ function createHslDiagnostics(context) {
     // Re-run when a document is opened or its content changes
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((doc) => {
         if (doc.languageId === "hsl") {
-            vscode.window.showInformationMessage(context.asAbsolutePath(""));
-            if (fs.existsSync(context.asAbsolutePath("") + "\\AddCheckSum.exe")) {
-            }
-            vscode.window.showInformationMessage('file saved: ' + doc.fileName);
-            vscode.tasks.executeTask(new vscode.Task({ type: 'hsl' }, vscode.TaskScope.Workspace, 'Fix HSL Checksum', 'hsl', new vscode.ShellExecution(context.asAbsolutePath("") + (fs.existsSync(context.asAbsolutePath("") + "\\AddCheckSum.exe") ? "\\AddCheckSum.exe" : "\\out\\AddCheckSum.exe"), [`'${doc.fileName}'`])));
+            // Use 32-bit PowerShell to invoke the Hamilton COM object directly
+            const ps32 = path.join(process.env.SystemRoot || "C:\\Windows", "SysWOW64", "WindowsPowerShell", "v1.0", "powershell.exe");
+            const psCommand = `$obj = New-Object -ComObject Hamilton.HxSecurityCom; $obj.SetFileValidation('${doc.fileName.replace(/'/g, "''")}', 0, '//')`;
+            (0, child_process_1.execFile)(ps32, ["-NoProfile", "-Command", psCommand], (err) => {
+                if (err) {
+                    vscode.window.showWarningMessage(`HSL Checksum update failed: ${err.message}`);
+                }
+            });
         }
     }), vscode.workspace.onDidChangeTextDocument((e) => {
         if (e.document.languageId === "hsl") {
