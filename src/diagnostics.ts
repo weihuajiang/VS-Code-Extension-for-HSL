@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import { BUILTIN_FUNCTIONS, ELEMENT_FUNCTIONS } from "./builtins";
 import { getHslIndexService } from "./hslIntellisense";
-
+import { execFile } from "child_process";
+import * as path from "path";
 /**
  * Creates and returns a DiagnosticCollection that validates HSL syntax.
  * Currently checks for:
@@ -25,6 +26,23 @@ export function createHslDiagnostics(
 
   // Re-run when a document is opened or its content changes
   context.subscriptions.push(
+    vscode.workspace.onDidSaveTextDocument((doc) => {
+      if (doc.languageId === "hsl") {
+        // Use 32-bit PowerShell to invoke the Hamilton COM object directly
+        const ps32 = path.join(
+          process.env.SystemRoot || "C:\\Windows",
+          "SysWOW64", "WindowsPowerShell", "v1.0", "powershell.exe"
+        );
+        const psCommand = `$obj = New-Object -ComObject Hamilton.HxSecurityCom; $obj.SetFileValidation('${doc.fileName.replace(/'/g, "''")}', 0, '//')`;
+        execFile(ps32, ["-NoProfile", "-Command", psCommand], (err) => {
+          if (err) {
+            vscode.window.showWarningMessage(
+              `HSL Checksum update failed: ${err.message}`
+            );
+          }
+        });
+      }
+    }),
     vscode.workspace.onDidChangeTextDocument((e) => {
       if (e.document.languageId === "hsl") {
         refreshDiagnostics(e.document, diagnosticCollection);
