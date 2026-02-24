@@ -5,6 +5,12 @@ This extension brings modern IDE features to HSL development, including syntax h
 
 ---
 
+## Contributors
+
+- **Huajiang Wei** — [GitHub](https://github.com/weihuajiang) · [Lab Automation Forum](https://labautomation.io/u/huajiang/summary)
+
+---
+
 ## Features
 
 ### Syntax Highlighting
@@ -36,6 +42,11 @@ In HSL, local variables must be declared at the beginning of a **code block** (`
 - A nested `{ ... }` inside a function is also a new code block.
 - Declarations are valid at the top of that nested block, even if they appear later in the outer function.
 - Declarations after executable statements in the **same** block are invalid.
+
+### Automatic Checksum Generation
+When you save an HSL file, the extension automatically updates the Hamilton file validation checksum. This uses the Hamilton `HxSecurityCom` COM object to call `SetFileValidation`, so there is no need to manually fix checksums after editing — files are always kept in a valid state for the VENUS runtime.
+
+> **Note:** Requires Hamilton VENUS installed to have access to the COM Objects needed to generate the checksum.
 
 ### Code Snippets
 Pre-built templates for common HSL patterns — type a prefix and press `Tab`:
@@ -170,3 +181,4 @@ Contributions are welcome. Visit the GitHub repository to:
 - View the source code
 
 GitHub: https://github.com/zdmilot/VS-Code-Extension-for-HSL
+
