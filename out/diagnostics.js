@@ -37,6 +37,7 @@ exports.createHslDiagnostics = createHslDiagnostics;
 const vscode = __importStar(require("vscode"));
 const builtins_1 = require("./builtins");
 const hslIntellisense_1 = require("./hslIntellisense");
+const fs = __importStar(require("fs"));
 /**
  * Creates and returns a DiagnosticCollection that validates HSL syntax.
  * Currently checks for:
@@ -51,7 +52,15 @@ function createHslDiagnostics(context) {
         refreshDiagnostics(vscode.window.activeTextEditor.document, diagnosticCollection);
     }
     // Re-run when a document is opened or its content changes
-    context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((e) => {
+    context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((doc) => {
+        if (doc.languageId === "hsl") {
+            vscode.window.showInformationMessage(context.asAbsolutePath(""));
+            if (fs.existsSync(context.asAbsolutePath("") + "\\AddCheckSum.exe")) {
+            }
+            vscode.window.showInformationMessage('file saved: ' + doc.fileName);
+            vscode.tasks.executeTask(new vscode.Task({ type: 'hsl' }, vscode.TaskScope.Workspace, 'Fix HSL Checksum', 'hsl', new vscode.ShellExecution(context.asAbsolutePath("") + (fs.existsSync(context.asAbsolutePath("") + "\\AddCheckSum.exe") ? "\\AddCheckSum.exe" : "\\out\\AddCheckSum.exe"), [`'${doc.fileName}'`])));
+        }
+    }), vscode.workspace.onDidChangeTextDocument((e) => {
         if (e.document.languageId === "hsl") {
             refreshDiagnostics(e.document, diagnosticCollection);
         }
