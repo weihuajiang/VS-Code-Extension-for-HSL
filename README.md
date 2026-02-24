@@ -115,6 +115,14 @@ The extension provides auto-completion for 100+ built-in HSL functions, includin
 
 ---
 
+# Code Map
+
+<p align="center">
+  <img width="700" height="3000" alt="NotebookLM Mind Map-2" src="https://github.com/user-attachments/assets/d3a73baa-9e59-4e31-b5ed-a9c6df687288" />
+</p>
+
+---
+
 ## Requirements
 
 - VS Code 1.85.0 or later
