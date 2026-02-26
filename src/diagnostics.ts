@@ -381,9 +381,9 @@ async function checkFunctionCallArity(
       continue;
     }
 
-    // Because we cannot determine the receiver's object type, the call might
-    // be valid for a library-defined object we haven't indexed.  Use Warning
-    // severity instead of Error to reflect this uncertainty.
+    // Because this arity mismatch can prevent execution, report it as an
+    // Error even though unresolved receiver typing can still cause
+    // occasional false positives.
     const linePos = document.positionAt(methodNameIndex);
     const range = new vscode.Range(
       linePos.line,
@@ -396,7 +396,7 @@ async function checkFunctionCallArity(
     const diagnostic = new vscode.Diagnostic(
       range,
       `Method '${methodName}' expects ${expected}, but ${argCount} argument${argCount === 1 ? "" : "s"} ${argCount === 1 ? "was" : "were"} provided. Note: the receiver's object type could not be determined; this may be a false positive if the object defines its own '${methodName}' method.`,
-      vscode.DiagnosticSeverity.Warning
+      vscode.DiagnosticSeverity.Error
     );
     diagnostic.source = "hsl";
     diagnostic.code = "invalid-method-arity";
