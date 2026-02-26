@@ -45,6 +45,7 @@ const path = __importStar(require("path"));
  *   - `=+` which should be `= +` (assign positive) or `= ++` (assign pre-increment)
  *   - `=-` which should be `= -` (assign negative) or `= --` (assign pre-decrement)
  *   - Variable declarations that are not at the top of their code block
+ *   - `continue` keyword usage (not supported in HSL)
  */
 function createHslDiagnostics(context) {
     const diagnosticCollection = vscode.languages.createDiagnosticCollection("hsl");
@@ -124,6 +125,8 @@ async function refreshDiagnostics(document, collection) {
             diagnostics.push(diag);
         }
     }
+    // Check for unsupported 'continue' keyword
+    checkContinueKeyword(document, ignoredRanges, diagnostics);
     // Check that all variable declarations are at the top of their scope
     checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics);
     // Check function call argument counts against known signatures
@@ -299,13 +302,13 @@ async function checkFunctionCallArity(document, diagnostics) {
         if (libraryRules && libraryRules.some((rule) => isArityValid(rule, argCount))) {
             continue;
         }
-        // Because we cannot determine the receiver's object type, the call might
-        // be valid for a library-defined object we haven't indexed.  Use Warning
-        // severity instead of Error to reflect this uncertainty.
+        // Because this arity mismatch can prevent execution, report it as an
+        // Error even though unresolved receiver typing can still cause
+        // occasional false positives.
         const linePos = document.positionAt(methodNameIndex);
         const range = new vscode.Range(linePos.line, linePos.character, linePos.line, linePos.character + methodName.length);
         const expected = formatExpectedArityOptions(rules);
-        const diagnostic = new vscode.Diagnostic(range, `Method '${methodName}' expects ${expected}, but ${argCount} argument${argCount === 1 ? "" : "s"} ${argCount === 1 ? "was" : "were"} provided. Note: the receiver's object type could not be determined; this may be a false positive if the object defines its own '${methodName}' method.`, vscode.DiagnosticSeverity.Warning);
+        const diagnostic = new vscode.Diagnostic(range, `Method '${methodName}' expects ${expected}, but ${argCount} argument${argCount === 1 ? "" : "s"} ${argCount === 1 ? "was" : "were"} provided. Note: the receiver's object type could not be determined; this may be a false positive if the object defines its own '${methodName}' method.`, vscode.DiagnosticSeverity.Error);
         diagnostic.source = "hsl";
         diagnostic.code = "invalid-method-arity";
         diagnostics.push(diagnostic);
@@ -646,6 +649,31 @@ const PREPROCESSOR_LINE = /^\s*#/;
  * e.g. `namespace _Method { #include "Lib\\File.hsl" }`.
  */
 const INLINE_INCLUDE_NAMESPACE = /^\s*(?:(?:private|static|const|global|synchronized)\s+)*namespace\b[^{}]*\{\s*#\s*include\b[^{}]*\}\s*;?\s*$/i;
+/**
+ * Flags any use of the `continue` keyword as a syntax error.
+ * HSL does not support `continue` in loops or conditionals.
+ */
+function checkContinueKeyword(document, ignoredRanges, diagnostics) {
+    const continuePattern = /\bcontinue\b/gi;
+    for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+        const line = document.lineAt(lineIndex);
+        const lineText = line.text;
+        const lineOffset = document.offsetAt(line.range.start);
+        continuePattern.lastIndex = 0;
+        let match;
+        while ((match = continuePattern.exec(lineText)) !== null) {
+            const absoluteOffset = lineOffset + match.index;
+            if (isInsideIgnoredRange(absoluteOffset, ignoredRanges)) {
+                continue;
+            }
+            const range = new vscode.Range(lineIndex, match.index, lineIndex, match.index + match[0].length);
+            const diag = new vscode.Diagnostic(range, "'continue' is not a valid HSL keyword. HSL does not support 'continue' in loops or conditionals.", vscode.DiagnosticSeverity.Error);
+            diag.source = "hsl";
+            diag.code = "invalid-continue";
+            diagnostics.push(diag);
+        }
+    }
+}
 /**
  * Ensures every variable declaration sits at the **top** of its enclosing
  * code block (`{ ... }`, function/method/namespace/struct body, or file scope).
