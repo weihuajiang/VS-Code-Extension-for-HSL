@@ -9,6 +9,7 @@ import * as path from "path";
  *   - `=+` which should be `= +` (assign positive) or `= ++` (assign pre-increment)
  *   - `=-` which should be `= -` (assign negative) or `= --` (assign pre-decrement)
  *   - Variable declarations that are not at the top of their code block
+ *   - `continue` keyword usage (not supported in HSL)
  */
 export function createHslDiagnostics(
   context: vscode.ExtensionContext
@@ -137,6 +138,9 @@ async function refreshDiagnostics(
       diagnostics.push(diag);
     }
   }
+
+  // Check for unsupported 'continue' keyword
+  checkContinueKeyword(document, ignoredRanges, diagnostics);
 
   // Check that all variable declarations are at the top of their scope
   checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics);
@@ -820,6 +824,47 @@ interface ScopeState {
   sawCode: boolean;
   /** Human-readable scope kind (used in diagnostic messages). */
   kind: ScopeKind;
+}
+
+/**
+ * Flags any use of the `continue` keyword as a syntax error.
+ * HSL does not support `continue` in loops or conditionals.
+ */
+function checkContinueKeyword(
+  document: vscode.TextDocument,
+  ignoredRanges: [number, number][],
+  diagnostics: vscode.Diagnostic[]
+): void {
+  const continuePattern = /\bcontinue\b/gi;
+
+  for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+    const line = document.lineAt(lineIndex);
+    const lineText = line.text;
+    const lineOffset = document.offsetAt(line.range.start);
+
+    continuePattern.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = continuePattern.exec(lineText)) !== null) {
+      const absoluteOffset = lineOffset + match.index;
+      if (isInsideIgnoredRange(absoluteOffset, ignoredRanges)) {
+        continue;
+      }
+      const range = new vscode.Range(
+        lineIndex,
+        match.index,
+        lineIndex,
+        match.index + match[0].length
+      );
+      const diag = new vscode.Diagnostic(
+        range,
+        "'continue' is not a valid HSL keyword. HSL does not support 'continue' in loops or conditionals.",
+        vscode.DiagnosticSeverity.Error
+      );
+      diag.source = "hsl";
+      diag.code = "invalid-continue";
+      diagnostics.push(diag);
+    }
+  }
 }
 
 /**
