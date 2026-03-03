@@ -1265,55 +1265,91 @@ function checkFunctionDeclarationDefinitionPairing(
     const definitions = group.filter((r) => r.kind === "definition");
 
     if (declarations.length > 0 && definitions.length === 0) {
-      // Before flagging, check if a definition exists in another namespace
+      // Check if a definition exists in another namespace
       // (e.g. private helper declared at top level, defined in a namespace).
       const nameKey = stripNamespace(declarations[0].signatureKey);
       const crossNs = byNameKey.get(nameKey) ?? [];
-      if (crossNs.some((r) => r.kind === "definition")) {
-        continue;
-      }
+      const crossNsDef = crossNs.find((r) => r.kind === "definition");
 
-      for (const decl of declarations) {
-        const range = new vscode.Range(
-          decl.lineIndex,
-          decl.nameCol,
-          decl.lineIndex,
-          decl.nameCol + decl.nameLen
-        );
-        const diag = new vscode.Diagnostic(
-          range,
-          `Missing definition for function '${decl.displayName}'.`,
-          vscode.DiagnosticSeverity.Error
-        );
-        diag.source = "hsl";
-        diag.code = "missing-function-definition";
-        diagnostics.push(diag);
+      if (crossNsDef) {
+        // Definition exists but in a different namespace — warn, not error
+        for (const decl of declarations) {
+          const range = new vscode.Range(
+            decl.lineIndex,
+            decl.nameCol,
+            decl.lineIndex,
+            decl.nameCol + decl.nameLen
+          );
+          const diag = new vscode.Diagnostic(
+            range,
+            `Declaration of '${decl.displayName}' and its definition '${crossNsDef.displayName}' are in different namespaces. Best practice: keep declaration and definition in the same namespace.`,
+            vscode.DiagnosticSeverity.Warning
+          );
+          diag.source = "hsl";
+          diag.code = "cross-namespace-function-definition";
+          diagnostics.push(diag);
+        }
+      } else {
+        for (const decl of declarations) {
+          const range = new vscode.Range(
+            decl.lineIndex,
+            decl.nameCol,
+            decl.lineIndex,
+            decl.nameCol + decl.nameLen
+          );
+          const diag = new vscode.Diagnostic(
+            range,
+            `Missing definition for function '${decl.displayName}'.`,
+            vscode.DiagnosticSeverity.Error
+          );
+          diag.source = "hsl";
+          diag.code = "missing-function-definition";
+          diagnostics.push(diag);
+        }
       }
     }
 
     if (definitions.length > 0 && declarations.length === 0) {
-      // Before flagging, check if a declaration exists in another namespace.
+      // Check if a declaration exists in another namespace.
       const nameKey = stripNamespace(definitions[0].signatureKey);
       const crossNs = byNameKey.get(nameKey) ?? [];
-      if (crossNs.some((r) => r.kind === "declaration")) {
-        continue;
-      }
+      const crossNsDecl = crossNs.find((r) => r.kind === "declaration");
 
-      for (const def of definitions) {
-        const range = new vscode.Range(
-          def.lineIndex,
-          def.nameCol,
-          def.lineIndex,
-          def.nameCol + def.nameLen
-        );
-        const diag = new vscode.Diagnostic(
-          range,
-          `Missing declaration for function '${def.displayName}'.`,
-          vscode.DiagnosticSeverity.Error
-        );
-        diag.source = "hsl";
-        diag.code = "missing-function-declaration";
-        diagnostics.push(diag);
+      if (crossNsDecl) {
+        // Declaration exists but in a different namespace — warn, not error
+        for (const def of definitions) {
+          const range = new vscode.Range(
+            def.lineIndex,
+            def.nameCol,
+            def.lineIndex,
+            def.nameCol + def.nameLen
+          );
+          const diag = new vscode.Diagnostic(
+            range,
+            `Definition of '${def.displayName}' and its declaration '${crossNsDecl.displayName}' are in different namespaces. Best practice: keep declaration and definition in the same namespace.`,
+            vscode.DiagnosticSeverity.Warning
+          );
+          diag.source = "hsl";
+          diag.code = "cross-namespace-function-declaration";
+          diagnostics.push(diag);
+        }
+      } else {
+        for (const def of definitions) {
+          const range = new vscode.Range(
+            def.lineIndex,
+            def.nameCol,
+            def.lineIndex,
+            def.nameCol + def.nameLen
+          );
+          const diag = new vscode.Diagnostic(
+            range,
+            `Missing declaration for function '${def.displayName}'.`,
+            vscode.DiagnosticSeverity.Error
+          );
+          diag.source = "hsl";
+          diag.code = "missing-function-declaration";
+          diagnostics.push(diag);
+        }
       }
     }
 
