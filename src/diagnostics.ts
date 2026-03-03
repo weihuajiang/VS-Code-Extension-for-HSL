@@ -832,7 +832,7 @@ interface ScopeState {
  */
 function checkContinueKeyword(
   document: vscode.TextDocument,
-  ignoredRanges: [number, number][],
+  ignoredRanges: OffsetRange[],
   diagnostics: vscode.Diagnostic[]
 ): void {
   const continuePattern = /\bcontinue\b/gi;
