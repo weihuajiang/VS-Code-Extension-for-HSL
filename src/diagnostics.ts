@@ -1242,11 +1242,37 @@ function checkFunctionDeclarationDefinitionPairing(
     byKey.set(rec.signatureKey, group);
   }
 
+  // Build a secondary index by namespace-agnostic key so that declarations
+  // at the top level can match definitions inside a namespace (and vice
+  // versa).  Key format: `modKey||name|paramSig|returnType` (namespace
+  // portion is always empty).
+  const stripNamespace = (key: string): string => {
+    const parts = key.split("|");
+    // parts: [modKey, nsPrefix, name, paramSig, returnType]
+    return `${parts[0]}||${parts[2]}|${parts.slice(3).join("|")}`;
+  };
+
+  const byNameKey = new Map<string, FunctionRecord[]>();
+  for (const rec of records) {
+    const nameKey = stripNamespace(rec.signatureKey);
+    const group = byNameKey.get(nameKey) ?? [];
+    group.push(rec);
+    byNameKey.set(nameKey, group);
+  }
+
   for (const [_key, group] of byKey) {
     const declarations = group.filter((r) => r.kind === "declaration");
     const definitions = group.filter((r) => r.kind === "definition");
 
     if (declarations.length > 0 && definitions.length === 0) {
+      // Before flagging, check if a definition exists in another namespace
+      // (e.g. private helper declared at top level, defined in a namespace).
+      const nameKey = stripNamespace(declarations[0].signatureKey);
+      const crossNs = byNameKey.get(nameKey) ?? [];
+      if (crossNs.some((r) => r.kind === "definition")) {
+        continue;
+      }
+
       for (const decl of declarations) {
         const range = new vscode.Range(
           decl.lineIndex,
@@ -1266,6 +1292,13 @@ function checkFunctionDeclarationDefinitionPairing(
     }
 
     if (definitions.length > 0 && declarations.length === 0) {
+      // Before flagging, check if a declaration exists in another namespace.
+      const nameKey = stripNamespace(definitions[0].signatureKey);
+      const crossNs = byNameKey.get(nameKey) ?? [];
+      if (crossNs.some((r) => r.kind === "declaration")) {
+        continue;
+      }
+
       for (const def of definitions) {
         const range = new vscode.Range(
           def.lineIndex,

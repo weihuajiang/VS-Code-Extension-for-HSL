@@ -1,0 +1,15 @@
+HxCfgFile,3;
+
+ConfigIsValid,Y;
+
+DataDef,Method,1,Properties,
+{
+ReadOnly, "0"
+};
+
+DataDef,HxPars,3,AuditTrailData,
+[
+")"
+];
+
+* $$author=admin$$valid=0$$time=2026-02-28 22:08$$checksum=99436fe3$$length=081$$

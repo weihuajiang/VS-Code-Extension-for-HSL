@@ -1,0 +1,118 @@
+ namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+ namespace _Method { #include "Hamilton Liquid Waste\\Hamilton Liquid Waste.hsl" } 
+#include "Hamilton Liquid Waste Demo.res"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable _strMethodName;
+dialog customDialog599EF2F851F442edB5599E956DC5A547;
+variable blnWasteFull;
+variable blnCapPresent;
+dialog customDialog638DEBE1855E42429A25C32ADCFFEE43;
+variable blnTraceLevelDebug;
+variable intTraceLevel;
+global device ML_STAR ("Hamilton Liquid Waste Demo.lay", "ML_STAR", hslTrue);
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+ namespace _Method { #include "HSLPTLLib.hsl" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+private variable blnSuccess;
+private variable intDialogReturn;
+private variable strDialogTitle;
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{ 1 1 0 "70dcd17b_a169_4016_a1bf455758531525" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+_strMethodName = GetMethodFileName();
+// {{ 3 1 0 "c124fad2_8a47_42f7_b7cab6c172862352" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strDialogTitle = "Hamilton Liquid Waste Demo";
+// }} ""
+// {{ 4 1 0 "70dcd17b_a169_4016_a1bf455758531525" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 5 1 0 "2d35cfc9_6e84_448b_990106219ceb6c48" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 6 1 0 "5db46eb1_1ef8_4e6a_80d97753bca87e82" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (ASWGLOBAL::BOOL::TRUE == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 7 1 0 "832d3996_650f_4ed3_ac01f27e4c1a317f" "{998A7CCC-4374-484D-A6ED-E8A4F0EB71BA}"
+customDialog599EF2F851F442edB5599E956DC5A547.InitCustomDialog( "832d3996_650f_4ed3_ac01f27e4c1a317f" );
+customDialog599EF2F851F442edB5599E956DC5A547.SetCustomDialogProperty( "Title", strDialogTitle );
+customDialog599EF2F851F442edB5599E956DC5A547.SetCustomDialogProperty( "numeric1.Value", intTraceLevel );
+customDialog599EF2F851F442edB5599E956DC5A547.SetCustomDialogProperty( "checkBox1.IsChecked", blnTraceLevelDebug );
+customDialog599EF2F851F442edB5599E956DC5A547.SetCustomDialogProperty( "button1.IsVisible", blnTraceLevelDebug );
+customDialog599EF2F851F442edB5599E956DC5A547.ShowCustomDialog();
+intDialogReturn = customDialog599EF2F851F442edB5599E956DC5A547.GetCustomDialogProperty( "ReturnValue" );
+intTraceLevel = customDialog599EF2F851F442edB5599E956DC5A547.GetCustomDialogProperty( "numeric1.Value" );
+blnTraceLevelDebug = customDialog599EF2F851F442edB5599E956DC5A547.GetCustomDialogProperty( "checkBox1.IsChecked" );
+// }} ""
+// {{ 8 1 0 "94a1c433_d16d_4aad_9b49a5ce16f3b651" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intDialogReturn == ASWGLOBAL::DIALOG::IGNORE)
+{
+// }} ""
+// {{ 9 1 0 "98e97134_032c_45ac_af7f046ede45d26e" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 10 1 0 "94a1c433_d16d_4aad_9b49a5ce16f3b651" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 11 1 0 "0244047e_2524_474b_83ec2ce878084716" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccess = Hamilton_Liquid_Waste::SetTraceLevel(intTraceLevel);
+// }} ""
+// {{{ 12 1 0 "022d0b3a_63e1_484c_ad3f467d784fb7d6" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleFunctionSuccess(blnSuccess, "SetTraceLevel");
+// }} ""
+// {{{ 13 1 0 "f20f46a2_618d_466f_afc27169d29cf693" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccess = Hamilton_Liquid_Waste::RequestStatus(blnCapPresent, blnWasteFull);
+// }} ""
+// {{{ 14 1 0 "ca2b70ff_da32_4559_a800278e2b406fb8" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleFunctionSuccess(blnSuccess, "RequestStatus");
+// }} ""
+// {{ 15 1 0 "cc5a457d_c0c4_48a7_aa163179b1068c69" "{998A7CCC-4374-484D-A6ED-E8A4F0EB71BA}"
+customDialog638DEBE1855E42429A25C32ADCFFEE43.InitCustomDialog( "cc5a457d_c0c4_48a7_aa163179b1068c69" );
+customDialog638DEBE1855E42429A25C32ADCFFEE43.SetCustomDialogProperty( "Title", strDialogTitle );
+customDialog638DEBE1855E42429A25C32ADCFFEE43.SetCustomDialogProperty( "textBlock8.IsVisible", blnWasteFull );
+customDialog638DEBE1855E42429A25C32ADCFFEE43.SetCustomDialogProperty( "textBlock6.IsVisible", blnCapPresent );
+customDialog638DEBE1855E42429A25C32ADCFFEE43.ShowCustomDialog();
+intDialogReturn = customDialog638DEBE1855E42429A25C32ADCFFEE43.GetCustomDialogProperty( "ReturnValue" );
+// }} ""
+// {{ 16 1 0 "5db46eb1_1ef8_4e6a_80d97753bca87e82" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 17 1 0 "2d35cfc9_6e84_448b_990106219ceb6c48" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=BHuf$$valid=1$$time=2024-05-29 14:56$$checksum=a4419508$$length=083$$

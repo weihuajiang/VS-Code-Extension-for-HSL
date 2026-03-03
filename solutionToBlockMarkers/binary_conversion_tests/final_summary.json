@@ -1,0 +1,41 @@
+[
+  {
+    "Case": "Visual_NTR_library_demo",
+    "OriginalBinarySHA256": "3714195404103E37F717D42F595DE9ADA00BE1F969F797DB673515E1BA7E9019",
+    "RoundtripBinarySHA256": "20E12C4FCF1713DCC91AB13FEAD7B33A088F17148D362D3AA84C7D04A14C5B25",
+    "BinaryRoundtripExact": false,
+    "ConverterTextStartsWithHxCfgFile": true,
+    "ConverterTextExactAfterRoundtrip": true,
+    "WholeFileIsSimpleBase64": false,
+    "ActivityDocumentFieldIsBase64": true,
+    "OriginalBytes": 97092,
+    "TextBytes": 135353,
+    "RoundtripBytes": 97089
+  },
+  {
+    "Case": "Global_Answer_Key_CH07",
+    "OriginalBinarySHA256": "446A903496C57F480EF42A2BBB2A7F058AF66158EC7F575C156409D1359EC377",
+    "RoundtripBinarySHA256": "B349EC4165FA5AD79E0EF636E6FB0CD48734813DD5E6B4B334F2C07874686D6E",
+    "BinaryRoundtripExact": false,
+    "ConverterTextStartsWithHxCfgFile": true,
+    "ConverterTextExactAfterRoundtrip": true,
+    "WholeFileIsSimpleBase64": false,
+    "ActivityDocumentFieldIsBase64": true,
+    "OriginalBytes": 13745,
+    "TextBytes": 14960,
+    "RoundtripBytes": 13742
+  },
+  {
+    "Case": "Global_Example_Scheduled_Method_v01",
+    "OriginalBinarySHA256": "0ADAEBB0522F690525567B3874FBFC7AB259012F301703A3914A82FDFB3F273A",
+    "RoundtripBinarySHA256": "5B61DB363F45537D49D5D99E01ECFF865813B9EC09BEF95BBC99176B30B42205",
+    "BinaryRoundtripExact": false,
+    "ConverterTextStartsWithHxCfgFile": true,
+    "ConverterTextExactAfterRoundtrip": true,
+    "WholeFileIsSimpleBase64": false,
+    "ActivityDocumentFieldIsBase64": true,
+    "OriginalBytes": 63273,
+    "TextBytes": 69262,
+    "RoundtripBytes": 63273
+  }
+]

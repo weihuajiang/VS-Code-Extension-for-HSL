@@ -1,0 +1,29 @@
+[
+  {
+    "File": "Visual_NTR_library_demo",
+    "OrigSHA256": "3714195404103E37F717D42F595DE9ADA00BE1F969F797DB673515E1BA7E9019",
+    "AfterTSHA256": "9AAAEB17CB0BF841F34EBAA8175815E98F207AD00C9DC697D5287EC74E920FED",
+    "RoundtripSHA256": "58BC0511D77FFAEBCDADAB4D0F824C7C8CD06DA7E08CFB5958ADFD68C7036172",
+    "RoundtripMatch": false,
+    "TextHeaderDetected": true,
+    "HeaderSample": "HxCfgFile,3;\\r\\n\\r\\nConfigIsValid,Y;\\r\\n\\r\\nDataDef,ActivityData,1,Activ"
+  },
+  {
+    "File": "Global_Answer_Key_CH07",
+    "OrigSHA256": "446A903496C57F480EF42A2BBB2A7F058AF66158EC7F575C156409D1359EC377",
+    "AfterTSHA256": "A3DEC59CE5E1052850505BCC154665F7A05DC8FF8023E24D8A2E6069BE9280A2",
+    "RoundtripSHA256": "4BC875A000F26A14462CD50A57CA42C040E3E9D431C3FC8484A5F3F13EF279B9",
+    "RoundtripMatch": false,
+    "TextHeaderDetected": true,
+    "HeaderSample": "HxCfgFile,3;\\r\\n\\r\\nConfigIsValid,Y;\\r\\n\\r\\nDataDef,ActivityData,1,Activ"
+  },
+  {
+    "File": "Global_Example_Scheduled_Method_v01",
+    "OrigSHA256": "0ADAEBB0522F690525567B3874FBFC7AB259012F301703A3914A82FDFB3F273A",
+    "AfterTSHA256": "898F0A47F6226DFDD1DD5E9F3A6FE376A564CA2EA61D70B1F087225EB72975CC",
+    "RoundtripSHA256": "02F55F81F4B8038BD6B68A69B10A56A9D0DEB55A87C32722172A78600BC094D6",
+    "RoundtripMatch": false,
+    "TextHeaderDetected": true,
+    "HeaderSample": "HxCfgFile,3;\\r\\n\\r\\nConfigIsValid,Y;\\r\\n\\r\\nDataDef,ActivityData,1,Activ"
+  }
+]

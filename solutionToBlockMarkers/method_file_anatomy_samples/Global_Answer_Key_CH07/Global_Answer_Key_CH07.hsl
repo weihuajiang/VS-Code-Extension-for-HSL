@@ -1,0 +1,108 @@
+global device ML_STAR ("Global_AnswerKey_Layout.lay", "ML_STAR", hslTrue);
+#include "Global_AnswerKey_Layout.res"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable loopCounter1;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+ namespace _Method { #include "HSLPTLLib.hsl" } 
+ namespace _Method { #include "templates\\HSLPipetteWizard.hsl" } 
+ namespace _Method { #include "HSLSchedCCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{ 1 1 0 "8b09ddec_b718_4315_b57b6dc6e3d9d8ce" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("=========================================\nVenus Basic Software Training\nGlobal Answer Key - Challenge 07\nLearn how to Loop over Sequences\nrev20231017\nHamilton Robotics Software Training Team\n- - - - - - - - - - - - - - - - - - - - -"));
+// }} ""
+// {{ 2 1 0 "54a5860a_3999_4d4d_b5495353ab641cb7" "ML_STAR:{1C0C0CB0-7C87-11D3-AD83-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("54a5860a_3999_4d4d_b5495353ab641cb7"); // Initialize
+}
+// }} ""
+// {{ 3 1 0 "edd0cc33_691c_49c9_89535aec7cbfbb85" "ML_STAR:{54114402-7FA2-11D3-AD85-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._54114402_7FA2_11D3_AD85_0004ACB1DCB2("edd0cc33_691c_49c9_89535aec7cbfbb85"); // LoadCarrier
+}
+// }} ""
+// {{ 4 1 0 "0f6781fa_661c_4f6d_82c54ea3235441dd" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+loopCounter1 = 0;
+while (
+   (ML_STAR.Samples96.GetCurrentPosition() > 0)
+)
+{
+AlignSequences(hslTrue, ML_STAR.Samples96, 1);
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{ 5 1 0 "9ed2d1b4_fe42_470a_8be8b5694f47165b" "ML_STAR:{541143FA-7FA2-11D3-AD85-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._541143FA_7FA2_11D3_AD85_0004ACB1DCB2("9ed2d1b4_fe42_470a_8be8b5694f47165b"); // TipPickUp
+}
+// }} ""
+// {{ 6 1 0 "25c835eb_dc63_4f14_8363e6ee9942a3e7" "ML_STAR:{541143F5-7FA2-11D3-AD85-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._541143F5_7FA2_11D3_AD85_0004ACB1DCB2("25c835eb_dc63_4f14_8363e6ee9942a3e7"); // Aspirate
+}
+// }} ""
+// {{ 7 1 0 "a80126d9_f2be_4b5d_9ea9029a580ee525" "ML_STAR:{541143F8-7FA2-11D3-AD85-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._541143F8_7FA2_11D3_AD85_0004ACB1DCB2("a80126d9_f2be_4b5d_9ea9029a580ee525"); // Dispense
+}
+// }} ""
+// {{ 8 1 0 "122ed496_fe1b_4df4_aee6e5fe2130e41b" "ML_STAR:{541143FC-7FA2-11D3-AD85-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._541143FC_7FA2_11D3_AD85_0004ACB1DCB2("122ed496_fe1b_4df4_aee6e5fe2130e41b"); // TipEject
+}
+// }} ""
+// {{ 9 1 0 "0f6781fa_661c_4f6d_82c54ea3235441dd" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+if (
+   (ML_STAR.Samples96.GetCurrentPosition() > 0 && ML_STAR.Samples96.GetMax() == 0 )
+)
+{ MECC::EndlessSequenceLoopWarning(GetFileName()); }
+
+}
+ML_STAR.Samples96.SetMax(ML_STAR.Samples96.GetTotal());
+ML_STAR.Samples96.SetCurrentPosition(1);
+}
+// }} ""
+// {{ 10 1 0 "bd9dbe52_cb5b_47de_835aa24597c1cb57" "ML_STAR:{54114400-7FA2-11D3-AD85-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._54114400_7FA2_11D3_AD85_0004ACB1DCB2("bd9dbe52_cb5b_47de_835aa24597c1cb57"); // UnloadCarrier
+}
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=Hafele_C$$valid=0$$time=2023-10-18 10:37$$checksum=3e1c4153$$length=087$$

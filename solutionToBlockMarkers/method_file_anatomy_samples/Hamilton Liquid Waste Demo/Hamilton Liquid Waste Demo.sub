@@ -1,0 +1,38 @@
+// {{{ 2 "SubmethodForwardDeclaration" ""
+private function _HandleFunctionSuccess( variable i_blnFunctionSuccess, variable i_strFunctionName ) void ;
+function OnAbort(  ) void ;
+// }} ""
+// {{{ 5 "OnAbort" "Begin"
+function OnAbort(  ) void {
+// }} ""
+// {{ 5 "OnAbort" "InitLocals"
+// }} ""
+// {{{ 5 "OnAbort" "End"
+}
+// }} ""
+// {{{ 5 "_HandleFunctionSuccess" "Begin"
+private function _HandleFunctionSuccess( variable i_blnFunctionSuccess, variable i_strFunctionName ) void {
+// }} ""
+// {{ 5 "_HandleFunctionSuccess" "InitLocals"
+// }} ""
+// {{ 19 1 0 "1b00c5ff_b05e_43ec_a5ce0279e96ba2bb" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_blnFunctionSuccess == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 20 1 0 "a82ba809_d6ac_4d8b_9b30e6a75023108e" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return;
+// }} ""
+// {{ 21 1 0 "1b00c5ff_b05e_43ec_a5ce0279e96ba2bb" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 22 1 0 "7d44997c_0d0a_4d46_bec59bd2f7d79d0f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, i_strFunctionName, _strMethodName, "");
+// }} ""
+// {{ 23 1 0 "e2653413_3b30_4805_9ea17ccd17c5401b" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{{ 5 "_HandleFunctionSuccess" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// $$author=BHuf$$valid=1$$time=2024-05-29 14:56$$checksum=e6df5b98$$length=083$$

@@ -1,0 +1,23 @@
+[
+  {
+    "case": "Visual_NTR_library_demo",
+    "pure_python_roundtrip_text_equal": true,
+    "text_size": 125804,
+    "original_binary_size": 97092,
+    "pycodec_binary_size": 97092
+  },
+  {
+    "case": "Global_Answer_Key_CH07",
+    "pure_python_roundtrip_text_equal": true,
+    "text_size": 14664,
+    "original_binary_size": 13745,
+    "pycodec_binary_size": 13745
+  },
+  {
+    "case": "Global_Example_Scheduled_Method_v01",
+    "pure_python_roundtrip_text_equal": true,
+    "text_size": 68832,
+    "original_binary_size": 63273,
+    "pycodec_binary_size": 63273
+  }
+]

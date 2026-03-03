@@ -1,0 +1,23 @@
+[
+  {
+    "File": "Global_Answer_Key_CH07.med",
+    "TextExactMatchAfterBTRoundtrip": true,
+    "NormalizedTextMatch": true,
+    "Text1Length": 14960,
+    "Text2Length": 14960
+  },
+  {
+    "File": "Global_Example_Scheduled_Method_v01.med",
+    "TextExactMatchAfterBTRoundtrip": true,
+    "NormalizedTextMatch": true,
+    "Text1Length": 69262,
+    "Text2Length": 69262
+  },
+  {
+    "File": "Visual_NTR_library_demo.med",
+    "TextExactMatchAfterBTRoundtrip": true,
+    "NormalizedTextMatch": true,
+    "Text1Length": 135353,
+    "Text2Length": 135353
+  }
+]

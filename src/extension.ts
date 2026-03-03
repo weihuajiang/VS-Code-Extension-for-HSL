@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import * as path from "path";
 import { buildCompletionItems } from "./builtins";
 import { createHslDiagnostics } from "./diagnostics";
 import { registerHslIntelliSense } from "./hslIntellisense";
@@ -32,6 +33,39 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Register HSL diagnostics (syntax validation)
   createHslDiagnostics(context);
+
+  // Register the Run HSL Method command
+  const runMethodCommand = vscode.commands.registerCommand(
+    "hsl.runMethod",
+    () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active file to run.");
+        return;
+      }
+
+      const filePath = editor.document.fileName;
+      const validExtensions = [".hsl", ".hs_", ".sub"];
+      const ext = path.extname(filePath).toLowerCase();
+
+      if (!validExtensions.includes(ext)) {
+        vscode.window.showErrorMessage(
+          `Cannot run file with extension '${ext}'. Valid HSL extensions: ${validExtensions.join(", ")}`
+        );
+        return;
+      }
+
+      // Save the file before running
+      editor.document.save().then(() => {
+        const terminal = vscode.window.createTerminal("HxRun");
+        terminal.show();
+        terminal.sendText(
+          `& "HxRun.exe" "${filePath}" -t -c`
+        );
+      });
+    }
+  );
+  context.subscriptions.push(runMethodCommand);
 }
 
 /**

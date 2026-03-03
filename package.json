@@ -51,6 +51,37 @@
         "path": "./snippets/hsl.code-snippets"
       }
     ],
+    "commands": [
+      {
+        "command": "hsl.runMethod",
+        "title": "Run HSL Method",
+        "category": "HSL",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "hsl.runMethod",
+          "when": "resourceLangId == hsl",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "hsl.runMethod",
+          "when": "resourceLangId == hsl",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "hsl.runMethod",
+        "key": "f5",
+        "when": "resourceLangId == hsl"
+      }
+    ],
     "configurationDefaults": {
       "[hsl]": {
         "github.copilot.chat.codeGeneration.instructions": [
