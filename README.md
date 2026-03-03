@@ -182,3 +182,13 @@ Contributions are welcome. Visit the GitHub repository to:
 
 GitHub: https://github.com/zdmilot/VS-Code-Extension-for-HSL
 
+---
+
+## Release Notes
+
+### 1.8.4 (2026-03-02)
+
+- Updated diagnostics for declaration/definition namespace mismatch handling from error-level behavior to warning-level guidance when a cross-namespace counterpart is found.
+- Fixed missing-definition/declaration false positives by checking for namespace-agnostic matches before emitting diagnostics.
+- Improved internal diagnostics type consistency used during packaging/build.
+
