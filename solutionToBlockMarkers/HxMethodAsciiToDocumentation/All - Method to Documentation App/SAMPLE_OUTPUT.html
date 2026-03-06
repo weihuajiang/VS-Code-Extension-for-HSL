@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TransferSample</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="help.css">
+</head>
+<body>
+    <div class="header">TransferSample</div>
+    <div class="main">
+        <h2>Description</h2>
+        <p>This submethod transfers samples from the source plate to the destination plate using the specified pipetting channels. The method handles liquid aspiration and dispensing with configurable volumes and speeds.</p>
+        <h2>Parameters</h2>
+<table class="table table-bordered" style="width: 100%;">
+<thead>
+<tr>
+<th style="width: 30%;">Parameter Name</th>
+<th style="width: 70%;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="width: 30%;">i_strSourceLabwareID</td>
+<td style="width: 70%;">String identifier for the source labware position on the deck</td>
+</tr>
+<tr>
+<td style="width: 30%;">i_strDestLabwareID</td>
+<td style="width: 70%;">String identifier for the destination labware position on the deck</td>
+</tr>
+<tr>
+<td style="width: 30%;">i_intChannelPattern</td>
+<td style="width: 70%;">Integer pattern defining which pipetting channels to use (bit mask)</td>
+</tr>
+<tr>
+<td style="width: 30%;">i_fltVolume</td>
+<td style="width: 70%;">Float value specifying the volume to transfer in microliters</td>
+</tr>
+<tr>
+<td style="width: 30%;">i_blnMixAfterDispense</td>
+<td style="width: 70%;">Boolean flag to enable mixing after dispensing the sample</td>
+</tr>
+<tr>
+<td style="width: 30%;">o_intErrorCode</td>
+<td style="width: 70%;">Integer output code indicating success (0) or error condition</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <div class="footer">
+        <p>Auto-Generated Documentation 2026</p>
+    </div>
+</body>
+</html>

@@ -3,6 +3,7 @@ import * as path from "path";
 import { buildCompletionItems } from "./builtins";
 import { createHslDiagnostics } from "./diagnostics";
 import { registerHslIntelliSense } from "./hslIntellisense";
+import { registerStpHoverProvider } from "./stpHoverProvider";
 
 /**
  * Called once when the extension is activated.
@@ -33,6 +34,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Register HSL diagnostics (syntax validation)
   createHslDiagnostics(context);
+
+  // Register STP hover provider (pipetting step tooltips)
+  registerStpHoverProvider(context);
 
   // Register the Run HSL Method command
   const runMethodCommand = vscode.commands.registerCommand(

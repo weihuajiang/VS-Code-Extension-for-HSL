@@ -1,0 +1,12 @@
+# Method to Documentation - Python Dependencies
+#
+# Install with: pip install -r requirements.txt
+
+# Windows COM Interop - needed for Hamilton .med file conversion
+pywin32>=306
+
+# Optional: Alternative if pywin32 doesn't work
+# comtypes>=1.1.0
+
+# Note: All other requirements are part of Python standard library
+# tkinter, csv, re, html, pathlib, tempfile, datetime, dataclasses

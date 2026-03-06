@@ -1,0 +1,185 @@
+
+            <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+            <HTML>
+            <HEAD>
+            <meta name="GENERATOR" content="Hamilton Help Maker">
+            </HEAD>
+            <BODY>
+            <OBJECT type="text/site properties">
+                <param name="FrameName" value="right">
+                <param name="Window Styles" value="0x00800025">
+                <param name="comment" value="title:help">
+                <param name="comment" value="base:Overview.html">
+            </OBJECT>
+            <UL>
+                
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="Overview">
+                    <param name="Local" value="Overview.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="Functions">
+                    <param name="Local" value="Functions.html">
+                </OBJECT></LI>
+                <UL>
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="Create">
+                    <param name="Local" value="Create.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="GetDescription">
+                    <param name="Local" value="GetDescription.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="GetColumn">
+                    <param name="Local" value="GetColumn.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="AddRow">
+                    <param name="Local" value="AddRow.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="TraceArrayTable">
+                    <param name="Local" value="TraceArrayTable.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="GetColumnNameByIndex">
+                    <param name="Local" value="GetColumnNameByIndex.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="GetColumnNames">
+                    <param name="Local" value="GetColumnNames.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="GetRow">
+                    <param name="Local" value="GetRow.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="GetRowByUniqueValue">
+                    <param name="Local" value="GetRowByUniqueValue.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="GetSize">
+                    <param name="Local" value="GetSize.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="GetValue">
+                    <param name="Local" value="GetValue.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="InitializeAllValues">
+                    <param name="Local" value="InitializeAllValues.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="SetColumn">
+                    <param name="Local" value="SetColumn.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="SetColumnNameByIndex">
+                    <param name="Local" value="SetColumnNameByIndex.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="SetColumnNames">
+                    <param name="Local" value="SetColumnNames.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="SetDescription">
+                    <param name="Local" value="SetDescription.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="SetRow">
+                    <param name="Local" value="SetRow.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="SetValue">
+                    <param name="Local" value="SetValue.html">
+                </OBJECT></LI>
+                
+                
+            
+
+                <LI><OBJECT type="text/sitemap">
+                    <param name="Name" value="TraceArrayTablePretty">
+                    <param name="Local" value="TraceArrayTablePretty.html">
+                </OBJECT></LI>
+                
+                
+            </UL>
+                
+            
+            </UL>
+            </BODY>
+            </HTML>
+        

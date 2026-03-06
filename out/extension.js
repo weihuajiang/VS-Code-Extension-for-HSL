@@ -40,6 +40,7 @@ const path = __importStar(require("path"));
 const builtins_1 = require("./builtins");
 const diagnostics_1 = require("./diagnostics");
 const hslIntellisense_1 = require("./hslIntellisense");
+const stpHoverProvider_1 = require("./stpHoverProvider");
 /**
  * Called once when the extension is activated.
  * Registers all language-feature providers for HSL files.
@@ -57,6 +58,8 @@ function activate(context) {
     (0, hslIntellisense_1.registerHslIntelliSense)(context);
     // Register HSL diagnostics (syntax validation)
     (0, diagnostics_1.createHslDiagnostics)(context);
+    // Register STP hover provider (pipetting step tooltips)
+    (0, stpHoverProvider_1.registerStpHoverProvider)(context);
     // Register the Run HSL Method command
     const runMethodCommand = vscode.commands.registerCommand("hsl.runMethod", () => {
         const editor = vscode.window.activeTextEditor;
