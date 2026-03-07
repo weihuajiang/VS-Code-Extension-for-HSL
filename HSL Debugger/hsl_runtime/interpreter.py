@@ -732,6 +732,12 @@ class Interpreter:
         """Assign a value to a target (identifier, array access, member access)."""
         if isinstance(target, Identifier):
             existing = self.current_scope.get(target.name)
+            # DEBUG: trace _blnInitialized assignment
+            if target.name == '_blnInitialized':
+                py_val = self._to_python(value) if isinstance(value, HslValue) else value
+                print(f"[DEBUG _assign_to] _blnInitialized = {py_val}, existing={existing}, "
+                      f"type(existing)={type(existing).__name__}, "
+                      f"call_stack={self.call_stack[-1] if self.call_stack else 'EMPTY'}")
             # If not found in current scope, try namespace-qualified name
             if existing is None and '::' not in target.name and self.call_stack:
                 caller = self.call_stack[-1]
@@ -909,6 +915,9 @@ class Interpreter:
         """Resolve a variable name to its value."""
         val = self.current_scope.get(name)
         if val is not None:
+            # DEBUG: trace _blnInitialized reads
+            if name == '_blnInitialized':
+                print(f"[DEBUG _resolve] _blnInitialized found in current_scope = {val.value if isinstance(val, HslValue) else val}")
             return val
 
         # Try resolving relative to the current namespace context
@@ -925,6 +934,9 @@ class Interpreter:
                     # Also check global scope directly
                     val = self.global_scope.get(qualified)
                     if val is not None:
+                        # DEBUG: trace _blnInitialized namespace reads
+                        if name == '_blnInitialized':
+                            print(f"[DEBUG _resolve] _blnInitialized found via namespace in global = {val.value if isinstance(val, HslValue) else val} (qualified={qualified})")
                         return val
 
         # Check namespaces
