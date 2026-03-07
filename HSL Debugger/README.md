@@ -1,10 +1,10 @@
-# HSL Debugger — Simulation Runtime for Hamilton Standard Language
+# HSL Debugger -- Simulation Runtime for Hamilton Standard Language
 
-> **SIMULATION ONLY** — This tool never connects to Hamilton hardware. It replaces `HXRun.exe` and `HxHSLMetEd.exe` for offline testing, debugging, and method validation.
+> **SIMULATION ONLY** -- This tool never connects to Hamilton hardware. It replaces `HXRun.exe` and `HxHSLMetEd.exe` for offline testing, debugging, and method validation.
 
 ## Overview
 
-The HSL Debugger is a complete **simulation-only** runtime for [Hamilton Standard Language (HSL)](docs/HSL_LANGUAGE_REFERENCE.md) files. It preprocesses, tokenizes, parses, and interprets HSL source code entirely in Python, producing trace output and validating program logic — without requiring a Hamilton instrument or the VENUS software environment.
+The HSL Debugger is a complete **simulation-only** runtime for [Hamilton Standard Language (HSL)](docs/HSL_LANGUAGE_REFERENCE.md) files. It preprocesses, tokenizes, parses, and interprets HSL source code entirely in Python, producing trace output and validating program logic -- without requiring a Hamilton instrument or the VENUS software environment.
 
 ### Key Features
 

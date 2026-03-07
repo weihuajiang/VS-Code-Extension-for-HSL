@@ -4,7 +4,7 @@ Standalone Python tooling for Hamilton HSL (Hamilton Standard Language) method f
 
 ## Overview
 
-- **Python 3.8+** — no external dependencies required
+- **Python 3.8+** -- no external dependencies required
 - Provides tools for **Hamilton liquid handling robot** method development
 - All file I/O uses **Latin1 encoding** (Hamilton convention)
 - Originally extracted from a VS Code extension to provide independent, portable functionality
@@ -12,7 +12,7 @@ Standalone Python tooling for Hamilton HSL (Hamilton Standard Language) method f
 
 ## Installation
 
-No `pip install` is needed — just clone the repository and use the package directly:
+No `pip install` is needed -- just clone the repository and use the package directly:
 
 ```bash
 git clone <repo-url>
@@ -164,7 +164,7 @@ python -m standalone_med_tools.repair_corrupt repair input.med
 # Repair to a different output path
 python -m standalone_med_tools.repair_corrupt repair input.med -o repaired.med
 
-# Dry-run — show what would happen without writing
+# Dry-run -- show what would happen without writing
 python -m standalone_med_tools.repair_corrupt repair input.med --dry-run
 
 # Batch repair all .med/.stp files in a directory tree
@@ -269,9 +269,9 @@ Decoded `.med`/`.stp` file viewer:
 - Open and auto-detect binary vs. text format files
 - Decoded text view with line numbers in a monospace font
 - `Ctrl+F` search with next/previous navigation and highlight-all
-- Section navigation sidebar — click a section to jump to it
+- Section navigation sidebar -- click a section to jump to it
 - Export decoded text to `.txt`
-- Repair integration — detect and repair CRLF-corrupted files in-place
+- Repair integration -- detect and repair CRLF-corrupted files in-place
 - Step summary for `.med` files (instance GUID, step type from CLSID)
 - Recently opened file history (persisted across sessions)
 
@@ -293,9 +293,9 @@ The test suite covers:
 
 ## Related Documentation
 
-- **CODEC_REFERENCE.md** — HxCfgFile v3 binary format specification
-- **BLOCK_MARKERS.md** — Block marker format and CLSID registry reference
-- **MED_FORMAT.md** — `.med`/`.stp` text format documentation
+- **CODEC_REFERENCE.md** -- HxCfgFile v3 binary format specification
+- **BLOCK_MARKERS.md** -- Block marker format and CLSID registry reference
+- **MED_FORMAT.md** -- `.med`/`.stp` text format documentation
 
 ## License
 

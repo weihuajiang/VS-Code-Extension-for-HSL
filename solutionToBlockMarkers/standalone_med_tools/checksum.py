@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-checksum.py — CRC-32 Checksum Computation for Hamilton HSL Files
+checksum.py -- CRC-32 Checksum Computation for Hamilton HSL Files
 
 This module provides CRC-32 checksum computation that matches Hamilton's
 algorithm, used in .hsl, .sub, .med, and .stp file footer lines.
@@ -157,7 +157,7 @@ def generate_checksum_line(
         content_before: All file content before the footer line (must end with \\r\\n)
         author: Author name for the footer
         valid: Validation state integer
-        prefix_char: Comment prefix — "//" for .hsl/.sub, "*" for .med/.stp
+        prefix_char: Comment prefix -- "//" for .hsl/.sub, "*" for .med/.stp
         timestamp: Optional datetime; defaults to now
         
     Returns:
@@ -265,12 +265,12 @@ def verify_file_checksum(filepath: str) -> Dict[str, object]:
         
     Returns:
         Dictionary with keys:
-            - valid: bool — True if checksum matches
-            - stored_checksum: str — checksum from the file
-            - computed_checksum: str — freshly computed checksum
-            - author: str — author name from footer
-            - time: str — timestamp from footer
-            - error: str or None — error message if verification failed
+            - valid: bool -- True if checksum matches
+            - stored_checksum: str -- checksum from the file
+            - computed_checksum: str -- freshly computed checksum
+            - author: str -- author name from footer
+            - time: str -- timestamp from footer
+            - error: str or None -- error message if verification failed
     """
     result = {
         "valid": False,

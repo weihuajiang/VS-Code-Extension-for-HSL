@@ -13,8 +13,8 @@ Every Hamilton *method* on disk is (at minimum) four files sharing a base name:
 |------|--------|------|
 | `<Name>.hsl` | HSL source (text) | **main()** function + structural boilerplate |
 | `<Name>.sub` | HSL source (text) | Submethod definitions (OnAbort, user functions) |
-| `<Name>.med` | HxCfgFile v3 (binary) | Step parameter store — **one section per step GUID** + editor metadata |
-| `<Name>.stp` | HxCfgFile v3 (binary) | Device step parameters — full config for hardware commands (present only when device steps exist) |
+| `<Name>.med` | HxCfgFile v3 (binary) | Step parameter store -- **one section per step GUID** + editor metadata |
+| `<Name>.stp` | HxCfgFile v3 (binary) | Device step parameters -- full config for hardware commands (present only when device steps exist) |
 
 The `.hsl` and `.sub` are linked at compile time by an `#include`:
 
@@ -29,7 +29,7 @@ The `.hsl` and `.sub` are linked at compile time by an `#include`:
 
 ---
 
-## 2. The GUID Cross-Reference — The Master Key
+## 2. The GUID Cross-Reference -- The Master Key
 
 The **instance GUID** is the primary key that links a code block in
 `.hsl`/`.sub` to its parameter section in `.med`.
@@ -50,8 +50,8 @@ the step's **instance GUID** and **step CLSID**:
 
 Format: `// {{ ROW COL SUBLEVEL "instance_guid" "step_clsid"`
 
-- **instance_guid** — unique per step *instance*; format `xxxxxxxx_xxxx_xxxx_xxxxxxxxxxxxxxxx`
-- **step_clsid** — identifies the *type* of step (Comment, Loop, device command, etc.)
+- **instance_guid** -- unique per step *instance*; format `xxxxxxxx_xxxx_xxxx_xxxxxxxxxxxxxxxx`
+- **step_clsid** -- identifies the *type* of step (Comment, Loop, device command, etc.)
   May be bare `{CLSID}` for general steps or `DEVICE:{CLSID}` for device steps.
 
 ### 2.2 In the `.med` (decoded)
@@ -78,7 +78,7 @@ DataDef,HxPars,3,9ed2d1b4_fe42_470a_8be8b5694f47165b,
 | **1 GUID → 1 .med section** | Every unique instance GUID gets exactly one `DataDef,HxPars,3,<guid>` section |
 | **1 GUID may appear multiple times in .hsl** | Multi-block steps (Loop, If/Then/Else) use the *same* GUID for opening+closing markers. The .med stores them as `(BlockData (1 ...) (2 ...) )` |
 | **Steps in .sub also get .med sections** | Submethod steps have their own unique GUIDs; their parameter sections live in the **same** `.med` file as the main method steps |
-| **No GUID overlap between .hsl and .sub** | A GUID belongs to *either* main() or a submethod — never both |
+| **No GUID overlap between .hsl and .sub** | A GUID belongs to *either* main() or a submethod -- never both |
 | **Orphaned .med sections are possible** | If a step was deleted from `.hsl`/`.sub` but the .med was not re-synced, the .med may retain a stale section (harmless but wasteful) |
 
 ### 2.4 Verified Cross-Reference Results
@@ -117,7 +117,7 @@ These vary by step CLSID:
 | **Loop** | `3ComparisonOperator`, `1LeftComparisonValue`, `1LoopCounter`, `3LoopMode`, `(SelectedSequences` |
 | **If/Then/Else** | `1ConditionOne`, `1ConditionTwo`, `3CompareOperator`, `3Else` |
 | **Assignment** | `3Expression`, `1Result` |
-| **Device step** | `33` (type), `3` (version) — minimal; device config is in `.stp` |
+| **Device step** | `33` (type), `3` (version) -- minimal; device config is in `.stp` |
 | **Library function call** | `1FunctionName`, `1ReturnValue`, `3FieldCount`, `(FunctionPars`, `1-534642685` (source .hsl path) |
 | **Custom dialog** | `1DialogHandle`, `1DialogTitle`, `1Xaml` (full WPF XAML), `(Pictures` (embedded JPG base64) |
 
@@ -132,7 +132,7 @@ These vary by step CLSID:
     "1-533921781"        → STEP_TYPE_NAME (e.g., "Loop", "Comment")
     "1-533921782"        → ICON filename (e.g., "Loop.bmp")
   ")"
-  "(2"                   → block 2 (e.g., loop closing) — only multi-block steps
+  "(2"                   → block 2 (e.g., loop closing) -- only multi-block steps
     ...
   ")"
 ")"
@@ -213,7 +213,7 @@ DataDef,HxPars,3,0f6781fa_661c_4f6d_82c54ea3235441dd,
 
 Beyond per-step sections, the .med has 4 metadata sections:
 
-### 5.1 `HxMetEdData` — Editor Version & Component Flags
+### 5.1 `HxMetEdData` -- Editor Version & Component Flags
 
 ```
 "1Version"              → e.g., "6.0.2.3426"
@@ -230,7 +230,7 @@ Beyond per-step sections, the .med has 4 metadata sections:
 **Sync rule:** Set version to match the Hamilton installation; keep component
 flags in sync with the `// {{ 2 "TemplateIncludeBlock"` section in `.hsl`.
 
-### 5.2 `HxMetEd_MainDefinition` — main() Declaration
+### 5.2 `HxMetEd_MainDefinition` -- main() Declaration
 
 ```
 "3-533725173"    → 3 (method type: 3 = method, others = library etc.)
@@ -247,7 +247,7 @@ flags in sync with the `// {{ 2 "TemplateIncludeBlock"` section in `.hsl`.
 **Sync rule:** Always `"main"`. No parameters. Matches `method main() void {`
 in `.hsl`.
 
-### 5.3 `HxMetEd_Submethods` — Submethod Registry
+### 5.3 `HxMetEd_Submethods` -- Submethod Registry
 
 Lists every submethod from `.sub` along with its parameters+types:
 
@@ -281,7 +281,7 @@ Lists every submethod from `.sub` along with its parameters+types:
 - Parameter names, types, and directions from signatures
 - Access level from `private` keyword presence
 
-### 5.4 `HxMetEd_Outlining` — Code Folding State
+### 5.4 `HxMetEd_Outlining` -- Code Folding State
 
 Tracks which GUIDs are folded/expanded in the Venus UI:
 
@@ -304,7 +304,7 @@ global device ML_STAR ("layout.lay", "ML_STAR", hslTrue);  // → links .lay
 ```
 
 These establish links to `.lay` and `.res` files, which are NOT
-stored in the `.med` — they are **independent companions**.
+stored in the `.med` -- they are **independent companions**.
 
 ### 6.2 `.sub` Inclusion Mechanism
 
@@ -323,8 +323,8 @@ stored in the `.med` — they are **independent companions**.
 **Block marker row numbers are sequential across `.hsl` AND `.sub`.**
 
 In the Liquid Waste Demo:
-- `.hsl` uses rows 1–17  (main method steps)
-- `.sub` uses rows 19–23 (submethod steps)
+- `.hsl` uses rows 1-17  (main method steps)
+- `.sub` uses rows 19-23 (submethod steps)
 
 Row 18 is skipped (structural markers). The row counter is **global**
 across both files because Venus treats them as one merged source.
@@ -352,9 +352,9 @@ flowchart LR
 **Steps:**
 1. Open `.hsl` or `.sub` in VS Code
 2. If companion `.med` exists, decode it using the pure Python codec
-   (`hxcfgfile_codec.py to-text`) — no external tools needed
+   (`hxcfgfile_codec.py to-text`) -- no external tools needed
 3. Parse block markers from both `.hsl` and `.sub` to get all step GUIDs
-4. Cross-reference against .med sections — verify GUID alignment
+4. Cross-reference against .med sections -- verify GUID alignment
 
 ### 7.2 Editing (.hsl/.sub ↔ .med sync)
 
@@ -398,17 +398,17 @@ flowchart LR
 ```
 
 **Steps:**
-1. **Renumber block markers** — sequential rows across `.hsl` then `.sub`
-2. **Parse all step GUIDs** — from both files; group multi-block steps
-3. **Rebuild .med text** — one `DataDef,HxPars,3,<guid>` per unique GUID;
+1. **Renumber block markers** -- sequential rows across `.hsl` then `.sub`
+2. **Parse all step GUIDs** -- from both files; group multi-block steps
+3. **Rebuild .med text** -- one `DataDef,HxPars,3,<guid>` per unique GUID;
    for each, extract the code from between block markers and write it
    into `BlockData.1-533921779`
-4. **Regenerate meta sections** — `HxMetEdData`, `HxMetEd_MainDefinition`,
+4. **Regenerate meta sections** -- `HxMetEdData`, `HxMetEd_MainDefinition`,
    `HxMetEd_Submethods`, `HxMetEd_Outlining`
-5. **Encode to binary** — using the pure Python codec
+5. **Encode to binary** -- using the pure Python codec
    (`hxcfgfile_codec.py to-binary`)
-6. **Compute checksums** — CRC-32 footer for `.hsl`, `.sub`, `.med`
-7. **Write all files** — ensure consistency
+6. **Compute checksums** -- CRC-32 footer for `.hsl`, `.sub`, `.med`
+7. **Write all files** -- ensure consistency
 
 ---
 
@@ -536,19 +536,19 @@ Given `Global_Answer_Key_CH07.hsl` is edited (user modifies the comment text):
    - For each GUID, extracts the code between its block markers
    - Builds `.med` text sections:
      - `DataDef,ActivityData,1,ActivityData` (preserved from existing .med)
-     - `DataDef,HxPars,3,0f6781fa_...` — Loop step with 2 BlockData blocks
-     - `DataDef,HxPars,3,122ed496_...` — TipEject (device step: minimal)
-     - `DataDef,HxPars,3,25c835eb_...` — Aspirate (device step: minimal)
-     - `DataDef,HxPars,3,54a5860a_...` — Initialize (device step: minimal)
-     - `DataDef,HxPars,3,8b09ddec_...` — Comment step with updated text
-     - `DataDef,HxPars,3,9ed2d1b4_...` — TipPickUp (device step: minimal)
-     - `DataDef,HxPars,3,a80126d9_...` — Dispense (device step: minimal)
-     - `DataDef,HxPars,3,bd9dbe52_...` — UnloadCarrier (device step: minimal)
-     - `DataDef,HxPars,3,edd0cc33_...` — LoadCarrier (device step: minimal)
-     - `DataDef,HxPars,3,HxMetEdData` — version + component flags
-     - `DataDef,HxPars,3,HxMetEd_MainDefinition` — main()
-     - `DataDef,HxPars,3,HxMetEd_Outlining` — folding state
-     - `DataDef,HxPars,3,HxMetEd_Submethods` — OnAbort
+     - `DataDef,HxPars,3,0f6781fa_...` -- Loop step with 2 BlockData blocks
+     - `DataDef,HxPars,3,122ed496_...` -- TipEject (device step: minimal)
+     - `DataDef,HxPars,3,25c835eb_...` -- Aspirate (device step: minimal)
+     - `DataDef,HxPars,3,54a5860a_...` -- Initialize (device step: minimal)
+     - `DataDef,HxPars,3,8b09ddec_...` -- Comment step with updated text
+     - `DataDef,HxPars,3,9ed2d1b4_...` -- TipPickUp (device step: minimal)
+     - `DataDef,HxPars,3,a80126d9_...` -- Dispense (device step: minimal)
+     - `DataDef,HxPars,3,bd9dbe52_...` -- UnloadCarrier (device step: minimal)
+     - `DataDef,HxPars,3,edd0cc33_...` -- LoadCarrier (device step: minimal)
+     - `DataDef,HxPars,3,HxMetEdData` -- version + component flags
+     - `DataDef,HxPars,3,HxMetEd_MainDefinition` -- main()
+     - `DataDef,HxPars,3,HxMetEd_Outlining` -- folding state
+     - `DataDef,HxPars,3,HxMetEd_Submethods` -- OnAbort
    - Encodes text → binary using codec
    - Writes `.med` file
 
@@ -557,7 +557,7 @@ Given `Global_Answer_Key_CH07.hsl` is edited (user modifies the comment text):
    - `.med` footer recomputed (with `*` prefix)
    - `.sub` remains unchanged (was not edited)
 
-5. **Files on disk are now in sync** — Venus can open the `.med` and
+5. **Files on disk are now in sync** -- Venus can open the `.med` and
    the block markers in `.hsl`/`.sub` will align.
 
 ---
@@ -576,15 +576,15 @@ without COM or external executables.
 | 2 | `u16le` | Section type = `1` (ActivityData header) |
 | 4 | `u32le` | Section-name count = `1` |
 | 8 | short-string | `ActivityData,ActivityData` |
-| — | `u16le` | Field type = `1` |
-| — | `u32le` | Field count = `1` |
-| — | short-string | Key: `ActivityDocument` |
-| — | var-string | Value: base64 blob |
-| — | `u8` | HxPars section count |
-| — | 3 bytes | Padding (`00 00 00`) |
-| — | repeated | HxPars sections (count times) |
-| — | `\r\n` | Line break before footer |
-| — | text | Footer: `* $$author=...$$checksum=...$$length=...$$` |
+| -- | `u16le` | Field type = `1` |
+| -- | `u32le` | Field count = `1` |
+| -- | short-string | Key: `ActivityDocument` |
+| -- | var-string | Value: base64 blob |
+| -- | `u8` | HxPars section count |
+| -- | 3 bytes | Padding (`00 00 00`) |
+| -- | repeated | HxPars sections (count times) |
+| -- | `\r\n` | Line break before footer |
+| -- | text | Footer: `* $$author=...$$checksum=...$$length=...$$` |
 
 Each HxPars section:
 
@@ -597,13 +597,13 @@ Each HxPars section:
 
 ### 12.2 Primitive String Encodings
 
-- **short-string** — `u8 length` + bytes (latin1)
-- **var-string** — if length ≤ 254: `u8 length` + bytes; if length ≥ 255: `0xFF` + `u16le length` + bytes
+- **short-string** -- `u8 length` + bytes (latin1)
+- **var-string** -- if length ≤ 254: `u8 length` + bytes; if length ≥ 255: `0xFF` + `u16le length` + bytes
 
 ### 12.3 Conversion Commands
 
 ```powershell
-# Pure Python codec (handles both .med and .stp — no external dependencies)
+# Pure Python codec (handles both .med and .stp -- no external dependencies)
 python hxcfgfile_codec.py to-text  "input.med" "output_text.med"
 python hxcfgfile_codec.py to-binary "input_text.med" "output.med"
 
@@ -619,7 +619,7 @@ with byte-perfect accuracy.
 
 ## 13. Companion File Internals (.stp, .lay, .res)
 
-### 13.1 `.stp` — Device Step Command Metadata
+### 13.1 `.stp` -- Device Step Command Metadata
 
 The `.stp` file stores the **full parameter configuration** for every device
 step in the method. While the `.med` file stores only minimal stubs for
@@ -632,20 +632,20 @@ patterns, and liquid class references.
 **Key difference from `.med`:**
 - `.med` has `ActivityData,ActivityData` named section (flowchart blob)
 - `.stp` has `Method,Properties` named section (or no named section at all)
-- `.stp` has **no** `ActivityData` — no flowchart, just step parameters
+- `.stp` has **no** `ActivityData` -- no flowchart, just step parameters
 
 **Section model:**
 
-- `DataDef,Method,1,Properties, { ReadOnly, "0" }` — read-only flag
-- `DataDef,HxPars,3,<instance_guid>, [ ... ]` — one per device step
-- `DataDef,HxPars,3,AuditTrailData, [ ")" ]` — audit trail
+- `DataDef,Method,1,Properties, { ReadOnly, "0" }` -- read-only flag
+- `DataDef,HxPars,3,<instance_guid>, [ ... ]` -- one per device step
+- `DataDef,HxPars,3,AuditTrailData, [ ")" ]` -- audit trail
 - Footer checksum line
 
 **Core fields per device step:**
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `1CommandStepFileGuid` | String | Instance GUID — links to block marker in `.hsl` |
+| `1CommandStepFileGuid` | String | Instance GUID -- links to block marker in `.hsl` |
 | `3NbrOfErrors` | Int | Number of error recovery entries |
 | `1StepName` | String | Display name (e.g., "Initialize", "TipPickUp") |
 | `1SequenceObject` | String | Sequence variable reference |
@@ -684,16 +684,16 @@ For liquid-handling commands (Aspirate, Dispense), additional typed fields
 encode per-channel settings: `3LiquidFollowing`, `3TouchOffMode`,
 `1LiquidName`, `3cLLD`, `3Submergence`, `3FixedHeight`, etc.
 
-### 13.2 `.lay` — Deck Topology, Sequences, Device Config
+### 13.2 `.lay` -- Deck Topology, Sequences, Device Config
 
 `.lay` is `HxCfgFile v3` and is the densest configuration file.
 
 **Section model:**
 
-- `DataDef,DECKLAY,5,ML_STAR, { ... }` — labware, transforms, sequences
-- `DataDef,DEVICE,2,ML_STAR, { ... }` — device origin/registration
-- `DataDef,RESOURCES,1,default, { ... }` — resource bindings
-- `DataDef,SYSTEM,1,default, { ... }` — system flags
+- `DataDef,DECKLAY,5,ML_STAR, { ... }` -- labware, transforms, sequences
+- `DataDef,DEVICE,2,ML_STAR, { ... }` -- device origin/registration
+- `DataDef,RESOURCES,1,default, { ... }` -- resource bindings
+- `DataDef,SYSTEM,1,default, { ... }` -- system flags
 
 **Key DECKLAY fields:**
 
@@ -705,7 +705,7 @@ encode per-channel settings: `3LiquidFollowing`, `3TouchOffMode`,
 | `Seq.<id>.Name` | `Samples96` | Sequence name |
 | `Seq.<id>.Item.<k>.ObjId` | Link to labware | |
 
-### 13.3 `.res` — Resource Declarations
+### 13.3 `.res` -- Resource Declarations
 
 `.res` is plain text with a checksum footer.
 

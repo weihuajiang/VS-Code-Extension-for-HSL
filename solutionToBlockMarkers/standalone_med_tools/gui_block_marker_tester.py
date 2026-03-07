@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Block Marker Tester — Tkinter GUI Application
+Block Marker Tester -- Tkinter GUI Application
 ===============================================
 
 A graphical tool for testing Hamilton HSL block marker parsing, generation,
@@ -186,7 +186,7 @@ def _validate_markers(
         expected = list(range(1, len(step_markers) + 1))
         if rows == expected:
             results.append(("PASS", "Row Numbering",
-                            f"Sequential 1–{len(step_markers)}"))
+                            f"Sequential 1-{len(step_markers)}"))
         else:
             gaps = [i + 1 for i, (a, b) in
                     enumerate(zip(rows, expected)) if a != b]
@@ -264,7 +264,7 @@ def _validate_markers(
                         "File contains step block markers (method file)"))
     else:
         results.append(("WARN", "Step Markers Present",
-                        "No step markers — likely a library or empty file"))
+                        "No step markers -- likely a library or empty file"))
 
     return results
 
@@ -367,7 +367,7 @@ class BlockMarkerTesterApp:
 
         Layout (top to bottom):
             1. File path entry + Browse button
-            2. PanedWindow — left tree view | right text area
+            2. PanedWindow -- left tree view | right text area
             3. Statistics frame
             4. Button bar
             5. Status bar
@@ -597,7 +597,7 @@ class BlockMarkerTesterApp:
             self._tree.insert("", tk.END, iid=str(idx), values=(type_str, details))
 
     def _on_tree_select(self, _event: tk.Event) -> None:
-        """Handle tree view selection — show the selected marker's code.
+        """Handle tree view selection -- show the selected marker's code.
 
         When a marker is selected in the tree, its code lines are
         displayed in the right-hand text area.
@@ -619,7 +619,7 @@ class BlockMarkerTesterApp:
         if isinstance(marker, StepBlockMarker):
             clsid_name = _clsid_display_name(marker.step_clsid)
             brace = "{{{" if marker.triple_brace else "{{"
-            self._append_text(f"Step Block Marker — Row {marker.row}\n", "heading")
+            self._append_text(f"Step Block Marker -- Row {marker.row}\n", "heading")
             self._append_text(f"  Brace Style:  {brace}\n", "info")
             self._append_text(f"  Column:       {marker.column}\n", "info")
             self._append_text(f"  Sublevel:     {marker.sublevel}\n", "info")
@@ -807,7 +807,7 @@ class BlockMarkerTesterApp:
             self._clear_text()
             self._append_text("Renumber Result\n", "heading")
             self._append_text("=" * 60 + "\n\n")
-            self._append_text("No changes — rows are already sequential.\n", "pass")
+            self._append_text("No changes -- rows are already sequential.\n", "pass")
             self._set_status("Renumber: no changes needed.")
             return
 
@@ -867,7 +867,7 @@ class BlockMarkerTesterApp:
             self._append_text("Reconcile Result\n", "heading")
             self._append_text("=" * 60 + "\n\n")
             self._append_text(
-                "No changes — block markers are already correct.\n", "pass"
+                "No changes -- block markers are already correct.\n", "pass"
             )
             self._set_status("Reconcile: no changes needed.")
             return
@@ -927,7 +927,7 @@ class BlockMarkerTesterApp:
         # Prompt for step count
         step_count_str = simpledialog.askstring(
             "Generate Demo Method",
-            "Number of steps (1–100):",
+            "Number of steps (1-100):",
             initialvalue="5",
             parent=self.root,
         )
@@ -937,7 +937,7 @@ class BlockMarkerTesterApp:
             step_count = int(step_count_str)
             step_count = max(1, min(step_count, 100))
         except ValueError:
-            messagebox.showerror("Invalid Input", "Please enter a number 1–100.")
+            messagebox.showerror("Invalid Input", "Please enter a number 1-100.")
             return
 
         # Build a mix of step types for the demo
@@ -1089,17 +1089,17 @@ class BlockMarkerTesterApp:
             self._append_text(
                 f"  \u2718 ERROR: {result['error']}\n", "fail"
             )
-            self._set_status(f"CRC: ERROR — {result['error']}")
+            self._set_status(f"CRC: ERROR -- {result['error']}")
         elif result["valid"]:
             self._append_text(
-                "  \u2714 VALID — Checksum matches.\n", "pass"
+                "  \u2714 VALID -- Checksum matches.\n", "pass"
             )
             self._set_status(
                 f"CRC: VALID ({result['stored_checksum']})"
             )
         else:
             self._append_text(
-                "  \u2718 MISMATCH — Stored and computed checksums differ.\n",
+                "  \u2718 MISMATCH -- Stored and computed checksums differ.\n",
                 "fail",
             )
             self._set_status(
@@ -1116,7 +1116,7 @@ class BlockMarkerTesterApp:
 def main() -> None:
     """Create the Tk root window, instantiate the app, and enter the mainloop."""
     root = tk.Tk()
-    _app = BlockMarkerTesterApp(root)  # noqa: F841 — reference kept by Tk
+    _app = BlockMarkerTesterApp(root)  # noqa: F841 -- reference kept by Tk
     root.mainloop()
 
 

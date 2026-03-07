@@ -27,12 +27,12 @@
 
 HSL is a C-like procedural language designed for Hamilton liquid-handling instrument automation. It features:
 
-- **Variant typing** — the `variable` type can hold integers, floats, or strings
-- **Namespace scoping** — `namespace Name { ... }` groups related declarations
-- **COM integration** — `object` type for Windows COM automation
-- **Dual interface/implementation pattern** — `#ifndef HSL_RUNTIME` / `#ifdef HSL_RUNTIME` separates edit-time stubs from run-time implementations
-- **Error handling** — `onerror goto label` and `onerror resume next`
-- **Scheduler integration** — `workflow`, `activity`, `resource`, `scheduleronly`, `executoronly` keywords
+- **Variant typing** -- the `variable` type can hold integers, floats, or strings
+- **Namespace scoping** -- `namespace Name { ... }` groups related declarations
+- **COM integration** -- `object` type for Windows COM automation
+- **Dual interface/implementation pattern** -- `#ifndef HSL_RUNTIME` / `#ifdef HSL_RUNTIME` separates edit-time stubs from run-time implementations
+- **Error handling** -- `onerror goto label` and `onerror resume next`
+- **Scheduler integration** -- `workflow`, `activity`, `resource`, `scheduleronly`, `executoronly` keywords
 
 The entry point for an HSL program is `method Main()`.
 
@@ -236,7 +236,7 @@ private function helper() { }
 
 ### Variable Placement
 
-Variables must be declared at the top of a scope (function/method body) before any executable statements — similar to C89 rules.
+Variables must be declared at the top of a scope (function/method body) before any executable statements -- similar to C89 rules.
 
 ---
 
@@ -372,8 +372,8 @@ while (condition)
 
 ### break and continue
 
-- `break;` — exits the innermost `for` or `while` loop
-- `continue;` — skips to the next iteration of the innermost loop
+- `break;` -- exits the innermost `for` or `while` loop
+- `continue;` -- skips to the next iteration of the innermost loop
 
 ### return
 
@@ -459,8 +459,8 @@ static function _internalHelper(variable x) variable
 
 ### Parameter Passing
 
-- **By value** (default): `variable param` — a copy is made
-- **By reference**: `variable& param` — modifications affect the caller's variable
+- **By value** (default): `variable param` -- a copy is made
+- **By reference**: `variable& param` -- modifications affect the caller's variable
 
 ```csharp
 function swap(variable& a, variable& b)

@@ -1,13 +1,13 @@
 # HSL (Hamilton) Language Support for VS Code
 
-A VS Code extension providing comprehensive language support for **HSL (Hamilton Standard Language)** — the programming language used for Hamilton liquid handling robots (VANTAGE, STAR, STAR-V, Nimbus, etc.).
+A VS Code extension providing comprehensive language support for **HSL (Hamilton Standard Language)** -- the programming language used for Hamilton liquid handling robots (VANTAGE, STAR, STAR-V, Nimbus, etc.).
 This extension brings modern IDE features to HSL development, including syntax highlighting, intelligent code completion, diagnostics, and snippets.
 
 ---
 
 ## Contributors
 
-- **Huajiang Wei** — [GitHub](https://github.com/weihuajiang) · [Lab Automation Forum](https://labautomation.io/u/huajiang/summary)
+- **Huajiang Wei** -- [GitHub](https://github.com/weihuajiang) · [Lab Automation Forum](https://labautomation.io/u/huajiang/summary)
 
 ---
 
@@ -44,12 +44,12 @@ In HSL, local variables must be declared at the beginning of a **code block** (`
 - Declarations after executable statements in the **same** block are invalid.
 
 ### Automatic Checksum Generation
-When you save an HSL file, the extension automatically updates the Hamilton file validation checksum. This uses the Hamilton `HxSecurityCom` COM object to call `SetFileValidation`, so there is no need to manually fix checksums after editing — files are always kept in a valid state for the VENUS runtime.
+When you save an HSL file, the extension automatically updates the Hamilton file validation checksum. This uses the Hamilton `HxSecurityCom` COM object to call `SetFileValidation`, so there is no need to manually fix checksums after editing -- files are always kept in a valid state for the VENUS runtime.
 
 > **Note:** Requires Hamilton VENUS installed to have access to the COM Objects needed to generate the checksum.
 
 ### Code Snippets
-Pre-built templates for common HSL patterns — type a prefix and press `Tab`:
+Pre-built templates for common HSL patterns -- type a prefix and press `Tab`:
 
 | Prefix | Description |
 |--------|-------------|
@@ -147,7 +147,7 @@ You can download and install Hamilton VENUS 4 from [Hamilton's official post on 
 
 1. **Install** the extension from the VS Code Marketplace
 2. **Open** (or create) a file with a `.hsl`, `.hs_`, or `.sub` extension
-3. **Start coding** — syntax highlighting activates automatically
+3. **Start coding** -- syntax highlighting activates automatically
 4. **Use snippets** by typing a prefix (e.g., `hslfunc`) and pressing `Tab`
 5. **Explore completions** by pressing `Ctrl+Space`
 

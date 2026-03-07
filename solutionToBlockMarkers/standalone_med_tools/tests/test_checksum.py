@@ -58,7 +58,7 @@ class TestComputeHslChecksum(unittest.TestCase):
 
     def test_compute_hsl_checksum_latin1(self):
         """Non-ASCII latin1 characters are handled (no UnicodeEncodeError)."""
-        # \xe4 = ä, \xfc = ü – valid in latin1
+        # \xe4 = ä, \xfc = ü - valid in latin1
         content = "// comment with \xe4\xfc\r\n"
         prefix = "// $$author=admin$$valid=0$$time=2024-01-01 12:00$$checksum="
         result = compute_hsl_checksum(content, prefix)

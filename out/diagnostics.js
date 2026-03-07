@@ -91,10 +91,10 @@ function createHslDiagnostics(context) {
 async function refreshDiagnostics(document, collection) {
     const diagnostics = [];
     // Patterns: match `=+` or `=-` that are NOT part of `+=`, `-=`, `=++`, `=--`, `==`, `!=`, `<=`, `>=`
-    //   (?<![+\-!=<>])   — `=` must NOT be preceded by another operator character
-    //   =                — the literal `=`
-    //   \+(?!\+|=)       — a `+` NOT followed by another `+` or `=`  (avoids `=++` and `+=`)
-    //   -(?!-|=)         — a `-` NOT followed by another `-` or `=`  (avoids `=--` and `-=`)
+    //   (?<![+\-!=<>])   -- `=` must NOT be preceded by another operator character
+    //   =                -- the literal `=`
+    //   \+(?!\+|=)       -- a `+` NOT followed by another `+` or `=`  (avoids `=++` and `+=`)
+    //   -(?!-|=)         -- a `-` NOT followed by another `-` or `=`  (avoids `=--` and `-=`)
     const equalsPlusPattern = /(?<![+\-!=<>])=\+(?!\+|=)/g;
     const equalsMinusPattern = /(?<![+\-!=<>])=-(?!-|=)/g;
     const fullText = document.getText();
@@ -201,7 +201,7 @@ async function checkFunctionCallArity(document, diagnostics) {
                 // Skip library symbols whose simple name collides with a system-
                 // defined element method (e.g. CreateObject, Open, ReleaseObject).
                 // The ELEMENT_METHOD_ARITY_MAP already contains the correct, more
-                // permissive arity for these — letting the library override it is
+                // permissive arity for these -- letting the library override it is
                 // the root cause of false-positive diagnostics.
                 const isSystemElementMethod = ELEMENT_METHOD_ARITY_MAP.has(simpleKey);
                 if (!isSystemElementMethod) {
@@ -226,7 +226,7 @@ async function checkFunctionCallArity(document, diagnostics) {
             }
         }
         catch {
-            // index not ready yet — continue with local-only checking
+            // index not ready yet -- continue with local-only checking
         }
     }
     const callPattern = /\b([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*)\s*\(/g;
@@ -287,7 +287,7 @@ async function checkFunctionCallArity(document, diagnostics) {
         }
     }
     // Collect identifiers declared as `object` type so we can skip arity
-    // checking on their method calls — COM objects define their own methods
+    // checking on their method calls -- COM objects define their own methods
     // which cannot be statically validated.
     const objectTypedVars = new Set();
     const objectDeclPattern = /\bobject\s+(\w+)/g;
@@ -303,7 +303,7 @@ async function checkFunctionCallArity(document, diagnostics) {
         const fullMatchText = match[0];
         const capturedOffset = fullMatchText.lastIndexOf(methodName);
         const methodNameIndex = match.index + capturedOffset;
-        // Skip arity validation for COM objects — they define their own methods
+        // Skip arity validation for COM objects -- they define their own methods
         if (objectTypedVars.has(receiverName)) {
             continue;
         }
@@ -317,7 +317,7 @@ async function checkFunctionCallArity(document, diagnostics) {
         const methodKey = methodName.toLowerCase();
         const rules = ELEMENT_METHOD_ARITY_MAP.get(methodKey);
         if (!rules || rules.length === 0) {
-            // Method is not a known element method — skip; we cannot validate it.
+            // Method is not a known element method -- skip; we cannot validate it.
             continue;
         }
         const hasMatch = rules.some((rule) => isArityValid(rule, argCount));
@@ -461,7 +461,7 @@ function isLikelyDeclarationContext(cleanText, nameStart) {
         return true;
     }
     // If the line starts with "variable " or "variable& ", this is a variable
-    // declaration — parentheses are used for initialisation, not function calls.
+    // declaration -- parentheses are used for initialisation, not function calls.
     const lineStart = cleanText.lastIndexOf("\n", nameStart - 1) + 1;
     const linePrefix = cleanText.slice(lineStart, nameStart).trimStart();
     if (/^variable&?\s/i.test(linePrefix)) {
@@ -765,7 +765,7 @@ function checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics)
         if (isScopeHeader) {
             // A function or method definition counts as "code" in the enclosing
             // scope, so later declarations in that enclosing scope are invalid.
-            // Namespace (and struct) headers do NOT — variables may still appear
+            // Namespace (and struct) headers do NOT -- variables may still appear
             // after namespace blocks as long as no functions have been defined.
             const enclosing = scopeStack[scopeStack.length - 1];
             if (enclosing &&
@@ -804,7 +804,7 @@ function checkVariableDeclarationPlacement(document, ignoredRanges, diagnostics)
             continue;
         }
         // Between a function / method header and its opening '{',
-        // declarations are parameters — not local variables.
+        // declarations are parameters -- not local variables.
         if ((pendingKind === "function" || pendingKind === "method") &&
             DECL_PATTERN.test(trimmed)) {
             continue;
@@ -1001,7 +1001,7 @@ function checkFunctionDeclarationDefinitionPairing(document, ignoredRanges, diag
             const crossNs = byNameKey.get(nameKey) ?? [];
             const crossNsDef = crossNs.find((r) => r.kind === "definition");
             if (crossNsDef) {
-                // Definition exists but in a different namespace — warn, not error
+                // Definition exists but in a different namespace -- warn, not error
                 for (const decl of declarations) {
                     const range = new vscode.Range(decl.lineIndex, decl.nameCol, decl.lineIndex, decl.nameCol + decl.nameLen);
                     const diag = new vscode.Diagnostic(range, `Declaration of '${decl.displayName}' and its definition '${crossNsDef.displayName}' are in different namespaces. Best practice: keep declaration and definition in the same namespace.`, vscode.DiagnosticSeverity.Warning);
@@ -1026,7 +1026,7 @@ function checkFunctionDeclarationDefinitionPairing(document, ignoredRanges, diag
             const crossNs = byNameKey.get(nameKey) ?? [];
             const crossNsDecl = crossNs.find((r) => r.kind === "declaration");
             if (crossNsDecl) {
-                // Declaration exists but in a different namespace — warn, not error
+                // Declaration exists but in a different namespace -- warn, not error
                 for (const def of definitions) {
                     const range = new vscode.Range(def.lineIndex, def.nameCol, def.lineIndex, def.nameCol + def.nameLen);
                     const diag = new vscode.Diagnostic(range, `Definition of '${def.displayName}' and its declaration '${crossNsDecl.displayName}' are in different namespaces. Best practice: keep declaration and definition in the same namespace.`, vscode.DiagnosticSeverity.Warning);
@@ -1234,7 +1234,7 @@ const INITIALIZE_CLSID = "1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2";
  */
 function checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics) {
     const fullText = document.getText();
-    // Find `method main()` body — we only enforce this in main since that is
+    // Find `method main()` body -- we only enforce this in main since that is
     // the entry point where Initialize must be called.  Library functions
     // receive an already-initialised device reference.
     const mainMethodPattern = /\bmethod\s+main\s*\(/g;
@@ -1288,7 +1288,7 @@ function checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics) {
         deviceNames.add("ML_STAR");
     }
     // Build a pattern that matches:
-    //   DEVICE._<any CLSID>( ... )   — device step calls
+    //   DEVICE._<any CLSID>( ... )   -- device step calls
     // We check for the Initialize CLSID specifically.
     const deviceNamesEscaped = Array.from(deviceNames)
         .map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
@@ -1327,7 +1327,7 @@ function checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics) {
             diag.source = "hsl";
             diag.code = "missing-initialize-step";
             diagnostics.push(diag);
-            // Only flag the first occurrence — one error is enough
+            // Only flag the first occurrence -- one error is enough
             return;
         }
     }
@@ -1350,7 +1350,7 @@ const STRING_ONLY_METHODS = new Set([
     "spanexcluding",
 ]);
 /**
- * HSL types that are NOT `string` — if a variable is declared with one of
+ * HSL types that are NOT `string` -- if a variable is declared with one of
  * these types and then has a string-only member function called on it, that
  * is an error.
  */
@@ -1393,12 +1393,12 @@ function checkStringMemberOnWrongType(document, ignoredRanges, diagnostics) {
     while ((declMatch = declPattern.exec(cleanText)) !== null) {
         const typeName = declMatch[1].toLowerCase();
         const ident = declMatch[3];
-        // Don't overwrite — first declaration wins (most common scope)
+        // Don't overwrite -- first declaration wins (most common scope)
         if (!declaredTypes.has(ident)) {
             declaredTypes.set(ident, typeName);
         }
     }
-    // Also handle function parameter lists — they produce declarations too.
+    // Also handle function parameter lists -- they produce declarations too.
     // The regex above already captures `variable i_strFoo` inside parameter
     // lists, so this is covered.
     // ── Phase 2: find method calls on identifiers ─────────────────────
@@ -1413,7 +1413,7 @@ function checkStringMemberOnWrongType(document, ignoredRanges, diagnostics) {
         }
         const declaredType = declaredTypes.get(receiverName);
         if (!declaredType) {
-            // Type unknown — could be from an included library; skip.
+            // Type unknown -- could be from an included library; skip.
             continue;
         }
         if (declaredType === "string") {
@@ -1445,7 +1445,7 @@ function checkStringMemberOnWrongType(document, ignoredRanges, diagnostics) {
  * case / default).  HSL does not support C-style anonymous blocks.
  *
  * We specifically flag blocks that contain variable declarations, since
- * those will definitely fail — the developer likely intended block-local
+ * those will definitely fail -- the developer likely intended block-local
  * scoping which HSL doesn't have.
  */
 function checkAnonymousBlocks(document, ignoredRanges, diagnostics) {
@@ -1488,7 +1488,7 @@ function checkAnonymousBlocks(document, ignoredRanges, diagnostics) {
                         controlFlowPattern.test(prevLine) ||
                         /\)\s*$/.test(textBefore); // e.g. `if(...)`
                     if (!isControlFlow) {
-                        // This is an anonymous block — check if it contains declarations
+                        // This is an anonymous block -- check if it contains declarations
                         const blockStart = lineIdx;
                         const blockStartCol = ci;
                         let localDepth = 1;

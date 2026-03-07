@@ -1,4 +1,4 @@
-# HSL Reference Guide — Accuracy Review
+# HSL Reference Guide -- Accuracy Review
 
 > **Reviewed file**: `C:\Users\admin\Documents\GitHub\VS-Code-Extension-for-HSL.wiki\HSL Reference Guide.md`  
 > **Against**: HSL simulation runtime in `hsl_runtime/` and known Hamilton HSL language behavior  
@@ -10,23 +10,23 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 ## Table of Contents
 
-1. [Section 2 — Syntax](#section-2--syntax)
-2. [Section 3 — Data Types](#section-3--data-types)
-3. [Section 4 — Operators](#section-4--operators)
-4. [Section 5 — Controlling Program Flow](#section-5--controlling-program-flow)
-5. [Section 6 — Functions](#section-6--functions)
-6. [Section 7 — Data Element Functions](#section-7--data-element-functions)
-7. [Section 8 — Error Handling](#section-8--error-handling)
-8. [Section 9 — Writing Libraries](#section-9--writing-libraries)
-9. [Section 10 — Runtime Errors](#section-10--runtime-errors)
-10. [Section 11 — Scheduler](#section-11--scheduler)
-11. [Section 12 — Saving and Exporting](#section-12--saving-and-exporting)
+1. [Section 2 -- Syntax](#section-2--syntax)
+2. [Section 3 -- Data Types](#section-3--data-types)
+3. [Section 4 -- Operators](#section-4--operators)
+4. [Section 5 -- Controlling Program Flow](#section-5--controlling-program-flow)
+5. [Section 6 -- Functions](#section-6--functions)
+6. [Section 7 -- Data Element Functions](#section-7--data-element-functions)
+7. [Section 8 -- Error Handling](#section-8--error-handling)
+8. [Section 9 -- Writing Libraries](#section-9--writing-libraries)
+9. [Section 10 -- Runtime Errors](#section-10--runtime-errors)
+10. [Section 11 -- Scheduler](#section-11--scheduler)
+11. [Section 12 -- Saving and Exporting](#section-12--saving-and-exporting)
 12. [Simulation Runtime Discrepancies](#simulation-runtime-discrepancies)
 13. [Summary](#summary)
 
 ---
 
-## Section 2 — Syntax
+## Section 2 -- Syntax
 
 ### HSL Language Overview
 
@@ -64,11 +64,11 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 |-------|---------|-------|
 | `#include cstring` inserts file into parser input | **Accurate** | |
 | Include search order: (1) same dir, (2) Methods, (3) Library, (4) PATH | **Accurate** | Matches real HSL behavior |
-| `#include __filename__ cstring` — includes same-name file with different extension | **Accurate** | Used for `.hs_` implementation pattern |
-| `#define id constant` — defines a compile-time constant | **Accurate** | |
+| `#include __filename__ cstring` -- includes same-name file with different extension | **Accurate** | Used for `.hs_` implementation pattern |
+| `#define id constant` -- defines a compile-time constant | **Accurate** | |
 | `#ifdef`/`#ifndef`/`#endif` conditional compilation | **Accurate** | |
-| `#pragma once` — include once per namespace | **Accurate** | |
-| `#pragma global` — include once outside namespaces | **Accurate** | Not implemented in simulation but is a real HSL feature |
+| `#pragma once` -- include once per namespace | **Accurate** | |
+| `#pragma global` -- include once outside namespaces | **Accurate** | Not implemented in simulation but is a real HSL feature |
 | `debug = number` and `echo = number` are obsolete | **Accurate** | |
 
 ### Block Markers
@@ -117,11 +117,11 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 | Claim | Verdict | Notes |
 |-------|---------|-------|
 | Error table with ~50 parser errors | **Accurate** | Matches known Hamilton compiler error messages and codes |
-| Error codes (1001, 1002, 1101–1343) | **Accurate** | These are real HSL compiler error codes |
+| Error codes (1001, 1002, 1101-1343) | **Accurate** | These are real HSL compiler error codes |
 
 ---
 
-## Section 3 — Data Types
+## Section 3 -- Data Types
 
 ### Elementary Data Types
 
@@ -164,10 +164,10 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 | Claim | Verdict | Notes |
 |-------|---------|-------|
-| `static` — file-local name (not exported) | **Accurate** | |
-| `private` — not exported unless in main source file | **Accurate** | |
-| `const` — cannot be modified after initialization | **Accurate** | |
-| `global` — shared system-wide across processes/tasks | **Accurate** | |
+| `static` -- file-local name (not exported) | **Accurate** | |
+| `private` -- not exported unless in main source file | **Accurate** | |
+| `const` -- cannot be modified after initialization | **Accurate** | |
+| `global` -- shared system-wide across processes/tasks | **Accurate** | |
 | Community note: `static` does NOT control lifetime in HSL (unlike C/C++) | **Accurate** | Important distinction correctly noted |
 
 ### Structures
@@ -193,10 +193,10 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 | Claim | Verdict | Notes |
 |-------|---------|-------|
-| `IStr(value)` — integer to string | **Accurate** | |
-| `FStr(value)` — float to string | **Accurate** | |
-| `IVal(string)` — string to integer | **Accurate** | |
-| `FVal(string)` — string to float | **Accurate** | |
+| `IStr(value)` -- integer to string | **Accurate** | |
+| `FStr(value)` -- float to string | **Accurate** | |
+| `IVal(string)` -- string to integer | **Accurate** | |
+| `FVal(string)` -- string to float | **Accurate** | |
 
 ### Booleans
 
@@ -216,7 +216,7 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 | Default button constants (hslDefButton1/2/3 with values 0/256/512) | **Accurate** | |
 | Dialog icon constants (hslError=16, hslQuestion=32, etc.) | **Accurate** | |
 | Dialog return constants (hslOK=1 through hslNo=7) | **Accurate** | |
-| **`hslInteger` = `"i"`, `hslFloat` = `"f"`, `hslString` = `"s"`** | **Accurate for real HSL** | These are the correct values in the real Hamilton runtime. **Our simulation runtime has them wrong** — see [Simulation Runtime Discrepancies](#simulation-runtime-discrepancies) |
+| **`hslInteger` = `"i"`, `hslFloat` = `"f"`, `hslString` = `"s"`** | **Accurate for real HSL** | These are the correct values in the real Hamilton runtime. **Our simulation runtime has them wrong** -- see [Simulation Runtime Discrepancies](#simulation-runtime-discrepancies) |
 | File mode constants (`hslRead`=`"r"`, `hslWrite`=`"w"`, `hslAppend`=`"a"`) | **Accurate** | |
 | File delimiter constants | **Accurate** | |
 | File position constants (hslCurrent=0, hslFirst=1, hslLast=2) | **Accurate** | |
@@ -247,42 +247,42 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 ---
 
-## Section 4 — Operators
+## Section 4 -- Operators
 
 ### Operator Precedence Table
 
 | Claim | Verdict | Notes |
 |-------|---------|-------|
-| `::` and `.` — highest precedence | **Accurate** | |
-| `||`, `&&`, `|`, `&` — logical/bitwise operators | **Accurate** | |
+| `::` and `.` -- highest precedence | **Accurate** | |
+| `||`, `&&`, `|`, `&` -- logical/bitwise operators | **Accurate** | |
 | Comparison operators (`<`, `<=`, `==`, `!=`, `>=`, `>`) | **Accurate** | |
-| `%` — remainder | **Accurate** | |
-| `+`, `-` — addition/subtraction | **Accurate** | |
-| `*`, `/` — multiplication/division | **Accurate** | |
-| `!` — logical not (right associative) | **Accurate** | |
-| **`^` — power operator (right associative)** | **Accurate for real HSL** | The `^` power operator is a real HSL feature. Not implemented in simulation |
-| `-` — unary minus (right associative) | **Accurate** | |
-| `++`, `--` — increment/decrement | **Accurate** | |
-| `=` — assignment (right associative) | **Accurate** | |
-| `<<` — runtime parsing | **Accurate** | |
+| `%` -- remainder | **Accurate** | |
+| `+`, `-` -- addition/subtraction | **Accurate** | |
+| `*`, `/` -- multiplication/division | **Accurate** | |
+| `!` -- logical not (right associative) | **Accurate** | |
+| **`^` -- power operator (right associative)** | **Accurate for real HSL** | The `^` power operator is a real HSL feature. Not implemented in simulation |
+| `-` -- unary minus (right associative) | **Accurate** | |
+| `++`, `--` -- increment/decrement | **Accurate** | |
+| `=` -- assignment (right associative) | **Accurate** | |
+| `<<` -- runtime parsing | **Accurate** | |
 
 ### Operator Definitions
 
 | Claim | Verdict | Notes |
 |-------|---------|-------|
-| Addition (`+`) — sums numbers or concatenates strings | **Accurate** | Both operands must be same type |
+| Addition (`+`) -- sums numbers or concatenates strings | **Accurate** | Both operands must be same type |
 | Assignment (`=`) | **Accurate** | |
-| Bitwise AND (`&`) — bit-by-bit AND | **Accurate** | |
-| Bitwise OR (`|`) — bit-by-bit OR | **Accurate** | |
+| Bitwise AND (`&`) -- bit-by-bit AND | **Accurate** | |
+| Bitwise OR (`|`) -- bit-by-bit OR | **Accurate** | |
 | Comparison operators | **Accurate** | |
 | Division (`/`) | **Accurate** | |
-| Increment/Decrement (`++`/`--`) — prefix vs postfix semantics | **Accurate** | Pre: increment then use; Post: use then increment |
-| Logical AND (`&&`) — short-circuit | **Accurate** | |
+| Increment/Decrement (`++`/`--`) -- prefix vs postfix semantics | **Accurate** | Pre: increment then use; Post: use then increment |
+| Logical AND (`&&`) -- short-circuit | **Accurate** | |
 | Logical NOT (`!`) | **Accurate** | |
-| Logical OR (`||`) — short-circuit | **Accurate** | |
+| Logical OR (`||`) -- short-circuit | **Accurate** | |
 | Multiplication (`*`) | **Accurate** | |
-| Power (`^`) — `10^3 = 1000` | **Accurate** | |
-| Remainder (`%`) — supports floating-point remainder | **Accurate** | `19 % 6.7 = 5.6` is correct |
+| Power (`^`) -- `10^3 = 1000` | **Accurate** | |
+| Remainder (`%`) -- supports floating-point remainder | **Accurate** | `19 % 6.7 = 5.6` is correct |
 | Subtraction (`-`) | **Accurate** | |
 
 ### Expressions
@@ -296,7 +296,7 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 ---
 
-## Section 5 — Controlling Program Flow
+## Section 5 -- Controlling Program Flow
 
 | Claim | Verdict | Notes |
 |-------|---------|-------|
@@ -312,7 +312,7 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 ---
 
-## Section 6 — Functions
+## Section 6 -- Functions
 
 ### Function Definitions
 
@@ -329,7 +329,7 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 |-------|---------|-------|
 | Pass by value vs by reference (`&`) | **Accurate** | |
 | `variable`, `sequence`, `string` can be passed either way | **Accurate** | |
-| `device`, `dialog`, `object`, `timer`, `event`, `file` — always by reference | **Accurate** | |
+| `device`, `dialog`, `object`, `timer`, `event`, `file` -- always by reference | **Accurate** | |
 | Arrays always by reference | **Accurate** | |
 | No variadic functions | **Accurate** | Community note is correct |
 
@@ -355,9 +355,9 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 | `InputBox(prompt, title, type, [default], [timeout])` | **Accurate** | |
 | `MessageBox(message, title, [type], [timeout])` | **Accurate** | |
 | `Shell(pathname, windowstyle, concurrency, [eventObj], [exitCode])` | **Accurate** | |
-| `Fork(entryPoint)` — returns handle or 0 | **Accurate** | |
-| `Join(handles, timeout)` — waits for thread handles | **Accurate** | |
-| `GetType(var)` — returns type string | **Accurate** | |
+| `Fork(entryPoint)` -- returns handle or 0 | **Accurate** | |
+| `Join(handles, timeout)` -- waits for thread handles | **Accurate** | |
+| `GetType(var)` -- returns type string | **Accurate** | |
 | `GetTime(format)`, `GetDate(format)` | **Accurate** | |
 | `GetMethodFileName()`, `GetFileName()`, `GetFunctionName()` | **Accurate** | |
 | `GetLineNumber()`, `GetRowNumber()`, `GetColumnNumber()` | **Accurate** | |
@@ -367,7 +367,7 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 | `GetUserName()` | **Accurate** | |
 | `AddCheckSum(fileName, delimiter)`, `VerifyCheckSum(fileName)` | **Accurate** | |
 | `RegisterAbortHandler(handler)`, `UnregisterAbortHandler(handler)` | **Accurate** | |
-| `GetSimulationMode()` — returns 0 or 1 | **Accurate** | |
+| `GetSimulationMode()` -- returns 0 or 1 | **Accurate** | |
 | `GetTimeScaleFactor()`, `SetTimeScaleFactor(factor)` | **Accurate** | |
 | `IsDBNull(value)`, `SetDBNull(value)` | **Accurate** | |
 | `GetCommState`, `SetCommState`, `GetCommTimeouts`, `SetCommTimeouts` | **Accurate** | |
@@ -376,7 +376,7 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 ---
 
-## Section 7 — Data Element Functions
+## Section 7 -- Data Element Functions
 
 ### Concept
 
@@ -399,7 +399,7 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 | `LookupPosition(labId, posId, start, forward)` | **Accurate** | |
 | `GetLabwareId()`, `GetPositionId()` | **Accurate** | |
 | `GetUsedPositions()`, `SetUsedPositions()` | **Accurate** | |
-| `Edit()`, `Edit2()` — graphical sequence editing | **Accurate** | |
+| `Edit()`, `Edit2()` -- graphical sequence editing | **Accurate** | |
 | `ReadFromFile()`, `WriteToFile()` | **Accurate** | |
 | `GetName()`, `GetLabwareIds(labIds)` | **Accurate** | |
 | `SetSequenceProperty()`, `GetSequenceProperty()`, `RemoveSequenceProperty()` | **Accurate** | |
@@ -477,23 +477,23 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 ---
 
-## Section 8 — Error Handling
+## Section 8 -- Error Handling
 
 | Claim | Verdict | Notes |
 |-------|---------|-------|
-| `onerror goto label` — jump to handler | **Accurate** | |
-| `onerror resume next` — continue after error | **Accurate** | |
-| `onerror goto 0` — disable handler | **Accurate** | |
+| `onerror goto label` -- jump to handler | **Accurate** | |
+| `onerror resume next` -- continue after error | **Accurate** | |
+| `onerror goto 0` -- disable handler | **Accurate** | |
 | `err` object with `.GetId()`, `.GetDescription()`, `.GetSource()` | **Accurate** | |
-| `err.Clear()` — clears error state | **Accurate** | |
-| `err.Raise(id, description)` — explicitly raise error | **Accurate** | |
+| `err.Clear()` -- clears error state | **Accurate** | |
+| `err.Raise(id, description)` -- explicitly raise error | **Accurate** | |
 | Error handler labels with `:` syntax | **Accurate** | |
 | Error handler scope is per-function | **Accurate** | |
 | Error handling pattern with `return` before handler label | **Accurate** | Best practice correctly documented |
 
 ---
 
-## Section 9 — Writing Libraries
+## Section 9 -- Writing Libraries
 
 | Claim | Verdict | Notes |
 |-------|---------|-------|
@@ -506,7 +506,7 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 ---
 
-## Section 10 — Runtime Errors
+## Section 10 -- Runtime Errors
 
 | Claim | Verdict | Notes |
 |-------|---------|-------|
@@ -517,7 +517,7 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 ---
 
-## Section 11 — Scheduler
+## Section 11 -- Scheduler
 
 | Claim | Verdict | Notes |
 |-------|---------|-------|
@@ -533,7 +533,7 @@ This document reviews every major claim in the HSL Reference Guide for correctne
 
 ---
 
-## Section 12 — Saving and Exporting
+## Section 12 -- Saving and Exporting
 
 | Claim | Verdict | Notes |
 |-------|---------|-------|
@@ -551,26 +551,26 @@ These are items where **our simulation runtime** (`hsl_runtime/`) differs from t
 
 | Item | Reference Guide | Our Implementation | Impact |
 |------|-----------------|-------------------|--------|
-| **`hslInteger`, `hslFloat`, `hslString` values** | `"i"`, `"f"`, `"s"` | `"hslInteger"`, `"hslFloat"`, `"hslString"` | **High** — `GetType()` will return wrong values; `InputBox()` type parameter will mismatch |
-| **Power operator `^`** | Real HSL operator, right-associative | Not implemented at all | **Medium** — Any code using `^` (e.g., `arr[v1] = (v1 + v2)^2`) will fail to parse |
-| **Bitwise AND `&`** | Binary expression operator for bit operations | Only used as reference marker (`&` param) | **Medium** — Bitwise AND expressions will not evaluate |
-| **`loop(N)` statement** | Real HSL iteration construct | Not implemented | **Medium** — `loop` blocks won't parse |
-| **`struct` keyword** | Real HSL feature for user-defined types | Not implemented | **Medium** — struct declarations won't parse |
+| **`hslInteger`, `hslFloat`, `hslString` values** | `"i"`, `"f"`, `"s"` | `"hslInteger"`, `"hslFloat"`, `"hslString"` | **High** -- `GetType()` will return wrong values; `InputBox()` type parameter will mismatch |
+| **Power operator `^`** | Real HSL operator, right-associative | Not implemented at all | **Medium** -- Any code using `^` (e.g., `arr[v1] = (v1 + v2)^2`) will fail to parse |
+| **Bitwise AND `&`** | Binary expression operator for bit operations | Only used as reference marker (`&` param) | **Medium** -- Bitwise AND expressions will not evaluate |
+| **`loop(N)` statement** | Real HSL iteration construct | Not implemented | **Medium** -- `loop` blocks won't parse |
+| **`struct` keyword** | Real HSL feature for user-defined types | Not implemented | **Medium** -- struct declarations won't parse |
 
 ### Missing Features (Lower Priority)
 
 | Item | Reference Guide | Our Implementation | Impact |
 |------|-----------------|-------------------|--------|
-| `lock`/`unlock` | Protected execution regions | Not implemented | Low — simulation doesn't need thread safety |
-| `synchronized` modifier | Function-level synchronization | Parsed but not enforced | Low — no threading in simulation |
-| `resource` type | Scheduler resource objects | Not implemented | Low — scheduler not simulated |
-| `Fork()`/`Join()` | Thread creation/joining | Not implemented (falls through to stub returning 0) | Low — simulation is single-threaded |
-| `workflow`/`activity`/`actionblock` | Scheduler constructs | Not implemented | Low — scheduler not simulated |
-| `schedule`/`reschedule` | Scheduler control | Not implemented | Low — scheduler not simulated |
-| `oncancelaction`/`oncanceltask` | Scheduler handlers | Not implemented | Low — scheduler not simulated |
-| `private`/`static` enforcement | Visibility restrictions | Parsed but not enforced | Low — doesn't affect simulation correctness |
-| `err.GetId()`, `err.GetSource()` | Error object methods | Only `Raise`, `GetDescription`, `Clear` implemented | Low — partial error object |
-| `#pragma global` | Global include behavior | Not implemented | Low — rare directive |
+| `lock`/`unlock` | Protected execution regions | Not implemented | Low -- simulation doesn't need thread safety |
+| `synchronized` modifier | Function-level synchronization | Parsed but not enforced | Low -- no threading in simulation |
+| `resource` type | Scheduler resource objects | Not implemented | Low -- scheduler not simulated |
+| `Fork()`/`Join()` | Thread creation/joining | Not implemented (falls through to stub returning 0) | Low -- simulation is single-threaded |
+| `workflow`/`activity`/`actionblock` | Scheduler constructs | Not implemented | Low -- scheduler not simulated |
+| `schedule`/`reschedule` | Scheduler control | Not implemented | Low -- scheduler not simulated |
+| `oncancelaction`/`oncanceltask` | Scheduler handlers | Not implemented | Low -- scheduler not simulated |
+| `private`/`static` enforcement | Visibility restrictions | Parsed but not enforced | Low -- doesn't affect simulation correctness |
+| `err.GetId()`, `err.GetSource()` | Error object methods | Only `Raise`, `GetDescription`, `Clear` implemented | Low -- partial error object |
+| `#pragma global` | Global include behavior | Not implemented | Low -- rare directive |
 
 ### Correctly Implemented Features
 
@@ -618,10 +618,10 @@ The guide's community notes are also accurate and provide valuable practical gui
 
 Our simulation runtime correctly implements the core language features but has these **5 notable gaps** compared to what the guide describes:
 
-1. **`hslInteger`/`hslFloat`/`hslString` constant values are wrong** — should be `"i"`/`"f"`/`"s"`, not `"hslInteger"`/`"hslFloat"`/`"hslString"`
-2. **Power operator `^`** — not implemented
-3. **Bitwise AND `&`** — not implemented as expression operator
-4. **`loop(N)` statement** — not implemented
-5. **`struct` keyword** — not implemented
+1. **`hslInteger`/`hslFloat`/`hslString` constant values are wrong** -- should be `"i"`/`"f"`/`"s"`, not `"hslInteger"`/`"hslFloat"`/`"hslString"`
+2. **Power operator `^`** -- not implemented
+3. **Bitwise AND `&`** -- not implemented as expression operator
+4. **`loop(N)` statement** -- not implemented
+5. **`struct` keyword** -- not implemented
 
 Items 2-5 are language features that would need parser and interpreter additions. Item 1 is a simple constant value fix.

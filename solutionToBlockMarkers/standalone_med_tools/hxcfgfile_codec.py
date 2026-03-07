@@ -15,18 +15,18 @@ The HxCfgFile v3 binary container stores instrument method (.med) and step
 
     ┌──────────────────────────────────────────────────────────────┐
     │  File Header (4 bytes)                                       │
-    │    [u16-LE]  version          — always 3                     │
-    │    [u16-LE]  type_marker      — always 1                     │
+    │    [u16-LE]  version          -- always 3                     │
+    │    [u16-LE]  type_marker      -- always 1                     │
     ├──────────────────────────────────────────────────────────────┤
     │  Named-Section Count (4 bytes)                               │
-    │    [u32-LE]  count            — 0 or 1                       │
+    │    [u32-LE]  count            -- 0 or 1                       │
     ├──────────────────────────────────────────────────────────────┤
-    │  Named Section (optional — present when count == 1)          │
+    │  Named Section (optional -- present when count == 1)          │
     │    [short-string]  section_name                              │
     │        .med → "ActivityData,ActivityData"                    │
     │        .stp → "Method,Properties"                            │
-    │    [u16-LE]  field_type       — always 1                     │
-    │    [u32-LE]  field_count      — always 1                     │
+    │    [u16-LE]  field_type       -- always 1                     │
+    │    [u32-LE]  field_count      -- always 1                     │
     │    [short-string]  field_key                                 │
     │        .med → "ActivityDocument"                             │
     │        .stp → "ReadOnly"                                     │
@@ -39,8 +39,8 @@ The HxCfgFile v3 binary container stores instrument method (.med) and step
     │    [3×0x00] padding                                          │
     ├──────────────────────────────────────────────────────────────┤
     │  HxPars Sections (repeated hxpars_count times)               │
-    │    [short-string]  section_header  — "HxPars,<key>"          │
-    │    [u16-LE]  pars_version     — always 3                     │
+    │    [short-string]  section_header  -- "HxPars,<key>"          │
+    │    [u16-LE]  pars_version     -- always 3                     │
     │    [u32-LE]  token_count                                     │
     │    [var-string × token_count]  tokens                        │
     ├──────────────────────────────────────────────────────────────┤
@@ -56,7 +56,7 @@ Two string encodings are used throughout:
 
 * **short-string**: 1-byte length prefix (max 255 bytes) + raw Latin-1 payload.
 * **var-string**: 1-byte marker + payload.
-    - If the marker byte is 0x00–0xFE the marker *is* the length
+    - If the marker byte is 0x00-0xFE the marker *is* the length
       and the payload follows immediately.
     - If the marker byte is 0xFF the next 2 bytes are a u16-LE length,
       then the payload follows.  This allows strings up to 65 535 bytes.
@@ -83,10 +83,10 @@ CLI Usage
 
 Subcommands:
 
-* ``to-text``   — convert a binary .med/.stp to its text representation.
-* ``to-binary`` — convert a text representation back to a binary container.
-* ``roundtrip`` — binary → text → binary and verify byte-for-byte equality.
-* ``dump``      — print a human-readable structural summary of the binary file.
+* ``to-text``   -- convert a binary .med/.stp to its text representation.
+* ``to-binary`` -- convert a text representation back to a binary container.
+* ``roundtrip`` -- binary → text → binary and verify byte-for-byte equality.
+* ``dump``      -- print a human-readable structural summary of the binary file.
 """
 
 from __future__ import annotations
@@ -100,7 +100,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 # ---------------------------------------------------------------------------
-# Constants — magic numbers & well-known values
+# Constants -- magic numbers & well-known values
 # ---------------------------------------------------------------------------
 
 HXCFG_VERSION: int = 3
@@ -167,7 +167,7 @@ class NamedSection:
     Attributes:
         name:  The compound section name, e.g. ``"ActivityData,ActivityData"``.
         key:   The field key, e.g. ``"ActivityDocument"`` or ``"ReadOnly"``.
-        value: The field value — for .med files a large base-64 string;
+        value: The field value -- for .med files a large base-64 string;
                for .stp files typically ``"0"``.
     """
 
@@ -302,14 +302,14 @@ def _unescape_token_from_text(line: str) -> str:
     while i < len(inner):
         ch = inner[i]
         if ch != "\\":
-            # Ordinary character — encode as Latin-1 byte
+            # Ordinary character -- encode as Latin-1 byte
             out.extend(ch.encode("latin1"))
             i += 1
             continue
 
-        # Backslash — look ahead for escape sequence
+        # Backslash -- look ahead for escape sequence
         if i + 1 >= len(inner):
-            # Trailing backslash at end of string — keep literal
+            # Trailing backslash at end of string -- keep literal
             out.append(0x5C)
             i += 1
             continue
@@ -334,11 +334,11 @@ def _unescape_token_from_text(line: str) -> str:
                 out.append(int(hh, 16))
                 i += 5
             except ValueError:
-                # Malformed hex — treat backslash literally
+                # Malformed hex -- treat backslash literally
                 out.append(0x5C)
                 i += 1
         else:
-            # Unrecognised escape — treat backslash literally
+            # Unrecognised escape -- treat backslash literally
             out.append(0x5C)
             i += 1
 
@@ -422,7 +422,7 @@ def _write_short_string(value: str) -> bytes:
 def _read_var_string(data: bytes, pos: int) -> Tuple[str, int]:
     """Read a variable-length string from *data* at *pos*.
 
-    Layout (short form, marker 0x00–0xFE)::
+    Layout (short form, marker 0x00-0xFE)::
 
         [u8 length] [length bytes of Latin-1 payload]
 
@@ -453,7 +453,7 @@ def _write_var_string(value: str) -> bytes:
     """Encode *value* as a variable-length string.
 
     Strings of 254 bytes or fewer use the compact 1-byte length prefix.
-    Strings of 255–65 535 bytes use the ``0xFF`` marker followed by a
+    Strings of 255-65 535 bytes use the ``0xFF`` marker followed by a
     u16-LE length.
 
     Args:
@@ -468,10 +468,10 @@ def _write_var_string(value: str) -> bytes:
     raw: bytes = value.encode("latin1")
     n: int = len(raw)
     if n <= 0xFE:
-        # Short form — marker byte is the length itself
+        # Short form -- marker byte is the length itself
         return bytes([n]) + raw
     if n <= VAR_STRING_MAX_LENGTH:
-        # Long form — 0xFF prefix + u16-LE length
+        # Long form -- 0xFF prefix + u16-LE length
         return b"\xFF" + _write_u16_le(n) + raw
     raise ValueError(
         f"var-string too long for current encoding "
@@ -504,7 +504,7 @@ def parse_binary_med(binary_data: bytes) -> HxCfgTextModel:
     pos: int = 0
 
     # --- File header (4 bytes) ---
-    # u16-LE version — must be 3
+    # u16-LE version -- must be 3
     version: int
     version, pos = _read_u16_le(binary_data, pos)
     if version != HXCFG_VERSION:
@@ -512,7 +512,7 @@ def parse_binary_med(binary_data: bytes) -> HxCfgTextModel:
             f"Unsupported HxCfgFile version: {version} (expected {HXCFG_VERSION})"
         )
 
-    # u16-LE type marker — must be 1
+    # u16-LE type marker -- must be 1
     section_type: int
     section_type, pos = _read_u16_le(binary_data, pos)
     if section_type != HXCFG_TYPE_MARKER:
@@ -534,7 +534,7 @@ def parse_binary_med(binary_data: bytes) -> HxCfgTextModel:
         section_name: str
         section_name, pos = _read_short_string(binary_data, pos)
 
-        # Field type — must be 1
+        # Field type -- must be 1
         field_type: int
         field_type, pos = _read_u16_le(binary_data, pos)
         if field_type != NAMED_FIELD_TYPE:
@@ -543,7 +543,7 @@ def parse_binary_med(binary_data: bytes) -> HxCfgTextModel:
                 f"(expected {NAMED_FIELD_TYPE})"
             )
 
-        # Field count — must be 1
+        # Field count -- must be 1
         field_count: int
         field_count, pos = _read_u32_le(binary_data, pos)
         if field_count != NAMED_FIELD_COUNT:
@@ -588,7 +588,7 @@ def parse_binary_med(binary_data: bytes) -> HxCfgTextModel:
 
         section_key: str = raw_name.split(",", 1)[1]
 
-        # HxPars version — must be 3
+        # HxPars version -- must be 3
         pars_version: int
         pars_version, pos = _read_u16_le(binary_data, pos)
         if pars_version != HXPARS_VERSION:
@@ -902,7 +902,7 @@ def text_to_binary_file(input_path: Path, output_path: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Dump — human-readable structural summary
+# Dump -- human-readable structural summary
 # ---------------------------------------------------------------------------
 
 
@@ -988,7 +988,7 @@ def dump_binary_structure(binary_data: bytes) -> str:
         token_count, pos = _read_u32_le(binary_data, pos)
         lines.append(f"         Tokens:  {token_count:,}")
 
-        # Summarise tokens — show byte sizes
+        # Summarise tokens -- show byte sizes
         total_token_bytes: int = 0
         for t_idx in range(token_count):
             t_start: int = pos
@@ -1004,7 +1004,7 @@ def dump_binary_structure(binary_data: bytes) -> str:
     footer_match = FOOTER_PATTERN.search(remainder)
     if footer_match:
         lines.append(f"[0x{remainder_start:04X}] Footer ({len(remainder)} bytes):")
-        # Show the footer line (may be long — truncate for display)
+        # Show the footer line (may be long -- truncate for display)
         footer_preview: str = footer_match.group(0)
         if len(footer_preview) > 120:
             footer_preview = footer_preview[:120] + "…"
@@ -1057,7 +1057,7 @@ def roundtrip_verify(
     # Compare
     if original_bytes == rebuilt_bytes:
         msg: str = (
-            f"PASS: roundtrip OK — {len(original_bytes):,} bytes identical.\n"
+            f"PASS: roundtrip OK -- {len(original_bytes):,} bytes identical.\n"
             f"  Named section: {'yes' if model.named_section else 'no'}\n"
             f"  HxPars sections: {len(model.hxpars_sections)}\n"
             f"  Total tokens: "

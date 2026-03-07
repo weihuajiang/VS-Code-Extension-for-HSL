@@ -271,7 +271,7 @@ The parser implements these precedence levels from lowest to highest:
 | 8 | `_parse_multiplicative` | `*` `/` `%` | Left |
 | 9 | `_parse_unary` | `-` `!` `++` `--` (prefix) | Right |
 | 10 | `_parse_postfix` | `()` `[]` `.` `::` `++` `--` | Left |
-| 11 | `_parse_primary` | Literals, identifiers, groups | — |
+| 11 | `_parse_primary` | Literals, identifiers, groups | -- |
 
 ### Assignment as Expression
 
@@ -504,7 +504,7 @@ def _recover_in_block(self):
     """Skip to the next statement boundary without consuming '}'."""
     while not self._check(TokenType.EOF):
         if self._check(TokenType.RBRACE):
-            return  # DON'T consume — let the block parser handle it
+            return  # DON'T consume -- let the block parser handle it
         if self._check(TokenType.SEMICOLON):
             self._advance()
             return
@@ -545,7 +545,7 @@ The `<<` (LSHIFT) token followed by a string literal is parsed as a runtime incl
 << "helpers.hsl";
 ```
 
-This is logged but does not produce an AST node — the preprocessor handles actual file inclusion.
+This is logged but does not produce an AST node -- the preprocessor handles actual file inclusion.
 
 ### Backslash Skipping
 

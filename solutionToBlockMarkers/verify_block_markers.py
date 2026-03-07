@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """
-verify_block_markers.py — Block Marker Verification Test Suite
+verify_block_markers.py -- Block Marker Verification Test Suite
 
 Tests the block marker algorithm against known-good Hamilton method files.
-This is a READ-ONLY test — it does NOT modify any method files.
+This is a READ-ONLY test -- it does NOT modify any method files.
 
 What it tests:
-  1. Parsing correctness — can we parse all markers from real Hamilton files?
-  2. Row numbering — are rows sequential (1, 2, 3, ...)?
-  3. Renumbering idempotency — does renumbering a correctly-numbered file produce identical output?
-  4. GUID format validation — are all GUIDs in the correct 8_4_4_16 format?
-  5. CLSID recognition — are all CLSIDs known step types?
-  6. Triple-brace correctness — do the right CLSIDs use {{{ vs {{?
-  7. Structural marker validation — are all structural sections well-formed?
-  8. Guard verification — do library files correctly NOT have block markers?
-  9. CRC-32 checksum — does our checksum match Hamilton's?
-  10. Companion file check — do all files with markers have .med files?
+  1. Parsing correctness -- can we parse all markers from real Hamilton files?
+  2. Row numbering -- are rows sequential (1, 2, 3, ...)?
+  3. Renumbering idempotency -- does renumbering a correctly-numbered file produce identical output?
+  4. GUID format validation -- are all GUIDs in the correct 8_4_4_16 format?
+  5. CLSID recognition -- are all CLSIDs known step types?
+  6. Triple-brace correctness -- do the right CLSIDs use {{{ vs {{?
+  7. Structural marker validation -- are all structural sections well-formed?
+  8. Guard verification -- do library files correctly NOT have block markers?
+  9. CRC-32 checksum -- does our checksum match Hamilton's?
+  10. Companion file check -- do all files with markers have .med files?
 
 Usage:
   python verify_block_markers.py                              # Test default Hamilton files
@@ -200,7 +200,7 @@ def test_row_numbering(filepath: str, content: str) -> TestResult:
     if sequential:
         r.ok(f"Rows 1-{len(rows)} are sequential")
     else:
-        # Multi-block steps reuse GUIDs — rows might not be strictly sequential
+        # Multi-block steps reuse GUIDs -- rows might not be strictly sequential
         # because if/else and loop blocks interleave with children.
         # Let's check if rows are at least monotonically increasing
         monotonic = all(rows[i] <= rows[i+1] for i in range(len(rows)-1))
@@ -251,7 +251,7 @@ def test_renumber_idempotent(filepath: str, content: str) -> TestResult:
         r.ok("Renumbering is idempotent (content unchanged)")
     else:
         # The file has non-sequential rows that renumbering fixed.
-        # This is expected behavior — check that the renumbered output
+        # This is expected behavior -- check that the renumbered output
         # has correct sequential numbering.
         re_parsed = parse_block_markers(renumbered)
         step_markers = [m for m in re_parsed if isinstance(m, StepBlockMarker)]
@@ -486,7 +486,7 @@ def test_library_guard(filepath: str, content: str) -> TestResult:
         companion = ".med" if med_exists else ".smt"
         r.ok(f"Has companion {companion} file")
     elif not has_markers and not med_exists:
-        r.ok("No markers, no companion — consistent")
+        r.ok("No markers, no companion -- consistent")
     
     return r
 

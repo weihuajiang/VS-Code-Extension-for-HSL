@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-med_generator.py — Hamilton .med File Generator & Sync Pipeline (Pure Python)
+med_generator.py -- Hamilton .med File Generator & Sync Pipeline (Pure Python)
 
 Full lifecycle management of .med companion files for Hamilton HSL methods.
 Ported from the TypeScript implementation in ``src/medGenerator.ts``.
@@ -28,9 +28,9 @@ Imports
 This module depends on sibling modules within the ``standalone_med_tools``
 package:
 
-- ``.hxcfgfile_codec`` — binary ↔ text conversion
-- ``.block_markers``   — parsing, CLSID registry, GUID generation, reconciliation
-- ``.checksum``        — CRC-32 computation and checksum footer generation
+- ``.hxcfgfile_codec`` -- binary ↔ text conversion
+- ``.block_markers``   -- parsing, CLSID registry, GUID generation, reconciliation
+- ``.checksum``        -- CRC-32 computation and checksum footer generation
 
 CLI Usage
 =========
@@ -1071,7 +1071,7 @@ def build_device_step_stub(step: HslStepRecord) -> str:
     Standard format (3 field count):
         ``"33","3","(1","10","","11","","12","",")",")"``
 
-    LoadCarrier format (6 field count — includes barcode fields):
+    LoadCarrier format (6 field count -- includes barcode fields):
         ``"33","6","(1","13","","14","","15","","10","","11","","12","",")",")"``
 
     Args:
@@ -1176,7 +1176,7 @@ def build_step_section(step: HslStepRecord) -> str:
         lines.append('")"')
     lines.append('")"')
 
-    # ParamTranslateValue — for function call steps
+    # ParamTranslateValue -- for function call steps
     if is_func_call_step:
         call_info = parse_function_call_code(first_code)
         string_arg_indices = [
@@ -1193,7 +1193,7 @@ def build_step_section(step: HslStepRecord) -> str:
     lines.append('"1Timestamp"')
     lines.append(f'"{_format_timestamp()}"')
 
-    # ParamValue — for function call steps
+    # ParamValue -- for function call steps
     if is_func_call_step:
         call_info = parse_function_call_code(first_code)
         if call_info.args:
@@ -1808,7 +1808,7 @@ def build_stp_text(
         sections.append("};")
     sections.append("")
 
-    # Device step sections — sorted by GUID
+    # Device step sections -- sorted by GUID
     for guid in sorted(device_steps.keys()):
         step = device_steps[guid]
         existing = existing_sections.get(guid)
@@ -2116,7 +2116,7 @@ def correct_block_markers_on_save(file_path: str) -> None:
     - For .hsl files: renumber rows (starting at 1), then sync .med
     - For .sub files: renumber rows (starting after .hsl's last row), then sync .med
 
-    **Guards** — this function is a no-op (returns immediately) when ANY of:
+    **Guards** -- this function is a no-op (returns immediately) when ANY of:
     1. The file is not a .hsl or .sub file
     2. The .hsl file has no existing step block markers (i.e. it's a library)
     3. No companion .med or .smt file exists with the same base name
@@ -2139,7 +2139,7 @@ def correct_block_markers_on_save(file_path: str) -> None:
     is_hsl = file_path.lower().endswith(".hsl")
     is_sub = file_path.lower().endswith(".sub")
     if not is_hsl and not is_sub:
-        logger.info("Skipping %s — not .hsl or .sub", os.path.basename(file_path))
+        logger.info("Skipping %s -- not .hsl or .sub", os.path.basename(file_path))
         return
 
     # Resolve paths
@@ -2152,7 +2152,7 @@ def correct_block_markers_on_save(file_path: str) -> None:
 
     # Guard 2: .hsl must exist and contain step block markers
     if not os.path.exists(hsl_path):
-        logger.info("Skipping — .hsl not found: %s", hsl_path)
+        logger.info("Skipping -- .hsl not found: %s", hsl_path)
         return
 
     try:
@@ -2162,7 +2162,7 @@ def correct_block_markers_on_save(file_path: str) -> None:
         return
 
     if not has_step_block_markers(hsl_content):
-        logger.info("Skipping %s — no step block markers (library file)", os.path.basename(hsl_path))
+        logger.info("Skipping %s -- no step block markers (library file)", os.path.basename(hsl_path))
         return
 
     # Guard 3: companion .med or .smt must exist
@@ -2170,7 +2170,7 @@ def correct_block_markers_on_save(file_path: str) -> None:
     has_smt = os.path.exists(smt_path)
     if not has_med and not has_smt:
         logger.info(
-            "Skipping %s — no companion .med or .smt found", os.path.basename(hsl_path)
+            "Skipping %s -- no companion .med or .smt found", os.path.basename(hsl_path)
         )
         return
 

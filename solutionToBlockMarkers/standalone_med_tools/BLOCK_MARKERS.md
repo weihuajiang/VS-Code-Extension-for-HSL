@@ -97,7 +97,7 @@ not individual steps.
 ## Triple-Brace Markers
 
 Triple-brace `{{{` markers are used for **scope-creating / external-reference
-steps** — steps that reference code from other files (submethods, library
+steps** -- steps that reference code from other files (submethods, library
 functions) and open a new scope in the HSL interpreter.
 
 ### Triple-Brace CLSIDs
@@ -131,9 +131,9 @@ The Hamilton format merges the last two UUID segments (4-char + 12-char) into
 a single 16-character segment: `8_4_4_16`.
 
 Conversion functions:
-- `generate_instance_guid()` — create a new random GUID in Hamilton format
-- `hamilton_guid_to_standard(h_guid)` — Hamilton → standard conversion
-- `standard_guid_to_hamilton(std_guid)` — standard → Hamilton conversion
+- `generate_instance_guid()` -- create a new random GUID in Hamilton format
+- `hamilton_guid_to_standard(h_guid)` -- Hamilton → standard conversion
+- `standard_guid_to_hamilton(std_guid)` -- standard → Hamilton conversion
 
 ---
 
@@ -234,7 +234,7 @@ The module provides convenience functions for creating `MethodStep` objects:
 The `reconcile_block_marker_headers()` function performs comprehensive block
 marker repair. It handles all of the following cases in a single pass:
 
-### First Pass — Per-Block Repairs
+### First Pass -- Per-Block Repairs
 
 1. **Header mismatch**: Block marker comment references a different CLSID/GUID
    than the code inside → updates the comment header to match the actual code.
@@ -266,9 +266,9 @@ Step types that should contain exactly one executable statement per block:
 `ArrayGetAt`, `ArrayGetSize`, `ArrayCopy`, `Shell`, `Return`,
 `SubmethodCall`, `Break`
 
-### Second Pass — Orphan Code Wrapping
+### Second Pass -- Orphan Code Wrapping
 
-After the first pass, the function detects **orphaned code** — executable
+After the first pass, the function detects **orphaned code** -- executable
 lines sitting between two step blocks with no wrapping marker. These lines are
 wrapped with an appropriate new block marker:
 
@@ -296,7 +296,7 @@ numbers sequentially starting from 1. It:
 2. Replaces each row number with a sequential counter (1, 2, 3, …)
 3. Preserves all other content (code, structural markers, GUIDs, CLSIDs)
 
-The function is safe to call on any `.hsl` content — if there are no step
+The function is safe to call on any `.hsl` content -- if there are no step
 markers, the content is returned unchanged.
 
 For cross-file numbering (`.hsl` + `.sub`), the `.hsl` file is numbered
@@ -308,7 +308,7 @@ starting at row 1, and the `.sub` file continues from `lastHslRow + 1`.
 
 ### Block Marker Detection
 
-- `has_step_block_markers(content)` — quick-check guard that returns `True` if
+- `has_step_block_markers(content)` -- quick-check guard that returns `True` if
   the file contains at least one step block marker. Used to distinguish method
   files from library files (library files never have step markers).
 

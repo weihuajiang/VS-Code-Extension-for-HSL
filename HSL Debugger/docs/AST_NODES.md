@@ -239,7 +239,7 @@ class BreakStatement(ASTNode):
     pass  # No additional fields
 ```
 
-Represents `break;` — exits the innermost loop.
+Represents `break;` -- exits the innermost loop.
 
 ### ContinueStatement
 
@@ -248,7 +248,7 @@ class ContinueStatement(ASTNode):
     pass  # No additional fields
 ```
 
-Represents `continue;` — skips to the next loop iteration.
+Represents `continue;` -- skips to the next loop iteration.
 
 ### ReturnStatement
 
@@ -266,7 +266,7 @@ class AbortStatement(ASTNode):
     pass  # No additional fields
 ```
 
-Represents `abort;` — terminates the entire program.
+Represents `abort;` -- terminates the entire program.
 
 ### PauseStatement
 
@@ -275,7 +275,7 @@ class PauseStatement(ASTNode):
     pass  # No additional fields
 ```
 
-Represents `pause;` — pauses execution (logged in simulation).
+Represents `pause;` -- pauses execution (logged in simulation).
 
 ### OnErrorGoto
 
@@ -386,7 +386,7 @@ class SchedulerOnlyBlock(ASTNode):
     body: Block          # Block of statements
 ```
 
-Represents `scheduleronly { ... }` — skipped during simulation execution.
+Represents `scheduleronly { ... }` -- skipped during simulation execution.
 
 ### ExecutorOnlyBlock
 
@@ -395,7 +395,7 @@ class ExecutorOnlyBlock(ASTNode):
     body: Block          # Block of statements
 ```
 
-Represents `executoronly { ... }` — executed during simulation.
+Represents `executoronly { ... }` -- executed during simulation.
 
 ---
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-block_markers.py — Hamilton HSL Block Marker Generator, Parser & Reconciler
+block_markers.py -- Hamilton HSL Block Marker Generator, Parser & Reconciler
 
 A comprehensive standalone Python module for working with Hamilton HSL block markers.
 Combines and enhances functionality from:
@@ -16,7 +16,7 @@ comment and a closing marker comment.
 
 There are TWO kinds of block markers:
 
-1. **Step Block Markers** — wrap code belonging to a single compound step (e.g. Comment,
+1. **Step Block Markers** -- wrap code belonging to a single compound step (e.g. Comment,
    Assignment, Loop, If/Then/Else, device commands, etc.)
 
    Opening formats:
@@ -42,7 +42,7 @@ There are TWO kinds of block markers:
      - SubmethodCall
      - Return
 
-2. **Structural Block Markers** — delimit file-level sections that are not individual
+2. **Structural Block Markers** -- delimit file-level sections that are not individual
    steps but are required by the Method Editor framework.
 
    Opening formats:
@@ -57,7 +57,7 @@ There are TWO kinds of block markers:
      - Level 2: LibraryInsertLine, VariableInsertLine, TemplateIncludeBlock,
        LocalSubmethodInclude, ProcessInsertLine, AutoInitBlock, AutoExitBlock,
        SubmethodForwardDeclaration, SubmethodInsertLine
-     - Level 5: function boundaries — ``"main" "Begin"``, ``"main" "InitLocals"``,
+     - Level 5: function boundaries -- ``"main" "Begin"``, ``"main" "InitLocals"``,
        ``"main" "End"``, ``"OnAbort" "Begin"``, etc.
 
 Checksum Footer
@@ -237,7 +237,7 @@ These steps reference code from other files (submethods, library functions) and
 open a new scope in the HSL interpreter.
 """
 
-# CLSIDs that are "single statement per block" types — used by the reconciler
+# CLSIDs that are "single statement per block" types -- used by the reconciler
 # to detect when multiple statements were incorrectly merged into one block.
 SINGLE_STATEMENT_CLSIDS: Set[str] = {
     STEP_CLSID["SingleLibFunction"],
@@ -377,7 +377,7 @@ RE_CHECKSUM = re.compile(
     r'\$\$checksum=([0-9a-fA-F]{8})\$\$length=(\d{3})\$\$\s*$'
 )
 
-# Device step function call in code — matches patterns like:
+# Device step function call in code -- matches patterns like:
 #   ML_STAR._541143FC_7FA2_11D3_AD85_0004ACB1DCB2("122ed496_fe1b_4df4_aee6e5fe2130e41b")
 # Captures:
 #   [1] Device name (e.g. "ML_STAR")
@@ -694,7 +694,7 @@ def renumber_block_markers(content: str) -> str:
     Only modifies the row number in each step opening marker; all other content
     (code, structural markers, GUIDs, CLSIDs) is preserved exactly.
 
-    Safe to call on any ``.hsl`` content — if there are no step markers,
+    Safe to call on any ``.hsl`` content -- if there are no step markers,
     the content is returned unchanged.
 
     Args:
@@ -888,7 +888,7 @@ def reconcile_block_marker_headers(content: str) -> str:
     while i < len(lines):
         trimmed = lines[i].strip()
 
-        # ── Inline structural markers — pass through ──
+        # ── Inline structural markers -- pass through ──
         if RE_INLINE_STRUCTURAL.match(trimmed):
             result.append(lines[i])
             i += 1
@@ -907,7 +907,7 @@ def reconcile_block_marker_headers(content: str) -> str:
 
             # Collect code lines until closing marker.
             # If we encounter another open marker before a close, the current
-            # block's close was deleted — handle accordingly.
+            # block's close was deleted -- handle accordingly.
             code_lines: List[str] = []
             missing_close = False
             i += 1
@@ -917,7 +917,7 @@ def reconcile_block_marker_headers(content: str) -> str:
                 if (RE_STEP_OPEN.match(peek_trimmed) or
                         RE_STRUCTURAL_OPEN.match(peek_trimmed) or
                         RE_INLINE_STRUCTURAL.match(peek_trimmed)):
-                    # Current block's close is missing — stop here
+                    # Current block's close is missing -- stop here
                     missing_close = True
                     break
                 code_lines.append(lines[i])
@@ -933,10 +933,10 @@ def reconcile_block_marker_headers(content: str) -> str:
                     for t in code_lines
                 )
                 if not has_real_code:
-                    # Empty block with missing close — remove entirely
+                    # Empty block with missing close -- remove entirely
                     continue
                 else:
-                    # Block has code but lost its close — re-emit with synthetic close
+                    # Block has code but lost its close -- re-emit with synthetic close
                     result.append(open_line_original)
                     result.extend(code_lines)
                     result.append('// }} ""')
@@ -949,7 +949,7 @@ def reconcile_block_marker_headers(content: str) -> str:
             if len(device_calls) == 0:
                 is_device_clsid = ":" in comment_clsid
 
-                # Empty device block — remove entirely
+                # Empty device block -- remove entirely
                 if is_device_clsid and all(
                     l.strip() in ("", "{", "}") for l in code_lines
                 ):
@@ -969,14 +969,14 @@ def reconcile_block_marker_headers(content: str) -> str:
 
                 is_single_statement_type = comment_clsid in SINGLE_STATEMENT_CLSIDS
 
-                # Empty single-statement block — remove
+                # Empty single-statement block -- remove
                 if is_single_statement_type and len(executable_lines) == 0:
                     modified = True
                     if close_line_idx >= 0 and close_line_idx < len(lines):
                         i = close_line_idx + 1
                     continue
 
-                # Multiple statements in a single-statement type — split
+                # Multiple statements in a single-statement type -- split
                 if is_single_statement_type and len(executable_lines) > 1:
                     modified = True
                     for si, (_, stmt_line) in enumerate(executable_lines):
@@ -1011,7 +1011,7 @@ def reconcile_block_marker_headers(content: str) -> str:
                         i = close_line_idx + 1
                     continue
 
-                # Normal non-device step — keep as-is
+                # Normal non-device step -- keep as-is
                 result.append(open_line_original)
                 result.extend(code_lines)
                 if close_line_idx >= 0 and close_line_idx < len(lines):
@@ -1055,7 +1055,7 @@ def reconcile_block_marker_headers(content: str) -> str:
                     modified = True
                 continue
 
-            # ── Case: Multiple device calls in one block — SPLIT ──
+            # ── Case: Multiple device calls in one block -- SPLIT ──
             modified = True
             for call in device_calls:
                 # Duplicate GUID check
@@ -1081,7 +1081,7 @@ def reconcile_block_marker_headers(content: str) -> str:
                 i = close_line_idx + 1
             continue
 
-        # ── Structural opening marker — pass through with content ──
+        # ── Structural opening marker -- pass through with content ──
         struct_match = RE_STRUCTURAL_OPEN.match(trimmed)
         if struct_match:
             result.append(lines[i])
@@ -1091,7 +1091,7 @@ def reconcile_block_marker_headers(content: str) -> str:
                 if (RE_STEP_OPEN.match(s_peek) or
                         RE_STRUCTURAL_OPEN.match(s_peek) or
                         RE_INLINE_STRUCTURAL.match(s_peek)):
-                    # Structural block's close is missing — add synthetic close
+                    # Structural block's close is missing -- add synthetic close
                     result.append('// }} ""')
                     modified = True
                     break
@@ -1102,7 +1102,7 @@ def reconcile_block_marker_headers(content: str) -> str:
                 i += 1
             continue
 
-        # ── Everything else — pass through unchanged ──
+        # ── Everything else -- pass through unchanged ──
         result.append(lines[i])
         i += 1
 
@@ -1132,7 +1132,7 @@ def reconcile_block_marker_headers(content: str) -> str:
             for j in range(ri - 1, -1, -1):
                 pt = result[j].strip()
                 if RE_CLOSE.match(pt):
-                    # Found a close — was the corresponding open a step marker?
+                    # Found a close -- was the corresponding open a step marker?
                     depth = 1
                     for k in range(j - 1, -1, -1):
                         kt = result[k].strip()
@@ -1166,7 +1166,7 @@ def reconcile_block_marker_headers(content: str) -> str:
                 if (pt and
                         not pt.startswith("//") and
                         not pt.startswith("/*")):
-                    break  # Hit another code line — not our concern
+                    break  # Hit another code line -- not our concern
 
             # Look forward for the nearest open marker
             next_is_step_open = False
@@ -1182,11 +1182,11 @@ def reconcile_block_marker_headers(content: str) -> str:
                 if (nt and
                         not nt.startswith("//") and
                         not nt.startswith("/*")):
-                    # Another code line — might be part of the same orphan group
+                    # Another code line -- might be part of the same orphan group
                     continue
 
             if prev_is_step_close and next_is_step_open:
-                # This is orphaned code — wrap it with an appropriate marker
+                # This is orphaned code -- wrap it with an appropriate marker
                 second_pass_modified = True
 
                 wrap_clsid: str = STEP_CLSID["Assignment"]
@@ -1860,7 +1860,7 @@ def _run_demo(args: argparse.Namespace) -> None:
 def main() -> None:
     """CLI entry point for the block marker generator."""
     parser = argparse.ArgumentParser(
-        description="Hamilton HSL Block Marker Generator & Reconciler — "
+        description="Hamilton HSL Block Marker Generator & Reconciler -- "
                     "Standalone Python Implementation"
     )
     parser.add_argument(

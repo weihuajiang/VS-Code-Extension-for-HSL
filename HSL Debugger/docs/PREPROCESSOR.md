@@ -25,11 +25,11 @@
 
 The preprocessor transforms one or more HSL source files into a single, flattened source string. It handles:
 
-- **`#include`** — Resolves file paths and recursively inlines included files
-- **`#define` / `#undef`** — Stores macro definitions and performs textual substitution
-- **`#ifdef` / `#ifndef` / `#else` / `#endif`** — Conditional compilation blocks
-- **`#pragma once`** — Include-once file guards
-- **`#if defined(...)`** — Alternative conditional syntax
+- **`#include`** -- Resolves file paths and recursively inlines included files
+- **`#define` / `#undef`** -- Stores macro definitions and performs textual substitution
+- **`#ifdef` / `#ifndef` / `#else` / `#endif`** -- Conditional compilation blocks
+- **`#pragma once`** -- Include-once file guards
+- **`#if defined(...)`** -- Alternative conditional syntax
 
 The output is a plain text string suitable for tokenization by the lexer.
 
@@ -101,7 +101,7 @@ This is the main entry point. It:
 
 Core preprocessing loop. Processes each line of `content`:
 
-1. Checks the condition stack — if a false condition is active, only `#else`, `#endif`, and nested `#ifdef`/`#ifndef` are processed
+1. Checks the condition stack -- if a false condition is active, only `#else`, `#endif`, and nested `#ifdef`/`#ifndef` are processed
 2. Handles directives via `_handle_directive()`
 3. Performs macro substitution via `_substitute_defines()`
 4. Handles inline includes (`#include` appearing mid-line)

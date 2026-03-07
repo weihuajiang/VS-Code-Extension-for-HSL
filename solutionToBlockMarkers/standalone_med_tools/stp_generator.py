@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-stp_generator.py — Hamilton .stp (Step Parameters) File Generator
+stp_generator.py -- Hamilton .stp (Step Parameters) File Generator
 
 Full lifecycle management of .stp companion files for Hamilton HSL methods.
 Ported from the TypeScript implementation in ``src/medGenerator.ts``.
@@ -24,9 +24,9 @@ Imports
 This module depends on sibling modules within the ``standalone_med_tools``
 package:
 
-- ``.block_markers``   — parsing, CLSID registry, GUID generation
-- ``.hxcfgfile_codec`` — binary ↔ text conversion
-- ``.checksum``        — CRC-32 computation and checksum footer generation
+- ``.block_markers``   -- parsing, CLSID registry, GUID generation
+- ``.hxcfgfile_codec`` -- binary ↔ text conversion
+- ``.checksum``        -- CRC-32 computation and checksum footer generation
 
 CLI Usage
 =========
@@ -269,10 +269,10 @@ def get_default_error_recoveries(bare: str) -> List[str]:
 
     All device steps share a standard set of four error entries:
 
-    - **Error 3** — Hardware error (infinite retry, default: Retry)
-    - **Error 999** — Unknown error (no infinite retry, default: Abort)
-    - **Error 10** — Position not found (infinite retry, default: Retry)
-    - **Error 2** — Not initialized (infinite retry, default: Retry)
+    - **Error 3** -- Hardware error (infinite retry, default: Retry)
+    - **Error 999** -- Unknown error (no infinite retry, default: Abort)
+    - **Error 10** -- Position not found (infinite retry, default: Retry)
+    - **Error 2** -- Not initialized (infinite retry, default: Retry)
 
     Args:
         bare: Bare CLSID (without device prefix) identifying the step type.
@@ -415,7 +415,7 @@ def build_default_stp_section(guid: str, clsid: str, code: str) -> str:
     lines.append(f"DataDef,HxPars,3,{guid},")
     lines.append("[")
 
-    # CommandStepFileGuid — usually same as instance GUID for simple steps
+    # CommandStepFileGuid -- usually same as instance GUID for simple steps
     lines.append('"1CommandStepFileGuid"')
     lines.append(f'"{guid}"')
 
@@ -430,7 +430,7 @@ def build_default_stp_section(guid: str, clsid: str, code: str) -> str:
         lines.extend(['"3AlwaysInitialize"', '"0"'])
 
     if bare in _CHANNEL_STEPS:
-        # TipPickUp, Aspirate, Dispense, TipEject — sequence and channel pattern
+        # TipPickUp, Aspirate, Dispense, TipEject -- sequence and channel pattern
         if sequence_name:
             lines.extend(['"1SequenceObject"', f'"{sequence_name}"'])
             lines.extend(['"1SequenceName"', f'"{sequence_name}"'])
@@ -439,21 +439,21 @@ def build_default_stp_section(guid: str, clsid: str, code: str) -> str:
         lines.extend(['"1ChannelPattern"', '"11111111"'])
 
     if bare in _LIQUID_STEPS:
-        # Aspirate/Dispense — TipType (5 = 1000µl High Volume with Filter)
+        # Aspirate/Dispense -- TipType (5 = 1000µl High Volume with Filter)
         lines.extend(['"3TipType"', '"5"'])
 
     if bare == _CLSID_TIP_EJECT:
-        # TipEject — UseDefaultWaste flag
+        # TipEject -- UseDefaultWaste flag
         lines.extend(['"3UseDefaultWaste"', '"1"'])
 
     if bare in _CARRIER_STEPS:
-        # LoadCarrier / UnloadCarrier — optional SequenceName
+        # LoadCarrier / UnloadCarrier -- optional SequenceName
         if sequence_name:
             lines.extend(['"1SequenceName"', f'"{sequence_name}"'])
 
     # ── Common fields ──
 
-    # NbrOfErrors — standard 4-error table
+    # NbrOfErrors -- standard 4-error table
     lines.extend(['"3NbrOfErrors"', '"4"'])
 
     # Error recovery table
@@ -556,7 +556,7 @@ def build_stp_text(
         sections.append("};")
     sections.append("")
 
-    # Device step sections — sorted alphabetically by GUID for determinism
+    # Device step sections -- sorted alphabetically by GUID for determinism
     for guid in sorted(device_steps.keys()):
         step = device_steps[guid]
         existing = existing_sections.get(guid)
@@ -722,7 +722,7 @@ def sync_stp_from_hsl(
                 "code": "\n".join(marker.code_lines),
             }
             logger.info(
-                "Found code-level GUID %s (differs from comment GUID %s) — "
+                "Found code-level GUID %s (differs from comment GUID %s) -- "
                 "adding to .stp",
                 actual_call.instance_guid,
                 marker.instance_guid,

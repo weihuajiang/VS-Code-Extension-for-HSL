@@ -88,7 +88,7 @@ The `execute()` method:
 
 ## Type System
 
-### HslValue — The Variant Type
+### HslValue -- The Variant Type
 
 The core runtime type wrapping Python values:
 
@@ -120,12 +120,12 @@ class HslArray:
 ```
 
 Element functions:
-- `SetSize(n)` — resize to `n` elements
-- `GetSize()` — return current size
-- `SetAt(index, value)` — set element at index
-- `GetAt(index)` — get element at index
-- `ElementAt(index)` — get element reference at index
-- `AddAsLast(value)` — append element
+- `SetSize(n)` -- resize to `n` elements
+- `GetSize()` -- return current size
+- `SetAt(index, value)` -- set element at index
+- `GetAt(index)` -- get element at index
+- `ElementAt(index)` -- get element reference at index
+- `AddAsLast(value)` -- append element
 
 #### HslSequence
 
@@ -201,7 +201,7 @@ class HslTimer:
         self.started = False
 ```
 
-Timer operations return immediately — no real delays.
+Timer operations return immediately -- no real delays.
 
 #### HslDialog
 
@@ -236,10 +236,10 @@ class Scope:
 ```
 
 Methods:
-- `get(name)` — look up variable in this scope and all parents
-- `set(name, value)` — set variable in the nearest scope that contains it
-- `set_local(name, value)` — set variable in this scope only (for declarations)
-- `has(name)` — check if variable exists in this scope or parents
+- `get(name)` -- look up variable in this scope and all parents
+- `set(name, value)` -- set variable in the nearest scope that contains it
+- `set_local(name, value)` -- set variable in this scope only (for declarations)
+- `has(name)` -- check if variable exists in this scope or parents
 
 ### Scope Chain
 
@@ -258,8 +258,8 @@ Variable lookup walks from the innermost scope to the global scope. The first ma
 |-----------|-------------|
 | `global_scope` | Top-level scope for global variables and constants |
 | `current_scope` | Currently active scope (changes during execution) |
-| `functions` | `dict[str, FunctionDeclaration]` — all declared functions |
-| `namespaces` | `dict[str, dict]` — namespace contents |
+| `functions` | `dict[str, FunctionDeclaration]` -- all declared functions |
+| `namespaces` | `dict[str, dict]` -- namespace contents |
 
 ---
 
@@ -654,7 +654,7 @@ def _call_function(self, name, args):
     if result is not None:
         return result
     
-    # 5. Unknown function — log warning, return 0
+    # 5. Unknown function -- log warning, return 0
     self.trace.warn(f"Unknown function: {name}")
     return HslValue(0)
 ```

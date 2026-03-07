@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-HxCfgFile v3 Codec Tester — Tkinter GUI Application
+HxCfgFile v3 Codec Tester -- Tkinter GUI Application
 =====================================================
 
 A graphical tool for testing the HxCfgFile v3 binary ↔ text conversion codec
@@ -433,9 +433,9 @@ class CodecTesterApp:
         self._set_text(message)
 
         if success:
-            self._set_status(f"ROUNDTRIP PASS — {self.current_path.name}")
+            self._set_status(f"ROUNDTRIP PASS -- {self.current_path.name}")
         else:
-            self._set_status(f"ROUNDTRIP FAIL — {self.current_path.name}")
+            self._set_status(f"ROUNDTRIP FAIL -- {self.current_path.name}")
 
     def _on_batch_roundtrip(self) -> None:
         """Run roundtrip tests on all .med and .stp files in a folder.
@@ -522,7 +522,7 @@ class CodecTesterApp:
             f"  ERROR: {errors}\n"
         )
         final_status = (
-            f"Batch complete — {passed} passed, {failed} failed, {errors} errors"
+            f"Batch complete -- {passed} passed, {failed} failed, {errors} errors"
         )
         self.root.after(0, self._append_text, summary)
         self.root.after(0, self._set_status, final_status)
@@ -572,7 +572,7 @@ class CodecTesterApp:
 def main() -> None:
     """Create the Tk root window, instantiate the app, and enter the mainloop."""
     root = tk.Tk()
-    _app = CodecTesterApp(root)  # noqa: F841 — reference kept by Tk
+    _app = CodecTesterApp(root)  # noqa: F841 -- reference kept by Tk
     root.mainloop()
 
 

@@ -74,7 +74,7 @@ The HSL Debugger processes HSL source files through a four-phase pipeline:
                     └────────────────┘
 ```
 
-Each phase is implemented as a self-contained Python module with well-defined inputs and outputs. Phases communicate through intermediate data structures — there are no global variables or shared mutable state between phases.
+Each phase is implemented as a self-contained Python module with well-defined inputs and outputs. Phases communicate through intermediate data structures -- there are no global variables or shared mutable state between phases.
 
 ---
 
@@ -262,10 +262,10 @@ This approach allows the parser to produce a partial AST even when there are syn
 |---------|----------|
 | Comma-separated declarations | `variable a, b(1), c;` parsed as multiple `VariableDeclaration` nodes |
 | Device constructor arguments | `device d("layout.lay", "name", hslTrue);` parsed with positional args |
-| Assignment as expression | `for (i = 0; ...)` — assignment returns the assigned value |
+| Assignment as expression | `for (i = 0; ...)` -- assignment returns the assigned value |
 | Runtime includes | `<< "file.hsl"` parsed as a special include directive |
 | Backslash skipping | `\` at certain positions is consumed and skipped (path handling) |
-| Labels | `ErrorHandler:` — identifier followed by `:` outside `?:` context |
+| Labels | `ErrorHandler:` -- identifier followed by `:` outside `?:` context |
 
 ---
 
@@ -314,10 +314,10 @@ HslValue("hello")    # string
 ```
 
 Type coercion methods:
-- `to_int()` — converts to integer (truncates floats, parses strings)
-- `to_float()` — converts to float (parses strings)
-- `to_string()` — converts to string representation
-- `to_bool()` — falsy: `0`, `0.0`, `""`, `None`; everything else is truthy
+- `to_int()` -- converts to integer (truncates floats, parses strings)
+- `to_float()` -- converts to float (parses strings)
+- `to_string()` -- converts to string representation
+- `to_bool()` -- falsy: `0`, `0.0`, `""`, `None`; everything else is truthy
 
 ### Scope Chain
 
@@ -342,7 +342,7 @@ Every automation type has a simulation stub class:
 | `sequence` | `HslSequence` | Tracks position/count/max; `Increment()` / `GetLabwareId()` return stubs |
 | `file` | `HslFile` | File reads work; writes are stubbed |
 | `object` | `HslObject` | Property bag; `CreateObject()` logs ProgID |
-| `timer` | `HslTimer` | `SetTimer()` / `ReadElapsed()` — no real delay |
+| `timer` | `HslTimer` | `SetTimer()` / `ReadElapsed()` -- no real delay |
 | `event` | `HslEvent` | Stub; operations are no-ops |
 | `dialog` | `HslDialog` | Property tracking; `ShowCustomDialog()` returns OK |
 

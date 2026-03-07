@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `.pkg` file format is a proprietary binary package format used by **Hamilton VENUS** instrument control software to distribute and install software components — including method files, libraries, labware definitions, configuration files, images, and help documentation.
+The `.pkg` file format is a proprietary binary package format used by **Hamilton VENUS** instrument control software to distribute and install software components -- including method files, libraries, labware definitions, configuration files, images, and help documentation.
 
 A `.pkg` file is a single-file archive containing:
 - A **header** identifying the format and version
@@ -50,7 +50,7 @@ The format is sometimes referred to as **HamPkg** after its magic bytes.
 | 8      | 2    | uint16 LE    | Format version (observed: `2`)                      |
 | 10     | 2    | uint16 LE    | Sub-version (observed: `1`)                         |
 | 12     | 2    | uint16 LE    | Reserved (always `0`)                               |
-| 14     | 2    | uint16 LE    | **Entry count** — total number of entries (N)       |
+| 14     | 2    | uint16 LE    | **Entry count** -- total number of entries (N)       |
 | 16     | 2    | uint16 LE    | Reserved (always `0`)                               |
 | 18     | 8    | FILETIME     | **Package creation timestamp** (Windows FILETIME)   |
 | 26     | 20   | ASCII (null) | **VENUS version string**, null-padded (e.g. `4.6.0.8061`) |
@@ -89,18 +89,18 @@ The entry table immediately follows the header at offset **46**. Each entry is *
 
 | Offset | Size | Type         | Description                                                |
 |--------|------|--------------|------------------------------------------------------------|
-| 0      | 8    | ASCII (null) | **Entry ID** — 7-character lowercase hex string, null-terminated (e.g. `0000000\0`, `00000ac\0`) |
-| 8      | 4    | uint32 LE    | **Flags** — `1` = file data entry, `0` = manifest/catalog entry |
+| 0      | 8    | ASCII (null) | **Entry ID** -- 7-character lowercase hex string, null-terminated (e.g. `0000000\0`, `00000ac\0`) |
+| 8      | 4    | uint32 LE    | **Flags** -- `1` = file data entry, `0` = manifest/catalog entry |
 | 12     | 8    | FILETIME     | **Created timestamp** of the original file                  |
 | 20     | 8    | FILETIME     | **Modified timestamp** of the original file                 |
-| 28     | 4    | uint32 LE    | **Data offset** — absolute byte offset to the data block    |
-| 32     | 4    | uint32 LE    | **Data size** — total size of the data block (compressed size + 8) |
+| 28     | 4    | uint32 LE    | **Data offset** -- absolute byte offset to the data block    |
+| 32     | 4    | uint32 LE    | **Data size** -- total size of the data block (compressed size + 8) |
 
 ### Key Details
 
 - **Entry IDs** are sequential hex values starting from `0000000` and incrementing: `0000001`, `0000002`, ..., `00000ac`.
 - Entry IDs do **not** encode filenames. The filename-to-entry mapping exists only in the **manifest** (the last entry with `flags=0`).
-- The **data offset** is an absolute position in the file. The first entry's data offset equals `46 + (N × 36)` — immediately after the entry table.
+- The **data offset** is an absolute position in the file. The first entry's data offset equals `46 + (N × 36)` -- immediately after the entry table.
 - **Data size** = compressed payload size + 8 bytes (for the uncompressed/compressed size header).
 
 ### Example Entry
@@ -148,7 +148,7 @@ Each data block's payload (starting at offset + 8, for `compressedSize` bytes) i
 - **Python**: `zlib.decompress(buffer)`
 - **C/C++**: `inflate()` from zlib
 
-The decompressed output is the raw file content — whether that's HSL source code, a PNG image, a BMP, an HxPars binary structure, or plain text.
+The decompressed output is the raw file content -- whether that's HSL source code, a PNG image, a BMP, an HxPars binary structure, or plain text.
 
 ---
 
@@ -171,7 +171,7 @@ Entries 0 through N-2 (flags=1) contain the actual packaged file data. Entry N-1
 
 ### HxPars Binary Format (`03 00 01 00`)
 
-Many VENUS data files use the **HxPars** serialization format — a proprietary key-value binary encoding. Structure:
+Many VENUS data files use the **HxPars** serialization format -- a proprietary key-value binary encoding. Structure:
 
 ```
 Offset  Size  Description
@@ -242,7 +242,7 @@ Within the manifest, key-value pairs are encoded as:
 
 - **Type byte**: `1` = string value (followed by key, length byte, string data), `3` = integer value
 - **Key digits**: The numeric key as ASCII digits (e.g. `347734013`)
-- **Length byte**: Single byte indicating the string value length (0–255)
+- **Length byte**: Single byte indicating the string value length (0-255)
 - **Value bytes**: The raw string or integer data
 
 ### Path Convention
@@ -253,11 +253,11 @@ C:\Program Files (x86)\HAMILTON\<subdirectory>\<filename>
 ```
 
 Common subdirectories:
-- `Library\` — HSL source libraries, step files, images, help
-- `Labware\` — Labware definitions (carriers, racks, containers)
-- `Config\` — System and instrument configuration files
-- `System\` — System-level files (ADP, bookmarks)
-- `Methods\` — User methods (HSL)
+- `Library\` -- HSL source libraries, step files, images, help
+- `Labware\` -- Labware definitions (carriers, racks, containers)
+- `Config\` -- System and instrument configuration files
+- `System\` -- System-level files (ADP, bookmarks)
+- `Methods\` -- User methods (HSL)
 
 ### Manifest to File Mapping
 
@@ -271,7 +271,7 @@ A typical manifest maps sequential entry IDs to their installation paths. For ex
 | 40    | `0000028` | `...\Library\HSLExtensions\File.chm`                          |
 | 101   | `0000065` | `...\Labware\ML_STAR\CORE\VStarWasteBlock_Config.tml`         |
 | 117   | `0000075` | `...\Config\ActivityTypes.cfg`                                |
-| 172   | `00000ac` | *(manifest itself — not mapped to a file)*                    |
+| 172   | `00000ac` | *(manifest itself -- not mapped to a file)*                    |
 
 ---
 
@@ -336,10 +336,10 @@ Read the first 46 bytes. Verify the magic bytes are `HamPkg`. Read the entry cou
 #### Step 2: Parse the Entry Table
 
 Starting at offset 46, read `entryCount × 36` bytes. For each 36-byte entry, extract:
-- Entry ID (bytes 0–7, ASCII string)
-- Flags (bytes 8–11, uint32 LE)
-- Data offset (bytes 28–31, uint32 LE)
-- Data size (bytes 32–35, uint32 LE)
+- Entry ID (bytes 0-7, ASCII string)
+- Flags (bytes 8-11, uint32 LE)
+- Data offset (bytes 28-31, uint32 LE)
+- Data size (bytes 32-35, uint32 LE)
 
 #### Step 3: Parse the Manifest
 

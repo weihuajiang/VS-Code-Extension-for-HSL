@@ -376,7 +376,7 @@ class TestBuildMedText(unittest.TestCase):
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# extract_activity_data_from_med  (file-based — needs mocking or skipping)
+# extract_activity_data_from_med  (file-based -- needs mocking or skipping)
 # ═════════════════════════════════════════════════════════════════════════════
 
 @_skip_if_not_importable

@@ -23,16 +23,16 @@ The on-disk binary layout is strictly sequential with no alignment padding
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │  File Header (4 bytes)                                       │
-│    [u16-LE]  version          — always 3                     │
-│    [u16-LE]  type_marker      — always 1                     │
+│    [u16-LE]  version          -- always 3                     │
+│    [u16-LE]  type_marker      -- always 1                     │
 ├──────────────────────────────────────────────────────────────┤
 │  Named-Section Count (4 bytes)                               │
-│    [u32-LE]  count            — 0 or 1                       │
+│    [u32-LE]  count            -- 0 or 1                       │
 ├──────────────────────────────────────────────────────────────┤
-│  Named Section (optional — present when count == 1)          │
+│  Named Section (optional -- present when count == 1)          │
 │    [short-string]  section_name                              │
-│    [u16-LE]        field_type       — always 1               │
-│    [u32-LE]        field_count      — always 1               │
+│    [u16-LE]        field_type       -- always 1               │
+│    [u32-LE]        field_count      -- always 1               │
 │    [short-string]  field_key                                 │
 │    [var-string]    field_value                                │
 ├──────────────────────────────────────────────────────────────┤
@@ -41,8 +41,8 @@ The on-disk binary layout is strictly sequential with no alignment padding
 │    [3×0x00] padding                                          │
 ├──────────────────────────────────────────────────────────────┤
 │  HxPars Sections (repeated hxpars_count times)               │
-│    [short-string]  section_header  — "HxPars,<key>"          │
-│    [u16-LE]  pars_version     — always 3                     │
+│    [short-string]  section_header  -- "HxPars,<key>"          │
+│    [u16-LE]  pars_version     -- always 3                     │
 │    [u32-LE]  token_count                                     │
 │    [var-string × token_count]  tokens                        │
 ├──────────────────────────────────────────────────────────────┤
@@ -63,7 +63,7 @@ The on-disk binary layout is strictly sequential with no alignment padding
 
 | Offset | Type    | Value | Description                     |
 |--------|---------|-------|---------------------------------|
-| 0x0004 | u32-LE  | 0–1   | Number of named sections        |
+| 0x0004 | u32-LE  | 0-1   | Number of named sections        |
 
 ---
 
@@ -88,7 +88,7 @@ A variable-length encoding with two forms:
 
 | Marker Byte | Form   | Layout                                        | Max Length  |
 |-------------|--------|-----------------------------------------------|-------------|
-| 0x00–0xFE   | Short  | `[marker=length] [payload]`                   | 254 bytes   |
+| 0x00-0xFE   | Short  | `[marker=length] [payload]`                   | 254 bytes   |
 | 0xFF        | Long   | `[0xFF] [u16-LE length] [payload]`            | 65 535 bytes |
 
 Used for: field values (e.g. base-64 blobs), HxPars tokens.
@@ -205,7 +205,7 @@ Inside quoted token strings, the following escape sequences are used:
 | `\r`       | Carriage return                  | `0x0D`     |
 | `\0xHH`    | Arbitrary byte (hex)             | `0xHH`     |
 
-Characters in the range `0x20`–`0x7E` (excluding `\` and `"`) are emitted
+Characters in the range `0x20`-`0x7E` (excluding `\` and `"`) are emitted
 literally. All other byte values are escaped as `\0xHH`.
 
 ---

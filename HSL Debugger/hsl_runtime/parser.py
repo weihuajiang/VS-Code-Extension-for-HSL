@@ -58,8 +58,8 @@ Error handling
 Parse errors are collected in ``self.errors`` rather than aborting immediately.
 Two recovery strategies are provided:
 
-* ``_recover()`` – skips to the next ``;`` or ``}`` at brace-depth 0 (top-level).
-* ``_recover_in_block()`` – skips to the next ``;`` at depth 0 **without**
+* ``_recover()`` - skips to the next ``;`` or ``}`` at brace-depth 0 (top-level).
+* ``_recover_in_block()`` - skips to the next ``;`` at depth 0 **without**
   consuming the closing ``}`` so the enclosing ``parse_block`` can finish.
 
 Usage
@@ -76,7 +76,7 @@ Usage
         for e in parser.errors:
             print(e)
 
-SIMULATION ONLY – No hardware interaction.
+SIMULATION ONLY - No hardware interaction.
 """
 
 from typing import Optional
@@ -312,9 +312,9 @@ class Parser:
         Consumes tokens until one of the following is reached at brace
         depth 0:
 
-        * A semicolon ``;`` – consumed, then returns.
-        * A closing brace ``}`` when depth ≤ 0 – consumed, then returns.
-        * EOF – returns.
+        * A semicolon ``;`` - consumed, then returns.
+        * A closing brace ``}`` when depth ≤ 0 - consumed, then returns.
+        * EOF - returns.
 
         Brace depth is tracked so that an entire ``{ … }`` block is
         skipped as a unit when encountered.
@@ -535,7 +535,7 @@ class Parser:
         Returns
         -------
         dict[str, bool]
-            Keys ``'private'``, ``'static'``, ``'global'``, ``'const'`` –
+            Keys ``'private'``, ``'static'``, ``'global'``, ``'const'`` -
             each ``True`` if the corresponding keyword was present.
         """
         quals = {'private': False, 'static': False, 'global': False, 'const': False}
@@ -1420,12 +1420,12 @@ class Parser:
         After parsing a primary expression, this method loops to consume
         any number of postfix operations:
 
-        * ``++`` / ``--``    – postfix increment / decrement
-        * ``.member``        – member access (or ``.method(args)`` call)
-        * ``[index]``        – array subscript
-        * ``(args)``         – function call (only if the base is an
+        * ``++`` / ``--``    - postfix increment / decrement
+        * ``.member``        - member access (or ``.method(args)`` call)
+        * ``[index]``        - array subscript
+        * ``(args)``         - function call (only if the base is an
           ``Identifier``, ``ScopedName``, or ``MemberAccess``)
-        * ``::name``         – scope resolution → ``ScopedName``
+        * ``::name``         - scope resolution → ``ScopedName``
 
         The loop terminates when none of these operators follow.
         """
@@ -1529,16 +1529,16 @@ class Parser:
         return expr
 
     def _parse_primary_expr(self) -> ASTNode:
-        """Precedence level 13 – the innermost expressions.
+        """Precedence level 13 - the innermost expressions.
 
         Matches one of:
 
-        * **Integer literal** – decimal or hexadecimal (``0x`` prefix).
-        * **Float literal** – decimal with optional scientific notation.
-        * **String literal** – ``"..."``.
-        * **Identifier** – optionally followed by ``::`` for a scoped name.
-        * **Global-scope reference** – ``::name``.
-        * **Parenthesised expression** – ``( expr )``.
+        * **Integer literal** - decimal or hexadecimal (``0x`` prefix).
+        * **Float literal** - decimal with optional scientific notation.
+        * **String literal** - ``"..."``.
+        * **Identifier** - optionally followed by ``::`` for a scoped name.
+        * **Global-scope reference** - ``::name``.
+        * **Parenthesised expression** - ``( expr )``.
 
         Raises ``ParseError`` if no production matches.
 

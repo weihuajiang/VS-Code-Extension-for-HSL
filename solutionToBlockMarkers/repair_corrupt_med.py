@@ -4,7 +4,7 @@ Repair tool for Hamilton .med/.stp files corrupted by CRLF normalization.
 
 Root cause (fixed in medGenerator.ts):
   updateChecksumInFile() was called on binary .med/.stp files. It read them
-  as text, split on \\r?\\n, and rejoined with \\r\\n — inserting a 0x0D byte
+  as text, split on \\r?\\n, and rejoined with \\r\\n -- inserting a 0x0D byte
   before every lone 0x0A in the binary stream. This corrupts var-string
   length prefixes and token data, making the file unparseable by the
   Hamilton Method Editor ("Reached end-of-file while parsing...").
@@ -15,7 +15,7 @@ Repair strategy:
   3. Rebuild the binary from the parsed model (restores legitimate CRLF in tokens)
 
   The only data loss is that token strings which originally contained \\r\\n
-  (e.g., Comment text) will lose their \\r. In practice this is harmless —
+  (e.g., Comment text) will lose their \\r. In practice this is harmless --
   Hamilton re-normalizes these on the next Method Editor save.
 
 Usage:
@@ -60,7 +60,7 @@ def detect_corruption(data: bytes) -> dict:
 
     # A healthy binary file has a mix of lone 0x0A (length prefixes, token data)
     # and 0x0D 0x0A pairs (footer, some token strings).
-    # A corrupted file has 0 lone 0x0A — every single one was paired with 0x0D.
+    # A corrupted file has 0 lone 0x0A -- every single one was paired with 0x0D.
     # Heuristic: if there are many 0x0A bytes but zero lone ones, it's corrupt.
     is_corrupt = total_lf > 5 and lone_lf == 0
 
@@ -164,7 +164,7 @@ def main() -> int:
         print("  Validation: OK (binary parses correctly)")
     except Exception as e:
         print(f"  Validation: FAILED ({e})", file=sys.stderr)
-        print("Aborting — repaired file is not valid.", file=sys.stderr)
+        print("Aborting -- repaired file is not valid.", file=sys.stderr)
         return 1
 
     output = args.output or args.input

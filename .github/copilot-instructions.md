@@ -1,6 +1,18 @@
-# Hamilton HSL — Pipetting Step Reference
+# Hamilton HSL -- Pipetting Step Reference
 
 This VS Code extension supports Hamilton Standard Language (HSL) files for Hamilton liquid-handling robots. This document explains how pipetting steps are encoded in HSL code and companion `.stp` files so that an LLM can interpret, validate, and explain them.
+
+---
+
+## ABSOLUTE RULE: No Em Dashes or En Dashes (Zero Tolerance)
+
+**NEVER** use em dashes (`U+2014` --) or en dashes (`U+2013` --) in **any** file touched by this extension or workspace. This applies to **every** file type: `.hsl`, `.sub`, `.stp`, `.med`, `.json`, `.ts`, `.js`, `.md`, `.py`, `.ps1`, `.csv`, `.txt`, or any other format. No exceptions.
+
+- Use **two hyphens** (`--`) where you would use an em dash.
+- Use a **single hyphen** (`-`) where you would use an en dash.
+- This rule applies to code, comments, strings, documentation, commit messages, and any generated or modified text.
+
+HSL and the VENUS toolchain do **not** handle Unicode dashes correctly. Inserting an em dash or en dash into any file can cause silent corruption, compile failures, or runtime errors. **There is no valid use case for these characters in this workspace.**
 
 ---
 
@@ -70,16 +82,16 @@ These fields are in a parenthesized group: `(-534183935 ...)` for CO-RE 96 head 
 | `-534183913` | float | **Submerge Depth** (position relative to liquid surface) | mm |
 | `-534183919` | int | **LLD Mode**: 0 = Off, 1 = pLLD (Pressure), 5 = Capacitive | enum |
 | `-534183928` | float | **LLD Sensitivity** | 1-5 scale |
-| `-534183918` | float | **Pressure LLD Sensing** | — |
-| `-534183933` | int | **cLLD Sensitivity** | — |
+| `-534183918` | float | **Pressure LLD Sensing** | -- |
+| `-534183933` | int | **cLLD Sensitivity** | -- |
 | `-534183622` | float | **Retract Distance from Surface** | mm |
-| `-534183629` | float | **Side Touch** (0 = off) | — |
-| `-534183926` | float | **Retract Speed** | — |
-| `-534183920` | int | **Swap Speed** | — |
-| `-534183700` | float | **pLLD Sensitivity** | — |
+| `-534183629` | float | **Side Touch** (0 = off) | -- |
+| `-534183926` | float | **Retract Speed** | -- |
+| `-534183920` | int | **Swap Speed** | -- |
+| `-534183700` | float | **pLLD Sensitivity** | -- |
 | `-534183876` | int | **Channel Enable** (1 = enabled) | bool |
-| `-534183813` | int | **Touch Off Distance** | — |
-| `-534183909` | int | **Dispense Position Above Z-Start** | — |
+| `-534183813` | int | **Touch Off Distance** | -- |
+| `-534183909` | int | **Dispense Position Above Z-Start** | -- |
 
 ---
 
@@ -109,7 +121,7 @@ For the step above, the `.stp` file contains:
 
 ## Initialize Step Requirement (Critical)
 
-The **Initialize** step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("guid")`) **must** be called inside `method main()` before **any** other instrument commands that use the device object (typically `ML_STAR`). This includes — but is not limited to — all pipetting steps (Aspirate, Dispense, TipPickUp, TipEject), carrier movements (LoadCarrier, UnloadCarrier, MoveAutoLoad), and CO-RE 96 head operations (Head96Aspirate, Head96Dispense, Head96TipPickUp, Head96TipEject).
+The **Initialize** step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("guid")`) **must** be called inside `method main()` before **any** other instrument commands that use the device object (typically `ML_STAR`). This includes -- but is not limited to -- all pipetting steps (Aspirate, Dispense, TipPickUp, TipEject), carrier movements (LoadCarrier, UnloadCarrier, MoveAutoLoad), and CO-RE 96 head operations (Head96Aspirate, Head96Dispense, Head96TipPickUp, Head96TipEject).
 
 Without the Initialize step the instrument hardware is **not** initialised. Every subsequent device command will fail at runtime.
 
@@ -145,7 +157,7 @@ When reviewing pipetting steps, check for these potential issues:
 1. **Missing Initialize step**: If `method main()` uses any `ML_STAR._<CLSID>(...)` call without a preceding Initialize step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2`), the program will fail at runtime. This is a critical error.
 2. **Volume out of range**: Aspirate/dispense volumes should be within the tip type's capacity (e.g., 0-1000 µL for 1000 µL tips, 0-5000 µL for 5 mL tips).
 2. **Mix volume vs aspirate volume**: Mix volume should generally be ≤ the tip capacity and appropriate for the vessel.
-3. **Mix cycles = 0 with non-zero mix volume**: Likely an error — mix won't execute without cycles.
+3. **Mix cycles = 0 with non-zero mix volume**: Likely an error -- mix won't execute without cycles.
 4. **LLD off with submerge depth**: If LLD is off, the submerge depth is relative to container bottom, not liquid surface. Verify this is intentional.
 5. **Empty liquid class on aspirate**: Aspirate steps should always have a liquid class specified.
 6. **Dispense volume ≠ aspirate volume**: Unless performing partial dispenses, these should usually match within a pipetting cycle.
@@ -158,7 +170,7 @@ When reviewing pipetting steps, check for these potential issues:
 
 The following rules **must** be followed when generating or modifying HSL code. Violating any of these causes compile errors in the VENUS syntax checker.
 
-### Type System — `variable` vs `string`
+### Type System -- `variable` vs `string`
 
 HSL has distinct types: `variable`, `string`, `sequence`, `device`, `object`, `timer`, `event`, `file`, `resource`, `dialog`.
 
@@ -169,12 +181,12 @@ HSL has distinct types: `variable`, `string`, `sequence`, `device`, `object`, `t
 #### Rule: When you need string member functions, use `string` type
 
 ```hsl
-// WRONG — causes error 1317 on every member function call
+// WRONG -- causes error 1317 on every member function call
 variable strInput;
 variable intLen;
 intLen = strInput.GetLength();       // ERROR: GetLength is not a member of variable
 
-// CORRECT — use string type
+// CORRECT -- use string type
 string strInput;
 variable intLen;
 intLen = strInput.GetLength();       // OK: GetLength is a member of string
@@ -201,15 +213,15 @@ This avoids changing the function's public signature while enabling string opera
 
 | Method | Signature | Returns |
 |---|---|---|
-| `GetLength` | `str.GetLength()` | integer — length of string |
-| `Find` | `str.Find(searchStr)` | integer — index of first occurrence, or -1 |
-| `Left` | `str.Left(count)` | string — leftmost `count` characters |
-| `Mid` | `str.Mid(start, count)` | string — substring from `start` for `count` chars |
-| `Right` | `str.Right(count)` | string — rightmost `count` characters |
-| `Compare` | `str.Compare(other)` | integer — <0, 0, or >0 (lexicographic) |
-| `MakeUpper` | `str.MakeUpper()` | void — converts to uppercase in place |
-| `MakeLower` | `str.MakeLower()` | void — converts to lowercase in place |
-| `SpanExcluding` | `str.SpanExcluding(charSet)` | string — prefix before any character in charSet |
+| `GetLength` | `str.GetLength()` | integer -- length of string |
+| `Find` | `str.Find(searchStr)` | integer -- index of first occurrence, or -1 |
+| `Left` | `str.Left(count)` | string -- leftmost `count` characters |
+| `Mid` | `str.Mid(start, count)` | string -- substring from `start` for `count` chars |
+| `Right` | `str.Right(count)` | string -- rightmost `count` characters |
+| `Compare` | `str.Compare(other)` | integer -- <0, 0, or >0 (lexicographic) |
+| `MakeUpper` | `str.MakeUpper()` | void -- converts to uppercase in place |
+| `MakeLower` | `str.MakeLower()` | void -- converts to lowercase in place |
+| `SpanExcluding` | `str.SpanExcluding(charSet)` | string -- prefix before any character in charSet |
 
 #### Rule: The `+` concatenation operator does NOT work with `string` type
 
@@ -218,13 +230,13 @@ The `+` operator for string concatenation is defined **only** for the `variable`
 When you need to both concatenate and use string member functions, use `variable` for building the string with `+`, then assign to `string` for member function calls:
 
 ```hsl
-// WRONG — causes error 1222
+// WRONG -- causes error 1222
 string strCsv;
 string strSearch;
 strCsv = i_strCsv;
 strSearch = "," + strCsv + ",";      // ERROR: '+' does not work with string type
 
-// CORRECT — use variable for concatenation, string for member functions
+// CORRECT -- use variable for concatenation, string for member functions
 variable varSearch;
 variable varNeedle;
 string strSearch;
@@ -242,25 +254,25 @@ Key principle: **`variable` is for arithmetic and concatenation (`+`), `string` 
 **`sequence.GetPositionId()`** takes **zero** arguments (VENUS error 1315 if called with arguments). You must first call `sequence.SetCurrentPosition(index)` to set the position, then call `GetPositionId()`:
 
 ```hsl
-// WRONG — GetPositionId takes 0 arguments
+// WRONG -- GetPositionId takes 0 arguments
 strId = mySeq.GetPositionId(intIndex);     // ERROR 1315
 
-// CORRECT — SetCurrentPosition first, then GetPositionId
+// CORRECT -- SetCurrentPosition first, then GetPositionId
 mySeq.SetCurrentPosition(intIndex);
 strId = mySeq.GetPositionId();
 ```
 
-**`sequence.Add(labwareId, positionId)`** — the first argument is the **labware ID**, the second is the **position ID**:
+**`sequence.Add(labwareId, positionId)`** -- the first argument is the **labware ID**, the second is the **position ID**:
 
 ```hsl
-// WRONG — arguments are swapped
+// WRONG -- arguments are swapped
 mySeq.Add("A1", "");           // puts "A1" as labwareId, "" as positionId
 
 // CORRECT
 mySeq.Add("", "A1");           // "" as labwareId, "A1" as positionId
 ```
 
-### Function Visibility — `private` Scope
+### Function Visibility -- `private` Scope
 
 **`private` functions can only be called from within the same file** (VENUS error 1343). If a helper file needs to call a function defined in another file, that function must **not** be `private`.
 
@@ -272,8 +284,8 @@ namespace LibA
    function SharedHelper() void;             // callable from any file that includes LibraryA.hsl
 }
 
-// In LibraryB.hsl — after #include "LibraryA.hsl"
-LibA::_InternalOnly();     // ERROR 1343 — private function
+// In LibraryB.hsl -- after #include "LibraryA.hsl"
+LibA::_InternalOnly();     // ERROR 1343 -- private function
 LibA::SharedHelper();      // OK
 ```
 
@@ -284,18 +296,18 @@ Use the underscore prefix (`_FunctionName`) as a naming convention for internal 
 HSL does **not** support C-style anonymous blocks (`{ ... }`) with local variable declarations inside functions. All variable declarations must be at the **top** of the function/method body, before any executable code.
 
 ```hsl
-// WRONG — anonymous block with local declarations
+// WRONG -- anonymous block with local declarations
 method main()
 {
    variable x;
    x = 5;
    {
-      variable y;       // ERROR — HSL does not support block-scoped declarations
+      variable y;       // ERROR -- HSL does not support block-scoped declarations
       y = x + 1;
    }
 }
 
-// CORRECT — all declarations at the top
+// CORRECT -- all declarations at the top
 method main()
 {
    variable x;
@@ -311,12 +323,12 @@ method main()
 All `variable`, `string`, `sequence`, `object`, and other type declarations must appear at the **beginning** of their enclosing scope (function, method, or namespace), before any executable statements. Interleaving declarations with code is a syntax error.
 
 ```hsl
-// WRONG — declaration after executable code
+// WRONG -- declaration after executable code
 function Example() void
 {
    variable x;
    x = 5;
-   variable y;          // ERROR — declaration after executable statement
+   variable y;          // ERROR -- declaration after executable statement
    y = 10;
 }
 
@@ -336,10 +348,10 @@ function Example() void
 Array element assignment using bracket notation (`arr[index] = value`) is valid HSL syntax. However, place **one assignment per line** for parser compatibility:
 
 ```hsl
-// AVOID — multiple assignments on one line (may cause parser issues)
+// AVOID -- multiple assignments on one line (may cause parser issues)
 arrRows[0] = "A"; arrRows[1] = "B"; arrRows[2] = "C";
 
-// PREFERRED — one per line
+// PREFERRED -- one per line
 arrRows[0] = "A";
 arrRows[1] = "B";
 arrRows[2] = "C";
@@ -354,7 +366,7 @@ HSL does **not** support the `continue` keyword in loops. Use conditional logic 
 while(i < 10)
 {
    i = i + 1;
-   if(i == 5) continue;    // ERROR — 'continue' not supported
+   if(i == 5) continue;    // ERROR -- 'continue' not supported
    Trace(IStr(i));
 }
 
@@ -389,7 +401,7 @@ Every function must have both a forward **declaration** (prototype ending with `
 // Forward declaration
 function MyFunc(variable i_param) variable;
 
-// Definition — must match exactly
+// Definition -- must match exactly
 function MyFunc(variable i_param) variable
 {
    return(i_param + 1);

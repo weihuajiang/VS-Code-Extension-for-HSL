@@ -12,7 +12,7 @@ source file and contains:
 - Method editor configuration (version, component flags, device declarations)
 - Submethod definitions and parameters
 
-The `.med` file is **not** the source of truth for step logic — the `.hsl`
+The `.med` file is **not** the source of truth for step logic -- the `.hsl`
 file is. Instead, the `.med` provides the visual metadata that the Method
 Editor GUI needs to render the step list. The sync pipeline regenerates the
 `.med` from the `.hsl` whenever the method is saved.
@@ -69,14 +69,14 @@ DataDef,HxPars,3,HxMetEd_Submethods,
 
 ### Section Order
 
-1. **Header** — `HxCfgFile,3;` and `ConfigIsValid,Y;`
-2. **ActivityData** — Base-64 flowchart blob (named section)
-3. **Step sections** — One `DataDef,HxPars,3,<guid>` per step (sorted by GUID)
-4. **HxMetEdData** — Method Editor metadata
-5. **HxMetEd_MainDefinition** — Main function structure
-6. **HxMetEd_Outlining** — Outlining/folding state
-7. **HxMetEd_Submethods** — Submethod declarations
-8. **Checksum footer** — CRC-32 checksum line
+1. **Header** -- `HxCfgFile,3;` and `ConfigIsValid,Y;`
+2. **ActivityData** -- Base-64 flowchart blob (named section)
+3. **Step sections** -- One `DataDef,HxPars,3,<guid>` per step (sorted by GUID)
+4. **HxMetEdData** -- Method Editor metadata
+5. **HxMetEd_MainDefinition** -- Main function structure
+6. **HxMetEd_Outlining** -- Outlining/folding state
+7. **HxMetEd_Submethods** -- Submethod declarations
+8. **Checksum footer** -- CRC-32 checksum line
 
 ---
 
@@ -137,9 +137,9 @@ block (most steps have 1 block; Loop has 2; If/Then/Else has 3):
 
 | Step Type    | Blocks | Block 1         | Block 2     | Block 3    |
 |--------------|--------|-----------------|-------------|------------|
-| Comment      | 1      | Comment         | —           | —          |
-| Assignment   | 1      | Assignment      | —           | —          |
-| Loop         | 2      | Loop            | End Loop    | —          |
+| Comment      | 1      | Comment         | --           | --          |
+| Assignment   | 1      | Assignment      | --           | --          |
+| Loop         | 2      | Loop            | End Loop    | --          |
 | IfThenElse   | 3      | If              | Else        | End If     |
 
 ### Device Step Stubs
@@ -223,35 +223,35 @@ binary files:
 
 ### Pipeline Steps
 
-1. **Parse** — Read `.hsl` and `.sub` files, extract all block markers using
+1. **Parse** -- Read `.hsl` and `.sub` files, extract all block markers using
    `parse_block_markers()`
-2. **Group** — Aggregate step block markers by instance GUID into
+2. **Group** -- Aggregate step block markers by instance GUID into
    `HslStepRecord` objects (each with ordered `HslStepBlock` entries)
-3. **Cross-file numbering** — `.hsl` rows start at 1; `.sub` rows continue
+3. **Cross-file numbering** -- `.hsl` rows start at 1; `.sub` rows continue
    from `lastHslRow + 1`
-4. **Build text** — Generate the `.med` text representation with all sections
-5. **Convert** — Convert text to binary using the HxCfgFile v3 codec
-6. **Write** — Transactional binary write (see below)
-7. **Checksum** — Update checksums on `.hsl`, `.sub`, `.med`, and `.stp` files
+4. **Build text** -- Generate the `.med` text representation with all sections
+5. **Convert** -- Convert text to binary using the HxCfgFile v3 codec
+6. **Write** -- Transactional binary write (see below)
+7. **Checksum** -- Update checksums on `.hsl`, `.sub`, `.med`, and `.stp` files
 
 ### On-Save Pipeline (`correct_block_markers_on_save`)
 
 When a `.hsl` or `.sub` file is saved, the full on-save pipeline runs:
 
-1. **Guard checks** — Skip if not `.hsl`/`.sub`, no step markers (library), or
+1. **Guard checks** -- Skip if not `.hsl`/`.sub`, no step markers (library), or
    no companion `.med`/`.smt` exists
-2. **Reconcile** — Run `reconcile_block_marker_headers()` to fix mismatches
-3. **Renumber** — Apply cross-file row numbering
-4. **Sync .med** — Regenerate the `.med` from corrected sources
-5. **Sync .stp** — Regenerate the `.stp` for device steps
-6. **Checksums** — Update CRC-32 checksums on all text companion files
+2. **Reconcile** -- Run `reconcile_block_marker_headers()` to fix mismatches
+3. **Renumber** -- Apply cross-file row numbering
+4. **Sync .med** -- Regenerate the `.med` from corrected sources
+5. **Sync .stp** -- Regenerate the `.stp` for device steps
+6. **Checksums** -- Update CRC-32 checksums on all text companion files
 
 ---
 
 ## .stp File Purpose
 
 The `.stp` file is a binary HxCfgFile v3 container that stores
-**device-specific step parameters** — the detailed configuration for hardware
+**device-specific step parameters** -- the detailed configuration for hardware
 commands like tip pickup sequences, aspirate volumes, channel patterns, etc.
 Each device step in a method gets its own section in the `.stp` keyed by its
 instance GUID.
@@ -331,19 +331,19 @@ Each device step section (`DataDef,HxPars,3,<guid>`) contains:
 All device steps share a standard set of **four error entries**, each with
 recovery options:
 
-### Error 3 — Hardware Error
+### Error 3 -- Hardware Error
 - **Infinite retry**: Yes
 - **Recoveries**: Retry (default), Abort, Cancel
 
-### Error 999 — Unknown Error
+### Error 999 -- Unknown Error
 - **Infinite retry**: No
 - **Recoveries**: Retry, Bottom, Abort (default), Cancel
 
-### Error 10 — Position Not Found
+### Error 10 -- Position Not Found
 - **Infinite retry**: Yes
 - **Recoveries**: Retry (default), Abort, Cancel
 
-### Error 2 — Not Initialized
+### Error 2 -- Not Initialized
 - **Infinite retry**: Yes
 - **Recoveries**: Retry (default), Abort, Cancel
 
@@ -383,15 +383,15 @@ The `DEVICE_CLSIDS` set defines the 9 ML_STAR device step types that require
 
 | Step Name          | Bare CLSID                                     | Channel Pattern | TipType | Special Fields |
 |--------------------|-------------------------------------------------|-----------------|---------|----------------|
-| Initialize         | `{1C0C0CB0-7C87-11D3-AD83-0004ACB1DCB2}`       | —               | —       | AlwaysInitialize=0 |
-| LoadCarrier        | `{54114402-7FA2-11D3-AD85-0004ACB1DCB2}`       | —               | —       | SequenceName (optional) |
-| UnloadCarrier      | `{54114400-7FA2-11D3-AD85-0004ACB1DCB2}`       | —               | —       | SequenceName (optional) |
-| TipPickUp          | `{541143FA-7FA2-11D3-AD85-0004ACB1DCB2}`       | `11111111`      | —       | SequenceObject, SequenceName |
+| Initialize         | `{1C0C0CB0-7C87-11D3-AD83-0004ACB1DCB2}`       | --               | --       | AlwaysInitialize=0 |
+| LoadCarrier        | `{54114402-7FA2-11D3-AD85-0004ACB1DCB2}`       | --               | --       | SequenceName (optional) |
+| UnloadCarrier      | `{54114400-7FA2-11D3-AD85-0004ACB1DCB2}`       | --               | --       | SequenceName (optional) |
+| TipPickUp          | `{541143FA-7FA2-11D3-AD85-0004ACB1DCB2}`       | `11111111`      | --       | SequenceObject, SequenceName |
 | Aspirate           | `{541143F5-7FA2-11D3-AD85-0004ACB1DCB2}`       | `11111111`      | 5       | SequenceObject, SequenceName |
 | Dispense           | `{541143F8-7FA2-11D3-AD85-0004ACB1DCB2}`       | `11111111`      | 5       | SequenceObject, SequenceName |
-| TipEject           | `{541143FC-7FA2-11D3-AD85-0004ACB1DCB2}`       | `11111111`      | —       | UseDefaultWaste=1 |
-| MoveAutoLoad       | `{EA251BFB-66DE-48D1-83E5-6884B4DD8D11}`       | —               | —       | — |
-| GetLastLiquidLevel | `{9FB6DFE0-4132-4d09-B502-98C722734D4C}`       | —               | —       | — |
+| TipEject           | `{541143FC-7FA2-11D3-AD85-0004ACB1DCB2}`       | `11111111`      | --       | UseDefaultWaste=1 |
+| MoveAutoLoad       | `{EA251BFB-66DE-48D1-83E5-6884B4DD8D11}`       | --               | --       | -- |
+| GetLastLiquidLevel | `{9FB6DFE0-4132-4d09-B502-98C722734D4C}`       | --               | --       | -- |
 
 Default TipType `5` = 1000µl High Volume with Filter.
 

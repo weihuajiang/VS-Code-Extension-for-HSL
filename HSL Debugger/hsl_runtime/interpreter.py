@@ -782,7 +782,7 @@ class Interpreter:
                 pass
 
     def _execute_loop(self, node) -> None:
-        """Execute a loop(N) statement — repeat body N times."""
+        """Execute a loop(N) statement -- repeat body N times."""
         count_val = self._eval_expr(node.count)
         count = int(self._to_python(count_val))
         for _ in range(count):

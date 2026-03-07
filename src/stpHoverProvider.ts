@@ -421,7 +421,7 @@ function formatAspirateTooltip(
     md.appendMarkdown(`**Mix:** ${mixVol} µL × ${mixCycles} cycles\n\n`);
   }
 
-  const submerge = fields.get("-534183913") ?? "—";
+  const submerge = fields.get("-534183913") ?? "--";
   md.appendMarkdown(`**Submerge Depth:** ${submerge} mm\n\n`);
 
   const lldMode = fields.get("-534183919") ?? "0";
@@ -469,7 +469,7 @@ function formatDispenseTooltip(
     md.appendMarkdown(`**Mix:** ${mixVol} µL × ${mixCycles} cycles\n\n`);
   }
 
-  const submerge = fields.get("-534183913") ?? "—";
+  const submerge = fields.get("-534183913") ?? "--";
   md.appendMarkdown(`**Submerge Depth:** ${submerge} mm\n\n`);
 
   const lldMode = fields.get("-534183919") ?? "0";
@@ -608,7 +608,7 @@ export function registerStpHoverProvider(
           // Return a basic tooltip with just the step type
           const md = new vscode.MarkdownString();
           md.appendMarkdown(`### ${stepType}\n\n`);
-          md.appendMarkdown(`*No .stp file found — cannot show parameters.*\n`);
+          md.appendMarkdown(`*No .stp file found -- cannot show parameters.*\n`);
           return new vscode.Hover(
             md,
             new vscode.Range(

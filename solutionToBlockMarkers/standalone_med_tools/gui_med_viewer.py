@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MED/STP File Viewer — Tkinter GUI Application
+MED/STP File Viewer -- Tkinter GUI Application
 ===============================================
 
 A standalone desktop application for viewing decoded Hamilton .med and .stp
@@ -15,7 +15,7 @@ Features
   monospace font.
 - **Search**: ``Ctrl+F`` search bar with next/previous navigation and
   highlight-all.
-- **Section Navigation**: Sidebar listbox showing all DataDef sections —
+- **Section Navigation**: Sidebar listbox showing all DataDef sections --
   clicking a section jumps to it in the text view.
 - **Export to Text**: Save the decoded text to a ``.txt`` file.
 - **Repair**: If the file appears CRLF-corrupted, offer to repair it.
@@ -40,7 +40,7 @@ Layout
     │             │                                                │
     │             │                                                │
     ├─────────────┴────────────────────────────────────────────────┤
-    │  [Search bar — hidden by default, shown with Ctrl+F]         │
+    │  [Search bar -- hidden by default, shown with Ctrl+F]         │
     ├──────────────────────────────────────────────────────────────┤
     │  Status bar: file info                                       │
     └──────────────────────────────────────────────────────────────┘
@@ -298,7 +298,7 @@ def _extract_step_summary(text: str) -> List[Dict[str, str]]:
         and ``"line"`` (1-based line number).
     """
     steps: List[Dict[str, str]] = []
-    # Match CLSID patterns in quoted tokens — look for lines containing
+    # Match CLSID patterns in quoted tokens -- look for lines containing
     # a CLSID pattern like {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}
     clsid_re = re.compile(
         r'"[^"]*(\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}'
@@ -366,7 +366,7 @@ def _save_recent(paths: List[str]) -> None:
             encoding="utf-8",
         )
     except Exception:
-        pass  # Non-critical — silently ignore write failures.
+        pass  # Non-critical -- silently ignore write failures.
 
 
 def _add_to_recent(file_path: str, recent: List[str]) -> List[str]:
@@ -611,7 +611,7 @@ class MedViewerApp:
     def _build_search_bar(self) -> None:
         """Construct the search bar (hidden by default)."""
         self._search_frame = ttk.Frame(self.root)
-        # Not packed yet — shown/hidden via _toggle_search / _hide_search.
+        # Not packed yet -- shown/hidden via _toggle_search / _hide_search.
 
         ttk.Label(self._search_frame, text="Find:").pack(side=tk.LEFT, padx=(4, 2))
 
@@ -650,7 +650,7 @@ class MedViewerApp:
         self._status_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
         self._status_label = ttk.Label(
-            self._status_frame, text="Ready — open a .med or .stp file",
+            self._status_frame, text="Ready -- open a .med or .stp file",
             anchor=tk.W,
             padding=(4, 2),
         )
@@ -674,7 +674,7 @@ class MedViewerApp:
         for idx, path in enumerate(self.recent_files):
             display = os.path.basename(path)
             self._recent_menu.add_command(
-                label=f"{idx + 1}. {display}  —  {path}",
+                label=f"{idx + 1}. {display}  --  {path}",
                 command=lambda p=path: self._load_file(p),
             )
         self._recent_menu.add_separator()
@@ -758,7 +758,7 @@ class MedViewerApp:
                         )
                         return
                 else:
-                    # Try to parse anyway — it may fail
+                    # Try to parse anyway -- it may fail
                     try:
                         model = parse_binary_med(raw)
                     except Exception as exc:
@@ -769,7 +769,7 @@ class MedViewerApp:
                         )
                         return
             else:
-                # Normal binary — decode
+                # Normal binary -- decode
                 try:
                     model = parse_binary_med(raw)
                 except Exception as exc:
@@ -784,17 +784,17 @@ class MedViewerApp:
                 self.current_model = model
 
         elif self.current_format == "text":
-            # Already text — decode latin1 and try to parse model
+            # Already text -- decode latin1 and try to parse model
             decoded_text = raw.decode("latin1")
             try:
                 model = parse_text_med(decoded_text)
                 self.current_model = model
             except Exception:
-                # Could not parse model — still show the raw text
+                # Could not parse model -- still show the raw text
                 self.current_model = None
 
         else:
-            # Unknown format — try to display as latin1 text
+            # Unknown format -- try to display as latin1 text
             decoded_text = raw.decode("latin1")
 
         self.current_text = decoded_text
@@ -813,7 +813,7 @@ class MedViewerApp:
     def _export_text(self) -> None:
         """Export the decoded text to a .txt file."""
         if not self.current_text:
-            messagebox.showinfo("Export", "No text to export — open a file first.")
+            messagebox.showinfo("Export", "No text to export -- open a file first.")
             return
 
         # Suggest a default filename
@@ -959,7 +959,7 @@ class MedViewerApp:
         self._search_count_label.config(text="")
 
     def _on_search_changed(self) -> None:
-        """Called when the search text changes — highlight all matches."""
+        """Called when the search text changes -- highlight all matches."""
         self._highlight_all_matches()
 
     def _highlight_all_matches(self) -> None:
@@ -1053,7 +1053,7 @@ class MedViewerApp:
     def _update_status(self) -> None:
         """Update the status bar with current file info."""
         if not self.current_path:
-            self._set_status("Ready — open a .med or .stp file")
+            self._set_status("Ready -- open a .med or .stp file")
             self._section_count_label.config(text="")
             return
 
@@ -1068,7 +1068,7 @@ class MedViewerApp:
         """Update the window title with the current file name."""
         if self.current_path:
             basename = os.path.basename(self.current_path)
-            self.root.title(f"{basename} — {_APP_TITLE}")
+            self.root.title(f"{basename} -- {_APP_TITLE}")
         else:
             self.root.title(_APP_TITLE)
 
@@ -1079,7 +1079,7 @@ class MedViewerApp:
     def _repair_file(self) -> None:
         """Attempt to repair a CRLF-corrupted file."""
         if not self.current_bytes:
-            messagebox.showinfo("Repair", "No file loaded — open a file first.")
+            messagebox.showinfo("Repair", "No file loaded -- open a file first.")
             return
 
         diag = detect_corruption(self.current_bytes)
@@ -1132,7 +1132,7 @@ class MedViewerApp:
         """Show a structural dump of the current binary file."""
         if not self.current_bytes:
             messagebox.showinfo(
-                "Dump Structure", "No file loaded — open a file first."
+                "Dump Structure", "No file loaded -- open a file first."
             )
             return
 
@@ -1154,7 +1154,7 @@ class MedViewerApp:
 
         # Show in a new top-level window
         win = tk.Toplevel(self.root)
-        win.title(f"Structure Dump — {os.path.basename(self.current_path or '?')}")
+        win.title(f"Structure Dump -- {os.path.basename(self.current_path or '?')}")
         win.geometry("800x600")
         win.minsize(500, 300)
 
@@ -1184,7 +1184,7 @@ class MedViewerApp:
         """
         if not self.current_text:
             messagebox.showinfo(
-                "Step Summary", "No file loaded — open a file first."
+                "Step Summary", "No file loaded -- open a file first."
             )
             return
 
@@ -1201,7 +1201,7 @@ class MedViewerApp:
         # Show in a new top-level window with a Treeview
         win = tk.Toplevel(self.root)
         win.title(
-            f"Step Summary — {os.path.basename(self.current_path or '?')} "
+            f"Step Summary -- {os.path.basename(self.current_path or '?')} "
             f"({len(steps)} steps)"
         )
         win.geometry("900x500")

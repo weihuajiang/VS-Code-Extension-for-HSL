@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-block_marker_generator.py — Hamilton HSL Block Marker Generator (Reference Implementation)
+block_marker_generator.py -- Hamilton HSL Block Marker Generator (Reference Implementation)
 
 A standalone Python implementation of the Hamilton HSL block marker generation algorithm.
 This serves as:
@@ -400,7 +400,7 @@ def renumber_block_markers(content: str) -> str:
     Only modifies the row number in each step opening marker; all other content
     (code, structural markers, GUIDs, CLSIDs) is preserved exactly.
     
-    Safe to call on any .hsl content — if there are no step markers,
+    Safe to call on any .hsl content -- if there are no step markers,
     the content is returned unchanged.
     """
     counter = [0]  # Use list for closure mutability
@@ -742,7 +742,7 @@ def generate_hsl_method(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Hamilton HSL Block Marker Generator — Reference Implementation"
+        description="Hamilton HSL Block Marker Generator -- Reference Implementation"
     )
     parser.add_argument("--output", "-o", default=None,
                         help="Output directory (default: current directory)")

@@ -46,42 +46,42 @@ exports.BUILTIN_FUNCTIONS = [
         name: "Sin",
         signature: "(x)",
         description: "Sine of x",
-        documentation: "Returns the sine of x.\n\n**Parameter:** `x` — angle in radians (integer or float).",
+        documentation: "Returns the sine of x.\n\n**Parameter:** `x` -- angle in radians (integer or float).",
         insertText: "Sin(${1:x})",
     },
     {
         name: "Cos",
         signature: "(x)",
         description: "Cosine of x",
-        documentation: "Returns the cosine of x.\n\n**Parameter:** `x` — angle in radians (integer or float).",
+        documentation: "Returns the cosine of x.\n\n**Parameter:** `x` -- angle in radians (integer or float).",
         insertText: "Cos(${1:x})",
     },
     {
         name: "Tan",
         signature: "(x)",
         description: "Tangent of x",
-        documentation: "Returns the tangent of x.\n\n**Parameter:** `x` — angle in radians (integer or float).",
+        documentation: "Returns the tangent of x.\n\n**Parameter:** `x` -- angle in radians (integer or float).",
         insertText: "Tan(${1:x})",
     },
     {
         name: "ASin",
         signature: "(x)",
         description: "Arcsine of x",
-        documentation: "Returns the arcsine of x in [-1, 1].\n\n**Parameter:** `x` — integer or float.\n\nUndefined if x is not in [-1, 1].",
+        documentation: "Returns the arcsine of x in [-1, 1].\n\n**Parameter:** `x` -- integer or float.\n\nUndefined if x is not in [-1, 1].",
         insertText: "ASin(${1:x})",
     },
     {
         name: "ACos",
         signature: "(x)",
         description: "Arccosine of x",
-        documentation: "Returns the arccosine of x in [-1, 1].\n\n**Parameter:** `x` — integer or float.\n\nUndefined if x is not in [-1, 1].",
+        documentation: "Returns the arccosine of x in [-1, 1].\n\n**Parameter:** `x` -- integer or float.\n\nUndefined if x is not in [-1, 1].",
         insertText: "ACos(${1:x})",
     },
     {
         name: "ATan",
         signature: "(x)",
         description: "Arctangent of x",
-        documentation: "Returns the arctangent of x.\n\n**Parameter:** `x` — integer or float.",
+        documentation: "Returns the arctangent of x.\n\n**Parameter:** `x` -- integer or float.",
         insertText: "ATan(${1:x})",
     },
     // ── Math ─────────────────────────────────────────────────────────
@@ -89,35 +89,35 @@ exports.BUILTIN_FUNCTIONS = [
         name: "Exp",
         signature: "(x)",
         description: "Exponential function e^x",
-        documentation: "Returns e raised to the power x.\n\n**Parameter:** `x` — integer or float.",
+        documentation: "Returns e raised to the power x.\n\n**Parameter:** `x` -- integer or float.",
         insertText: "Exp(${1:x})",
     },
     {
         name: "Log",
         signature: "(x)",
         description: "Natural logarithm ln(x)",
-        documentation: "Returns the natural logarithm ln(x), x > 0.\n\n**Parameter:** `x` — integer or float.\n\nUndefined if x <= 0.",
+        documentation: "Returns the natural logarithm ln(x), x > 0.\n\n**Parameter:** `x` -- integer or float.\n\nUndefined if x <= 0.",
         insertText: "Log(${1:x})",
     },
     {
         name: "Log10",
         signature: "(x)",
         description: "Logarithm base 10",
-        documentation: "Returns the logarithm to the base 10 log10(x), x > 0.\n\n**Parameter:** `x` — integer or float.\n\nUndefined if x <= 0.",
+        documentation: "Returns the logarithm to the base 10 log10(x), x > 0.\n\n**Parameter:** `x` -- integer or float.\n\nUndefined if x <= 0.",
         insertText: "Log10(${1:x})",
     },
     {
         name: "Ceiling",
         signature: "(x [,returnFloat])",
         description: "Smallest integral value not smaller than x",
-        documentation: "Returns the smallest integral value not smaller than x.\n\n**Parameters:**\n- `x` — floating-point or integer value.\n- `returnFloat` — if not zero, the return value has type float (integer, optional, defaults to 0).",
+        documentation: "Returns the smallest integral value not smaller than x.\n\n**Parameters:**\n- `x` -- floating-point or integer value.\n- `returnFloat` -- if not zero, the return value has type float (integer, optional, defaults to 0).",
         insertText: "Ceiling(${1:x})",
     },
     {
         name: "Floor",
         signature: "(x [,returnFloat])",
         description: "Largest integral value not larger than x",
-        documentation: "Returns the largest integral value not larger than x.\n\n**Parameters:**\n- `x` — floating-point or integer value.\n- `returnFloat` — if not zero, the return value has type float (integer, optional, defaults to 0).",
+        documentation: "Returns the largest integral value not larger than x.\n\n**Parameters:**\n- `x` -- floating-point or integer value.\n- `returnFloat` -- if not zero, the return value has type float (integer, optional, defaults to 0).",
         insertText: "Floor(${1:x})",
     },
     // ── Conversion ───────────────────────────────────────────────────
@@ -125,42 +125,42 @@ exports.BUILTIN_FUNCTIONS = [
         name: "IStr",
         signature: "(inum)",
         description: "Convert integer to string",
-        documentation: "Converts the integer `inum` into the corresponding character string.\n\n**Parameter:** `inum` — the integer to convert.\n\n**Return:** The string representation of the integer.",
+        documentation: "Converts the integer `inum` into the corresponding character string.\n\n**Parameter:** `inum` -- the integer to convert.\n\n**Return:** The string representation of the integer.",
         insertText: "IStr(${1:inum})",
     },
     {
         name: "FStr",
         signature: "(fnum [,languageSpecific] [,precision])",
         description: "Convert float to string",
-        documentation: "Converts the floating-point number `fnum` into the corresponding character string.\n\n**Parameters:**\n- `fnum` — the float to convert.\n- `languageSpecific` — use locale decimal symbol (hslTrue/hslFalse, optional).\n- `precision` — number of significant digits (integer, optional, default 7).\n\n**Return:** The string representation of the float.",
+        documentation: "Converts the floating-point number `fnum` into the corresponding character string.\n\n**Parameters:**\n- `fnum` -- the float to convert.\n- `languageSpecific` -- use locale decimal symbol (hslTrue/hslFalse, optional).\n- `precision` -- number of significant digits (integer, optional, default 7).\n\n**Return:** The string representation of the float.",
         insertText: "FStr(${1:fnum})",
     },
     {
         name: "IVal",
         signature: "(istr)",
-        description: "Convert string to integer (obsolete — use IVal2)",
-        documentation: "Converts the sequence of digits in `istr` into an integer. Decimal by default; hexadecimal if prefixed with 0x. Conversion aborts at the first non-digit character (other than +/-).\n\n**Parameter:** `istr` — the string to convert.\n\n**Return:** The integer value, or 0 if unconvertible. LONG_MAX/LONG_MIN on overflow.\n\n> **Note:** This function is **obsolete**. Use `IVal2` instead.",
+        description: "Convert string to integer (obsolete -- use IVal2)",
+        documentation: "Converts the sequence of digits in `istr` into an integer. Decimal by default; hexadecimal if prefixed with 0x. Conversion aborts at the first non-digit character (other than +/-).\n\n**Parameter:** `istr` -- the string to convert.\n\n**Return:** The integer value, or 0 if unconvertible. LONG_MAX/LONG_MIN on overflow.\n\n> **Note:** This function is **obsolete**. Use `IVal2` instead.",
         insertText: "IVal(${1:istr})",
     },
     {
         name: "IVal2",
         signature: "(istr)",
         description: "Convert string to integer (with runtime error on failure)",
-        documentation: "Same as `IVal`, but generates a run-time error if the string cannot be converted.\n\n**Parameter:** `istr` — the string to convert.",
+        documentation: "Same as `IVal`, but generates a run-time error if the string cannot be converted.\n\n**Parameter:** `istr` -- the string to convert.",
         insertText: "IVal2(${1:istr})",
     },
     {
         name: "FVal",
         signature: "(fstr)",
-        description: "Convert string to float (obsolete — use FVal2)",
-        documentation: "Converts the sequence of digits in `fstr` into a floating-point number. Conversion aborts at the first character that is not a digit, +, -, e, or E.\n\n**Parameter:** `fstr` — the string to convert.\n\n**Return:** The float value, or 0 if unconvertible. DBL_MAX/DBL_MIN on overflow.\n\n> **Note:** This function is **obsolete**. Use `FVal2` instead.",
+        description: "Convert string to float (obsolete -- use FVal2)",
+        documentation: "Converts the sequence of digits in `fstr` into a floating-point number. Conversion aborts at the first character that is not a digit, +, -, e, or E.\n\n**Parameter:** `fstr` -- the string to convert.\n\n**Return:** The float value, or 0 if unconvertible. DBL_MAX/DBL_MIN on overflow.\n\n> **Note:** This function is **obsolete**. Use `FVal2` instead.",
         insertText: "FVal(${1:fstr})",
     },
     {
         name: "FVal2",
         signature: "(fstr)",
         description: "Convert string to float (with runtime error on failure)",
-        documentation: "Same as `FVal`, but generates a run-time error if the string cannot be converted.\n\n**Parameter:** `fstr` — the string to convert.",
+        documentation: "Same as `FVal`, but generates a run-time error if the string cannot be converted.\n\n**Parameter:** `fstr` -- the string to convert.",
         insertText: "FVal2(${1:fstr})",
     },
     // ── Tracing ──────────────────────────────────────────────────────
@@ -175,7 +175,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "FormatTrace",
         signature: "(source, action, status [, ...])",
         description: "Trace formatted strings",
-        documentation: "Traces formatted strings with variable argument list.\n\n**Parameters:**\n- `source` — source string (e.g. \"System\").\n- `action` — action string (e.g. \"Pipette\").\n- `status` — action status integer: 1=start, 2=complete, 3=error, 4=progress, 5=completeWithError.\n- `[...]` — variable argument list of details (integers, floats and strings).",
+        documentation: "Traces formatted strings with variable argument list.\n\n**Parameters:**\n- `source` -- source string (e.g. \"System\").\n- `action` -- action string (e.g. \"Pipette\").\n- `status` -- action status integer: 1=start, 2=complete, 3=error, 4=progress, 5=completeWithError.\n- `[...]` -- variable argument list of details (integers, floats and strings).",
         insertText: "FormatTrace(${1:source}, ${2:action}, ${3:status})",
     },
     // ── UI ───────────────────────────────────────────────────────────
@@ -183,14 +183,14 @@ exports.BUILTIN_FUNCTIONS = [
         name: "InputBox",
         signature: "(prompt, title, type [,default] [,timeout])",
         description: "Display an input dialog box",
-        documentation: 'Displays an input request prompt and returns the value entered.\n\n**Parameters:**\n- `prompt` — the input request prompt (string).\n- `title` — the dialog title (string).\n- `type` — value type: hslInteger ("i"), hslFloat ("f"), hslString ("s").\n- `default` — default value (optional).\n- `timeout` — auto-dismiss time in seconds (optional, default hslInfinite).\n\n**Return:** The entered value (typed), or no-type if cancelled.',
+        documentation: 'Displays an input request prompt and returns the value entered.\n\n**Parameters:**\n- `prompt` -- the input request prompt (string).\n- `title` -- the dialog title (string).\n- `type` -- value type: hslInteger ("i"), hslFloat ("f"), hslString ("s").\n- `default` -- default value (optional).\n- `timeout` -- auto-dismiss time in seconds (optional, default hslInfinite).\n\n**Return:** The entered value (typed), or no-type if cancelled.',
         insertText: "InputBox(${1:prompt}, ${2:title}, ${3:type})",
     },
     {
         name: "MessageBox",
         signature: "(message, title [, type] [,timeout])",
         description: "Display a message box",
-        documentation: "Displays a message and returns the button selected.\n\n**Parameters:**\n- `message` — the message to display (string).\n- `title` — the title of the message box (string).\n- `type` — button/icon combination (integer, optional). Button types: hslOKOnly(0), hslOKCancel(1), hslAbortRetryIgnore(2), hslYesNoCancel(3), hslYesNo(4), hslRetryCancel(5). Icon types: hslError(16), hslQuestion(32), hslExclamation(48), hslInformation(64).\n- `timeout` — auto-dismiss time in seconds (optional, default hslInfinite).\n\n**Return:** hslOK(1), hslCancel(2), hslAbort(3), hslRetry(4), hslIgnore(5), hslYes(6), hslNo(7).",
+        documentation: "Displays a message and returns the button selected.\n\n**Parameters:**\n- `message` -- the message to display (string).\n- `title` -- the title of the message box (string).\n- `type` -- button/icon combination (integer, optional). Button types: hslOKOnly(0), hslOKCancel(1), hslAbortRetryIgnore(2), hslYesNoCancel(3), hslYesNo(4), hslRetryCancel(5). Icon types: hslError(16), hslQuestion(32), hslExclamation(48), hslInformation(64).\n- `timeout` -- auto-dismiss time in seconds (optional, default hslInfinite).\n\n**Return:** hslOK(1), hslCancel(2), hslAbort(3), hslRetry(4), hslIgnore(5), hslYes(6), hslNo(7).",
         insertText: "MessageBox(${1:message}, ${2:title})",
     },
     // ── Process / Threading ──────────────────────────────────────────
@@ -198,21 +198,21 @@ exports.BUILTIN_FUNCTIONS = [
         name: "Shell",
         signature: "(pathname, windowstyle, concurrency [,eventObj] [,exitCode])",
         description: "Run an executable program",
-        documentation: "Runs an executable (exe, com, bat) synchronously or asynchronously.\n\n**Parameters:**\n- `pathname` — program path and arguments (string).\n- `windowstyle` — hslHide(1), hslShow(2), hslShowMaximized(3), hslShowMinimized(4).\n- `concurrency` — hslSynchronous(1), hslAsynchronous(2).\n- `eventObj` — optional event object for async completion.\n- `exitCode` — variable to receive the exit code.\n\n**Return:** Non-zero on success, 0 on failure.",
+        documentation: "Runs an executable (exe, com, bat) synchronously or asynchronously.\n\n**Parameters:**\n- `pathname` -- program path and arguments (string).\n- `windowstyle` -- hslHide(1), hslShow(2), hslShowMaximized(3), hslShowMinimized(4).\n- `concurrency` -- hslSynchronous(1), hslAsynchronous(2).\n- `eventObj` -- optional event object for async completion.\n- `exitCode` -- variable to receive the exit code.\n\n**Return:** Non-zero on success, 0 on failure.",
         insertText: "Shell(${1:pathname}, ${2:windowstyle}, ${3:concurrency})",
     },
     {
         name: "Fork",
         signature: "(entryPoint)",
         description: "Create a new thread",
-        documentation: "Creates a new thread for an HSL program. The entry point is typically a function name.\n\n**Parameter:** `entryPoint` — name of the entry point function (string).\n\n**Return:** A handle to the new thread, or 0 on failure.",
+        documentation: "Creates a new thread for an HSL program. The entry point is typically a function name.\n\n**Parameter:** `entryPoint` -- name of the entry point function (string).\n\n**Return:** A handle to the new thread, or 0 on failure.",
         insertText: "Fork(${1:entryPoint})",
     },
     {
         name: "Join",
         signature: "(handles, timeout)",
         description: "Wait for threads to complete",
-        documentation: "Returns when all specified thread handles are signaled or the timeout elapses.\n\n**Parameters:**\n- `handles` — a variable or array of thread handles from Fork.\n- `timeout` — time to wait in seconds (non-negative float).\n\n**Return:** Non-zero on success, 0 on timeout.",
+        documentation: "Returns when all specified thread handles are signaled or the timeout elapses.\n\n**Parameters:**\n- `handles` -- a variable or array of thread handles from Fork.\n- `timeout` -- time to wait in seconds (non-negative float).\n\n**Return:** Non-zero on success, 0 on timeout.",
         insertText: "Join(${1:handles}, ${2:timeout})",
     },
     // ── Barcode ──────────────────────────────────────────────────────
@@ -220,7 +220,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "GetBarcodeJoker",
         signature: "(barcodeJokerKey)",
         description: "Get barcode joker value by key",
-        documentation: "Returns the value for the barcode joker mapped to the selected key.\n\n**Parameter:** `barcodeJokerKey` — the key string.\n\n**Return:** The barcode joker value (string).",
+        documentation: "Returns the value for the barcode joker mapped to the selected key.\n\n**Parameter:** `barcodeJokerKey` -- the key string.\n\n**Return:** The barcode joker value (string).",
         insertText: "GetBarcodeJoker(${1:barcodeJokerKey})",
     },
     // ── Type Inspection ──────────────────────────────────────────────
@@ -228,7 +228,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "GetType",
         signature: "(var)",
         description: "Get the type of a variable's value",
-        documentation: 'Retrieves the type of the value of a variable.\n\n**Parameter:** `var` — a reference to a variable.\n\n**Return:** hslInteger ("i"), hslFloat ("f"), hslString ("s"), or "" (no type).',
+        documentation: 'Retrieves the type of the value of a variable.\n\n**Parameter:** `var` -- a reference to a variable.\n\n**Return:** hslInteger ("i"), hslFloat ("f"), hslString ("s"), or "" (no type).',
         insertText: "GetType(${1:var})",
     },
     // ── Date / Time ──────────────────────────────────────────────────
@@ -236,14 +236,14 @@ exports.BUILTIN_FUNCTIONS = [
         name: "GetTime",
         signature: "(format)",
         description: "Get the formatted current time",
-        documentation: 'Returns a string with the formatted time.\n\n**Parameter:** `format` — a formatting string. Codes: %H (24h hour), %I (12h hour), %M (minute), %p (AM/PM), %S (second), %X (locale time). Default: "%H:%M:%S".\n\n**Return:** Formatted time string.',
+        documentation: 'Returns a string with the formatted time.\n\n**Parameter:** `format` -- a formatting string. Codes: %H (24h hour), %I (12h hour), %M (minute), %p (AM/PM), %S (second), %X (locale time). Default: "%H:%M:%S".\n\n**Return:** Formatted time string.',
         insertText: "GetTime(${1:format})",
     },
     {
         name: "GetDate",
         signature: "(format)",
         description: "Get the formatted current date",
-        documentation: 'Returns a string with the formatted date.\n\n**Parameter:** `format` — a formatting string. Codes: %a (abbr weekday), %A (full weekday), %b (abbr month), %B (full month), %d (day 01-31), %m (month 01-12), %x (locale date), %y (year 00-99), %Y (full year). Default: "%Y-%m-%d".\n\n**Return:** Formatted date string.',
+        documentation: 'Returns a string with the formatted date.\n\n**Parameter:** `format` -- a formatting string. Codes: %a (abbr weekday), %A (full weekday), %b (abbr month), %B (full month), %d (day 01-31), %m (month 01-12), %x (locale date), %y (year 00-99), %Y (full year). Default: "%Y-%m-%d".\n\n**Return:** Formatted date string.',
         insertText: "GetDate(${1:format})",
     },
     // ── File / Path Info ─────────────────────────────────────────────
@@ -373,7 +373,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "SearchPath",
         signature: "(fileName)",
         description: "Search for a file on standard paths",
-        documentation: "Searches for the specified file in: 1) current directory, 2) Methods directory, 3) Library directory, 4) PATH environment variable.\n\n**Parameter:** `fileName` — name of the file to search for (string). The parameter also receives the found path.\n\n**Return:** The path name of the first file found (string; empty if not found).",
+        documentation: "Searches for the specified file in: 1) current directory, 2) Methods directory, 3) Library directory, 4) PATH environment variable.\n\n**Parameter:** `fileName` -- name of the file to search for (string). The parameter also receives the found path.\n\n**Return:** The path name of the first file found (string; empty if not found).",
         insertText: "SearchPath(${1:fileName})",
     },
     // ── Sequence ─────────────────────────────────────────────────────
@@ -381,7 +381,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "AlignSequences",
         signature: "(maxOnly [, ...])",
         description: "Align max positions of sequences",
-        documentation: "Aligns the max number of positions — allowed to process per step — of the specified sequences, and optionally aligns the current total number of positions too.\n\n**Parameters:**\n- `maxOnly` — hslTrue to only align max positions; hslFalse to also align totals (integer).\n- `[...]` — variable argument list of comma-separated sequence-multiplicity pairs.\n\n**Example:** `AlignSequences(hslTrue, tips, 1, samples, 1, plate, 2);`",
+        documentation: "Aligns the max number of positions -- allowed to process per step -- of the specified sequences, and optionally aligns the current total number of positions too.\n\n**Parameters:**\n- `maxOnly` -- hslTrue to only align max positions; hslFalse to also align totals (integer).\n- `[...]` -- variable argument list of comma-separated sequence-multiplicity pairs.\n\n**Example:** `AlignSequences(hslTrue, tips, 1, samples, 1, plate, 2);`",
         insertText: "AlignSequences(${1:maxOnly}, ${2:sequence}, ${3:multiplicity})",
     },
     // ── User ─────────────────────────────────────────────────────────
@@ -397,14 +397,14 @@ exports.BUILTIN_FUNCTIONS = [
         name: "AddCheckSum",
         signature: "(fileName, commentDelimiter)",
         description: "Compute and append a checksum to a file",
-        documentation: 'Computes the checksum of the specified file and writes it to the end of the file.\n\n**Parameters:**\n- `fileName` — the pathname of the file (string).\n- `commentDelimiter` — the single-line comment delimiter (string, e.g. "//").\n\n**Return:** Non-zero on success, 0 on failure.\n\n**Requires:** AllAccess or Programmer access right.',
+        documentation: 'Computes the checksum of the specified file and writes it to the end of the file.\n\n**Parameters:**\n- `fileName` -- the pathname of the file (string).\n- `commentDelimiter` -- the single-line comment delimiter (string, e.g. "//").\n\n**Return:** Non-zero on success, 0 on failure.\n\n**Requires:** AllAccess or Programmer access right.',
         insertText: "AddCheckSum(${1:fileName}, ${2:commentDelimiter})",
     },
     {
         name: "VerifyCheckSum",
         signature: "(fileName)",
         description: "Verify the checksum of a file",
-        documentation: "Verifies the checksum value of the specified file.\n\n**Parameter:** `fileName` — the pathname of the file (string).\n\n**Return:** Non-zero if verification succeeds, 0 on failure.",
+        documentation: "Verifies the checksum value of the specified file.\n\n**Parameter:** `fileName` -- the pathname of the file (string).\n\n**Return:** Non-zero if verification succeeds, 0 on failure.",
         insertText: "VerifyCheckSum(${1:fileName})",
     },
     // ── Abort Handlers ───────────────────────────────────────────────
@@ -412,14 +412,14 @@ exports.BUILTIN_FUNCTIONS = [
         name: "RegisterAbortHandler",
         signature: "(abortHandler)",
         description: "Register a custom abort handler function",
-        documentation: "Registers `abortHandler` as a custom HSL function called before a method is aborted. Multiple abort handlers can be registered. The handler takes no arguments and should not return a value or raise an exception.\n\n**Parameter:** `abortHandler` — name of the HSL function (string).\n\n**Example:**\n```\nRegisterAbortHandler(\"OnAbortMain\");\n```",
+        documentation: "Registers `abortHandler` as a custom HSL function called before a method is aborted. Multiple abort handlers can be registered. The handler takes no arguments and should not return a value or raise an exception.\n\n**Parameter:** `abortHandler` -- name of the HSL function (string).\n\n**Example:**\n```\nRegisterAbortHandler(\"OnAbortMain\");\n```",
         insertText: "RegisterAbortHandler(${1:abortHandler})",
     },
     {
         name: "UnregisterAbortHandler",
         signature: "(abortHandler)",
         description: "Unregister a custom abort handler function",
-        documentation: "Unregisters `abortHandler` as a custom HSL function called before a method is aborted.\n\n**Parameter:** `abortHandler` — name of the HSL function to unregister (string).",
+        documentation: "Unregisters `abortHandler` as a custom HSL function called before a method is aborted.\n\n**Parameter:** `abortHandler` -- name of the HSL function to unregister (string).",
         insertText: "UnregisterAbortHandler(${1:abortHandler})",
     },
     // ── Database ─────────────────────────────────────────────────────
@@ -470,7 +470,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "SetTimeScaleFactor",
         signature: "(timeScaleFactor)",
         description: "Set the time scale factor",
-        documentation: "Sets the current time scale factor. When simulation mode is on, this scales task dependencies and activity durations.\n\n**Parameter:** `timeScaleFactor` — the new time scale factor (float; must be > 0).",
+        documentation: "Sets the current time scale factor. When simulation mode is on, this scales task dependencies and activity durations.\n\n**Parameter:** `timeScaleFactor` -- the new time scale factor (float; must be > 0).",
         insertText: "SetTimeScaleFactor(${1:timeScaleFactor})",
     },
     // ── Null Handling ────────────────────────────────────────────────
@@ -478,14 +478,14 @@ exports.BUILTIN_FUNCTIONS = [
         name: "IsDBNull",
         signature: "(value)",
         description: "Check if a variable is null (VT_NULL)",
-        documentation: "Returns whether the specified variable is of type null (VT_NULL).\n\n**Parameter:** `value` — a variable.\n\n**Return:** Non-zero if null, 0 otherwise.",
+        documentation: "Returns whether the specified variable is of type null (VT_NULL).\n\n**Parameter:** `value` -- a variable.\n\n**Return:** Non-zero if null, 0 otherwise.",
         insertText: "IsDBNull(${1:value})",
     },
     {
         name: "SetDBNull",
         signature: "(value)",
         description: "Set a variable to null (VT_NULL)",
-        documentation: "Sets the value of the specified variable to a null value (VT_NULL).\n\n**Parameter:** `value` — [in/out] a variable.",
+        documentation: "Sets the value of the specified variable to a null value (VT_NULL).\n\n**Parameter:** `value` -- [in/out] a variable.",
         insertText: "SetDBNull(${1:value})",
     },
     // ── Serial Communications ───────────────────────────────────────
@@ -493,28 +493,28 @@ exports.BUILTIN_FUNCTIONS = [
         name: "GetCommState",
         signature: "(port)",
         description: "Get serial port configuration",
-        documentation: "Retrieves the configuration information for a specified communications resource. Configuration entries must be accessible in local scope.\n\n**Parameter:** `port` — the communications resource opened during file-Open (file).\n\n**Return:** Non-zero on success, 0 on failure.",
+        documentation: "Retrieves the configuration information for a specified communications resource. Configuration entries must be accessible in local scope.\n\n**Parameter:** `port` -- the communications resource opened during file-Open (file).\n\n**Return:** Non-zero on success, 0 on failure.",
         insertText: "GetCommState(${1:port})",
     },
     {
         name: "SetCommState",
         signature: "(port, cfgFile)",
         description: "Set serial port configuration",
-        documentation: "Configures a communications resource according to the configuration structure. Each entry is optional and overwrites the default.\n\n**Parameters:**\n- `port` — the communications resource (file).\n- `cfgFile` — configuration file name (string, optional). If omitted, local scope entries are used.\n\n**Return:** Non-zero on success, 0 on failure.",
+        documentation: "Configures a communications resource according to the configuration structure. Each entry is optional and overwrites the default.\n\n**Parameters:**\n- `port` -- the communications resource (file).\n- `cfgFile` -- configuration file name (string, optional). If omitted, local scope entries are used.\n\n**Return:** Non-zero on success, 0 on failure.",
         insertText: "SetCommState(${1:port}, ${2:cfgFile})",
     },
     {
         name: "GetCommTimeouts",
         signature: "(port)",
         description: "Get serial port timeout parameters",
-        documentation: "Retrieves the time-out parameters for all read and write operations on a communications resource.\n\n**Parameter:** `port` — the communications resource (file).\n\n**Return:** Non-zero on success, 0 on failure.",
+        documentation: "Retrieves the time-out parameters for all read and write operations on a communications resource.\n\n**Parameter:** `port` -- the communications resource (file).\n\n**Return:** Non-zero on success, 0 on failure.",
         insertText: "GetCommTimeouts(${1:port})",
     },
     {
         name: "SetCommTimeouts",
         signature: "(port, cfgFile)",
         description: "Set serial port timeout parameters",
-        documentation: "Sets the time-out parameters for all read and write operations on a communications resource.\n\n**Parameters:**\n- `port` — the communications resource (file).\n- `cfgFile` — file with time-out information (string, optional). If omitted, local scope entries are used.\n\n**Return:** Non-zero on success, 0 on failure.",
+        documentation: "Sets the time-out parameters for all read and write operations on a communications resource.\n\n**Parameters:**\n- `port` -- the communications resource (file).\n- `cfgFile` -- file with time-out information (string, optional). If omitted, local scope entries are used.\n\n**Return:** Non-zero on success, 0 on failure.",
         insertText: "SetCommTimeouts(${1:port}, ${2:cfgFile})",
     },
     // ── Translation ──────────────────────────────────────────────────
@@ -522,7 +522,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "Translate",
         signature: "(text)",
         description: "Translate a text string",
-        documentation: "If a translation of the given text exists for the current language, returns the translated string; otherwise returns the original text.\n\n**Parameter:** `text` — the text to translate (string).\n\n**Return:** Translated text if available, otherwise the original text.",
+        documentation: "If a translation of the given text exists for the current language, returns the translated string; otherwise returns the original text.\n\n**Parameter:** `text` -- the text to translate (string).\n\n**Return:** Translated text if available, otherwise the original text.",
         insertText: "Translate(${1:text})",
     },
     // ── Device ───────────────────────────────────────────────────────
@@ -530,7 +530,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "GetDeviceRef",
         signature: "(systemDeckLayoutName, instrumentDeckName)",
         description: "Get a reference to a global device",
-        documentation: "Returns a reference to the global device with the specified system deck layout file name and instrument deck name.\n\n**Parameters:**\n- `systemDeckLayoutName` — name of a system deck layout file (.lay) (string; can be empty).\n- `instrumentDeckName` — name of a particular deck layout in the system deck (string).\n\n**Return:** Device reference. Use `device.IsNullDevice()` to check for failure.\n\n**Overload:** `GetDeviceRef(instrumentKeyName)` — pass the registry key name of an instrument.",
+        documentation: "Returns a reference to the global device with the specified system deck layout file name and instrument deck name.\n\n**Parameters:**\n- `systemDeckLayoutName` -- name of a system deck layout file (.lay) (string; can be empty).\n- `instrumentDeckName` -- name of a particular deck layout in the system deck (string).\n\n**Return:** Device reference. Use `device.IsNullDevice()` to check for failure.\n\n**Overload:** `GetDeviceRef(instrumentKeyName)` -- pass the registry key name of an instrument.",
         insertText: "GetDeviceRef(${1:systemDeckLayoutName}, ${2:instrumentDeckName})",
     },
     // ── Workflow Activation ──────────────────────────────────────────
@@ -538,35 +538,35 @@ exports.BUILTIN_FUNCTIONS = [
         name: "RegisterMethod",
         signature: "(someMethod, someMethodViewName, someMethodId, [...])",
         description: "Register a method for workflow activation",
-        documentation: "Registers a method with its parameter values for subsequent activation in a workflow.\n\n**Parameters:**\n- `someMethod` — the name of the method to register (string).\n- `someMethodViewName` — the view name of the method (string).\n- `someMethodId` — [out] receives the method identifier (variable).\n- `[...]` — optional parameter-value pairs for the method.",
+        documentation: "Registers a method with its parameter values for subsequent activation in a workflow.\n\n**Parameters:**\n- `someMethod` -- the name of the method to register (string).\n- `someMethodViewName` -- the view name of the method (string).\n- `someMethodId` -- [out] receives the method identifier (variable).\n- `[...]` -- optional parameter-value pairs for the method.",
         insertText: "RegisterMethod(${1:someMethod}, ${2:someMethodViewName}, ${3:someMethodId})",
     },
     {
         name: "ActivateAt",
         signature: "(YYYY, MM, DD, hh, mm, ss, someMethodId, someTaskViewName, someTaskId [,inheritCancel])",
         description: "Activate a method at an absolute time",
-        documentation: "Activates a method at an absolute earliest start time.\n\n**Parameters:**\n- `YYYY, MM, DD, hh, mm, ss` — absolute start time (integers). Use `hslSchedulingStart` for the scheduling start time.\n- `someMethodId` — the method identifier returned by RegisterMethod.\n- `someTaskViewName` — the view name of the task (string).\n- `someTaskId` — [out] receives the task identifier (variable).\n- `inheritCancel` — optional; inherit cancel from a parent task (integer).",
+        documentation: "Activates a method at an absolute earliest start time.\n\n**Parameters:**\n- `YYYY, MM, DD, hh, mm, ss` -- absolute start time (integers). Use `hslSchedulingStart` for the scheduling start time.\n- `someMethodId` -- the method identifier returned by RegisterMethod.\n- `someTaskViewName` -- the view name of the task (string).\n- `someTaskId` -- [out] receives the task identifier (variable).\n- `inheritCancel` -- optional; inherit cancel from a parent task (integer).",
         insertText: "ActivateAt(${1:YYYY}, ${2:MM}, ${3:DD}, ${4:hh}, ${5:mm}, ${6:ss}, ${7:someMethodId}, ${8:someTaskViewName}, ${9:someTaskId})",
     },
     {
         name: "ActivateDelay",
         signature: "(somePeriod, anotherTaskId, someMethodId, someTaskViewName, someTaskId [,inheritCancel])",
         description: "Activate a method relative to another task's start",
-        documentation: "Activates a method relative to the start of another task (start-start precedence).\n\n**Parameters:**\n- `somePeriod` — delay in seconds (float).\n- `anotherTaskId` — the reference task identifier.\n- `someMethodId` — the method identifier.\n- `someTaskViewName` — the view name of the task (string).\n- `someTaskId` — [out] receives the task identifier (variable).\n- `inheritCancel` — optional; inherit cancel (integer).",
+        documentation: "Activates a method relative to the start of another task (start-start precedence).\n\n**Parameters:**\n- `somePeriod` -- delay in seconds (float).\n- `anotherTaskId` -- the reference task identifier.\n- `someMethodId` -- the method identifier.\n- `someTaskViewName` -- the view name of the task (string).\n- `someTaskId` -- [out] receives the task identifier (variable).\n- `inheritCancel` -- optional; inherit cancel (integer).",
         insertText: "ActivateDelay(${1:somePeriod}, ${2:anotherTaskId}, ${3:someMethodId}, ${4:someTaskViewName}, ${5:someTaskId})",
     },
     {
         name: "ActivateAfter",
         signature: "(somePeriod, anotherTaskId, someMethodId, someTaskViewName, someTaskId [,inheritCancel])",
         description: "Activate a method after another task completes",
-        documentation: "Activates a method after another task completes plus a delay (end-start precedence).\n\n**Parameters:**\n- `somePeriod` — delay after completion in seconds (float).\n- `anotherTaskId` — the reference task identifier.\n- `someMethodId` — the method identifier.\n- `someTaskViewName` — the view name of the task (string).\n- `someTaskId` — [out] receives the task identifier (variable).\n- `inheritCancel` — optional; inherit cancel (integer).",
+        documentation: "Activates a method after another task completes plus a delay (end-start precedence).\n\n**Parameters:**\n- `somePeriod` -- delay after completion in seconds (float).\n- `anotherTaskId` -- the reference task identifier.\n- `someMethodId` -- the method identifier.\n- `someTaskViewName` -- the view name of the task (string).\n- `someTaskId` -- [out] receives the task identifier (variable).\n- `inheritCancel` -- optional; inherit cancel (integer).",
         insertText: "ActivateAfter(${1:somePeriod}, ${2:anotherTaskId}, ${3:someMethodId}, ${4:someTaskViewName}, ${5:someTaskId})",
     },
     {
         name: "ActivateBefore",
         signature: "(somePeriod, anotherTaskId, someMethodId, someTaskViewName, someTaskId [,inheritCancel])",
         description: "Activate a method that must complete before another task",
-        documentation: "Activates a method that must complete before another task starts (start-end precedence).\n\n**Parameters:**\n- `somePeriod` — time before the other task in seconds (float).\n- `anotherTaskId` — the reference task identifier.\n- `someMethodId` — the method identifier.\n- `someTaskViewName` — the view name of the task (string).\n- `someTaskId` — [out] receives the task identifier (variable).\n- `inheritCancel` — optional; inherit cancel (integer).",
+        documentation: "Activates a method that must complete before another task starts (start-end precedence).\n\n**Parameters:**\n- `somePeriod` -- time before the other task in seconds (float).\n- `anotherTaskId` -- the reference task identifier.\n- `someMethodId` -- the method identifier.\n- `someTaskViewName` -- the view name of the task (string).\n- `someTaskId` -- [out] receives the task identifier (variable).\n- `inheritCancel` -- optional; inherit cancel (integer).",
         insertText: "ActivateBefore(${1:somePeriod}, ${2:anotherTaskId}, ${3:someMethodId}, ${4:someTaskViewName}, ${5:someTaskId})",
     },
     // ── Scheduler ────────────────────────────────────────────────────
@@ -574,7 +574,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "GetTaskIds",
         signature: "(taskStatus, taskIdArray)",
         description: "Get task identifiers by status",
-        documentation: "Retrieves identifiers of all tasks with the specified status.\n\n**Parameters:**\n- `taskStatus` — 0 = all, 1 = notScheduled, 2 = scheduled, 3 = waiting, 4 = executing, 5 = complete, 6 = cancelled, 7 = failed, 8 = unscheduled.\n- `taskIdArray` — [out] array to receive task identifiers.\n\n**Return:** Number of task identifiers retrieved.",
+        documentation: "Retrieves identifiers of all tasks with the specified status.\n\n**Parameters:**\n- `taskStatus` -- 0 = all, 1 = notScheduled, 2 = scheduled, 3 = waiting, 4 = executing, 5 = complete, 6 = cancelled, 7 = failed, 8 = unscheduled.\n- `taskIdArray` -- [out] array to receive task identifiers.\n\n**Return:** Number of task identifiers retrieved.",
         insertText: "GetTaskIds(${1:taskStatus}, ${2:taskIdArray})",
     },
     {
@@ -595,14 +595,14 @@ exports.BUILTIN_FUNCTIONS = [
         name: "GetTaskViewName",
         signature: "(taskId)",
         description: "Get the view name of a task",
-        documentation: "Returns the view name of the specified task.\n\n**Parameter:** `taskId` — the task identifier (integer).\n\n**Return:** View name (string).",
+        documentation: "Returns the view name of the specified task.\n\n**Parameter:** `taskId` -- the task identifier (integer).\n\n**Return:** View name (string).",
         insertText: "GetTaskViewName(${1:taskId})",
     },
     {
         name: "GetMethodViewName",
         signature: "(taskId)",
         description: "Get the method view name for a task",
-        documentation: "Returns the view name of the method associated with the specified task.\n\n**Parameter:** `taskId` — the task identifier (integer).\n\n**Return:** Method view name (string).",
+        documentation: "Returns the view name of the method associated with the specified task.\n\n**Parameter:** `taskId` -- the task identifier (integer).\n\n**Return:** Method view name (string).",
         insertText: "GetMethodViewName(${1:taskId})",
     },
     {
@@ -630,7 +630,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "GetCancelledActivityViewName",
         signature: "(taskId)",
         description: "Get the view name of a cancelled activity",
-        documentation: "Returns the view name of the cancelled activity of the specified task.\n\n**Parameter:** `taskId` — the task identifier (integer).\n\n**Return:** Activity view name (string).",
+        documentation: "Returns the view name of the cancelled activity of the specified task.\n\n**Parameter:** `taskId` -- the task identifier (integer).\n\n**Return:** Activity view name (string).",
         insertText: "GetCancelledActivityViewName(${1:taskId})",
     },
     {
@@ -644,77 +644,77 @@ exports.BUILTIN_FUNCTIONS = [
         name: "TaskIsCancelable",
         signature: "(taskId)",
         description: "Check if a task is cancelable",
-        documentation: "Returns whether the specified task is cancelable.\n\n**Parameter:** `taskId` — the task identifier (integer).\n\n**Return:** Non-zero if cancelable; 0 otherwise.",
+        documentation: "Returns whether the specified task is cancelable.\n\n**Parameter:** `taskId` -- the task identifier (integer).\n\n**Return:** Non-zero if cancelable; 0 otherwise.",
         insertText: "TaskIsCancelable(${1:taskId})",
     },
     {
         name: "CancelTask",
         signature: "(taskId)",
         description: "Cancel a task",
-        documentation: "Cancels the specified task. Pass 0 to cancel all cancelable tasks.\n\n**Parameter:** `taskId` — the task identifier (integer; 0 = all cancelable).\n\n**Return:** Non-zero on success; 0 on failure.",
+        documentation: "Cancels the specified task. Pass 0 to cancel all cancelable tasks.\n\n**Parameter:** `taskId` -- the task identifier (integer; 0 = all cancelable).\n\n**Return:** Non-zero on success; 0 on failure.",
         insertText: "CancelTask(${1:taskId})",
     },
     {
         name: "TaskIsUnschedulable",
         signature: "(taskId)",
         description: "Check if a task is unschedulable",
-        documentation: "Returns whether the specified task is unschedulable.\n\n**Parameter:** `taskId` — the task identifier (integer).\n\n**Return:** Non-zero if unschedulable; 0 otherwise.",
+        documentation: "Returns whether the specified task is unschedulable.\n\n**Parameter:** `taskId` -- the task identifier (integer).\n\n**Return:** Non-zero if unschedulable; 0 otherwise.",
         insertText: "TaskIsUnschedulable(${1:taskId})",
     },
     {
         name: "UnscheduleTask",
         signature: "(taskId, removeTask)",
         description: "Unschedule a task",
-        documentation: "Unschedules the specified task and optionally removes it from the dependency graph.\n\n**Parameters:**\n- `taskId` — the task identifier (integer).\n- `removeTask` — whether to remove the task (integer; 0 = keep, non-zero = remove).\n\n**Return:** Non-zero on success; 0 on failure.",
+        documentation: "Unschedules the specified task and optionally removes it from the dependency graph.\n\n**Parameters:**\n- `taskId` -- the task identifier (integer).\n- `removeTask` -- whether to remove the task (integer; 0 = keep, non-zero = remove).\n\n**Return:** Non-zero on success; 0 on failure.",
         insertText: "UnscheduleTask(${1:taskId}, ${2:removeTask})",
     },
     {
         name: "GetTaskStatus",
         signature: "(taskId)",
         description: "Get the status of a task",
-        documentation: "Returns the status of the specified task.\n\n**Parameter:** `taskId` — the task identifier (integer).\n\n**Return:** Status code: 1 = notScheduled, 2 = scheduled, 3 = waiting, 4 = executing, 5 = complete, 6 = cancelled, 7 = failed, 8 = unscheduled.",
+        documentation: "Returns the status of the specified task.\n\n**Parameter:** `taskId` -- the task identifier (integer).\n\n**Return:** Status code: 1 = notScheduled, 2 = scheduled, 3 = waiting, 4 = executing, 5 = complete, 6 = cancelled, 7 = failed, 8 = unscheduled.",
         insertText: "GetTaskStatus(${1:taskId})",
     },
     {
         name: "GetTaskCancelReason",
         signature: "(taskId)",
         description: "Get the cancel reason for a task",
-        documentation: "Returns the cancel reason code for a cancelled task.\n\n**Parameter:** `taskId` — the task identifier (integer).\n\n**Return:** Reason code: 0 = notCancelled, 1 = cancelledByUser, 2 = cancelledByError, 3 = cancelledByPrecedence, 4 = cancelledByTaskPropertyChange, 5 = cancelledByMethod, 6 = cancelledByResourceBreakDown, 7 = cancelledByUnschedule.",
+        documentation: "Returns the cancel reason code for a cancelled task.\n\n**Parameter:** `taskId` -- the task identifier (integer).\n\n**Return:** Reason code: 0 = notCancelled, 1 = cancelledByUser, 2 = cancelledByError, 3 = cancelledByPrecedence, 4 = cancelledByTaskPropertyChange, 5 = cancelledByMethod, 6 = cancelledByResourceBreakDown, 7 = cancelledByUnschedule.",
         insertText: "GetTaskCancelReason(${1:taskId})",
     },
     {
         name: "ValidateTaskResources",
         signature: "(taskId)",
         description: "Validate that all resources for a task are enabled",
-        documentation: "Returns whether all resources required by the specified task's activities are enabled.\n\n**Parameter:** `taskId` — the task identifier (integer).\n\n**Return:** Non-zero if all resources enabled; 0 otherwise.",
+        documentation: "Returns whether all resources required by the specified task's activities are enabled.\n\n**Parameter:** `taskId` -- the task identifier (integer).\n\n**Return:** Non-zero if all resources enabled; 0 otherwise.",
         insertText: "ValidateTaskResources(${1:taskId})",
     },
     {
         name: "GetMethodProperties",
         signature: "(methodId, isVisible)",
         description: "Get properties of a registered method",
-        documentation: "Gets properties (visibility) of a registered method.\n\n**Parameters:**\n- `methodId` — the method identifier (integer).\n- `isVisible` — [out] receives visibility state (variable).",
+        documentation: "Gets properties (visibility) of a registered method.\n\n**Parameters:**\n- `methodId` -- the method identifier (integer).\n- `isVisible` -- [out] receives visibility state (variable).",
         insertText: "GetMethodProperties(${1:methodId}, ${2:isVisible})",
     },
     {
         name: "SetMethodProperties",
         signature: "(methodId, isVisible)",
         description: "Set properties of a registered method",
-        documentation: "Sets properties (visibility) of a registered method.\n\n**Parameters:**\n- `methodId` — the method identifier (integer).\n- `isVisible` — visibility state (integer).",
+        documentation: "Sets properties (visibility) of a registered method.\n\n**Parameters:**\n- `methodId` -- the method identifier (integer).\n- `isVisible` -- visibility state (integer).",
         insertText: "SetMethodProperties(${1:methodId}, ${2:isVisible})",
     },
     {
         name: "SetTaskProperties",
         signature: "(taskId, isUnschedulable, isCancelable)",
         description: "Set properties of a scheduled task",
-        documentation: "Sets unschedulable and cancelable properties on a scheduled task.\n\n**Parameters:**\n- `taskId` — the task identifier (integer).\n- `isUnschedulable` — whether the task is unschedulable (integer).\n- `isCancelable` — whether the task is cancelable (integer).",
+        documentation: "Sets unschedulable and cancelable properties on a scheduled task.\n\n**Parameters:**\n- `taskId` -- the task identifier (integer).\n- `isUnschedulable` -- whether the task is unschedulable (integer).\n- `isCancelable` -- whether the task is cancelable (integer).",
         insertText: "SetTaskProperties(${1:taskId}, ${2:isUnschedulable}, ${3:isCancelable})",
     },
     {
         name: "SetTaskViewName",
         signature: "(taskId, taskViewName)",
         description: "Set the view name of a task",
-        documentation: "Sets the view name of the specified task.\n\n**Parameters:**\n- `taskId` — the task identifier (integer).\n- `taskViewName` — the new view name (string).",
+        documentation: "Sets the view name of the specified task.\n\n**Parameters:**\n- `taskId` -- the task identifier (integer).\n- `taskViewName` -- the new view name (string).",
         insertText: "SetTaskViewName(${1:taskId}, ${2:taskViewName})",
     },
     {
@@ -742,7 +742,7 @@ exports.BUILTIN_FUNCTIONS = [
         name: "GetSchedulerSettings",
         signature: "(controlCycleTime, taskPreActivationTime, controlPolicy, errorPolicy, branchingMode, maxDisposableTasks, maxOptimizedUnits, maxActivityDurationFactor, searchingIntervalFactor)",
         description: "Get all Scheduler control settings",
-        documentation: "Retrieves all current Scheduler control settings.\n\n**Parameters (all [out]):**\n- `controlCycleTime` — scheduling control cycle time in seconds.\n- `taskPreActivationTime` — pre-activation time in seconds.\n- `controlPolicy` — control policy (0 = timeOptimized, 1 = resourceOptimized).\n- `errorPolicy` — error policy (0 = cancelOnError, 1 = continueOnError).\n- `branchingMode` — branching mode.\n- `maxDisposableTasks` — max disposable tasks.\n- `maxOptimizedUnits` — max optimized units.\n- `maxActivityDurationFactor` — activity duration factor.\n- `searchingIntervalFactor` — searching interval factor.",
+        documentation: "Retrieves all current Scheduler control settings.\n\n**Parameters (all [out]):**\n- `controlCycleTime` -- scheduling control cycle time in seconds.\n- `taskPreActivationTime` -- pre-activation time in seconds.\n- `controlPolicy` -- control policy (0 = timeOptimized, 1 = resourceOptimized).\n- `errorPolicy` -- error policy (0 = cancelOnError, 1 = continueOnError).\n- `branchingMode` -- branching mode.\n- `maxDisposableTasks` -- max disposable tasks.\n- `maxOptimizedUnits` -- max optimized units.\n- `maxActivityDurationFactor` -- activity duration factor.\n- `searchingIntervalFactor` -- searching interval factor.",
         insertText: "GetSchedulerSettings(${1:controlCycleTime}, ${2:taskPreActivationTime}, ${3:controlPolicy}, ${4:errorPolicy}, ${5:branchingMode}, ${6:maxDisposableTasks}, ${7:maxOptimizedUnits}, ${8:maxActivityDurationFactor}, ${9:searchingIntervalFactor})",
     },
     {
@@ -756,14 +756,14 @@ exports.BUILTIN_FUNCTIONS = [
         name: "GetSchedulerSettings2",
         signature: "(logActivityDurations, estimateActivityDurations)",
         description: "Get Scheduler activity logging settings",
-        documentation: "Retrieves Scheduler activity logging settings.\n\n**Parameters (all [out]):**\n- `logActivityDurations` — whether activity durations are logged.\n- `estimateActivityDurations` — whether activity durations are estimated.",
+        documentation: "Retrieves Scheduler activity logging settings.\n\n**Parameters (all [out]):**\n- `logActivityDurations` -- whether activity durations are logged.\n- `estimateActivityDurations` -- whether activity durations are estimated.",
         insertText: "GetSchedulerSettings2(${1:logActivityDurations}, ${2:estimateActivityDurations})",
     },
     {
         name: "SetSchedulerSettings2",
         signature: "(logActivityDurations, estimateActivityDurations)",
         description: "Set Scheduler activity logging settings",
-        documentation: "Sets Scheduler activity logging settings.\n\n**Parameters (all [in]):**\n- `logActivityDurations` — whether to log activity durations.\n- `estimateActivityDurations` — whether to estimate activity durations.",
+        documentation: "Sets Scheduler activity logging settings.\n\n**Parameters (all [in]):**\n- `logActivityDurations` -- whether to log activity durations.\n- `estimateActivityDurations` -- whether to estimate activity durations.",
         insertText: "SetSchedulerSettings2(${1:logActivityDurations}, ${2:estimateActivityDurations})",
     },
     {
@@ -777,42 +777,42 @@ exports.BUILTIN_FUNCTIONS = [
         name: "SetTaskDescription",
         signature: "(taskId, description)",
         description: "Set the description of a task",
-        documentation: "Sets the description of a task, displayed in scheduler views.\n\n**Parameters:**\n- `taskId` — the task identifier (integer).\n- `description` — the task description (string).",
+        documentation: "Sets the description of a task, displayed in scheduler views.\n\n**Parameters:**\n- `taskId` -- the task identifier (integer).\n- `description` -- the task description (string).",
         insertText: "SetTaskDescription(${1:taskId}, ${2:description})",
     },
     {
         name: "SetCurrentActivityDescription",
         signature: "(description)",
         description: "Set the description of the current activity",
-        documentation: "Sets the description of the current activity, displayed in scheduler views.\n\n**Parameter:** `description` — the activity description (string).",
+        documentation: "Sets the description of the current activity, displayed in scheduler views.\n\n**Parameter:** `description` -- the activity description (string).",
         insertText: "SetCurrentActivityDescription(${1:description})",
     },
     {
         name: "GetEstimatedActivityDuration",
         signature: "(activityGUID, statisticIndex)",
         description: "Get estimated duration for an activity",
-        documentation: "Returns a statistical time estimate in seconds for an activity duration.\n\n**Parameters:**\n- `activityGUID` — the GUID of the activity (string).\n- `statisticIndex` — 0 = minimum, 1 = maximum, 2 = average, 3 = last.\n\n**Return:** Duration in seconds (float); -1 if not available.",
+        documentation: "Returns a statistical time estimate in seconds for an activity duration.\n\n**Parameters:**\n- `activityGUID` -- the GUID of the activity (string).\n- `statisticIndex` -- 0 = minimum, 1 = maximum, 2 = average, 3 = last.\n\n**Return:** Duration in seconds (float); -1 if not available.",
         insertText: "GetEstimatedActivityDuration(${1:activityGUID}, ${2:statisticIndex})",
     },
     {
         name: "ResetActivityDurationLog",
         signature: "(activityGUID, recordsAffected)",
         description: "Reset logged data for an activity",
-        documentation: "Resets the logged data for a specific activity, or all activities if activityGUID is empty.\n\n**Parameters:**\n- `activityGUID` — the GUID of the activity (string; empty = all).\n- `recordsAffected` — [out] receives the number of records affected (variable).",
+        documentation: "Resets the logged data for a specific activity, or all activities if activityGUID is empty.\n\n**Parameters:**\n- `activityGUID` -- the GUID of the activity (string; empty = all).\n- `recordsAffected` -- [out] receives the number of records affected (variable).",
         insertText: "ResetActivityDurationLog(${1:activityGUID}, ${2:recordsAffected})",
     },
     {
         name: "PreActivity",
         signature: "(someFunctionName [, ...])",
         description: "Define a preprocessing activity",
-        documentation: "Specifies a preprocessing activity executed in parallel to the main activities of a task. Must be called before the first activity block.\n\n**Parameters:**\n- `someFunctionName` — the name of the function to execute (string).\n- `[...]` — optional arguments to pass to the function.",
+        documentation: "Specifies a preprocessing activity executed in parallel to the main activities of a task. Must be called before the first activity block.\n\n**Parameters:**\n- `someFunctionName` -- the name of the function to execute (string).\n- `[...]` -- optional arguments to pass to the function.",
         insertText: "PreActivity(${1:someFunctionName})",
     },
     {
         name: "PostActivity",
         signature: "(someFunctionName [, ...])",
         description: "Define a postprocessing activity",
-        documentation: "Specifies a postprocessing activity executed in parallel to the main activities of a task. Must be called after the last activity block.\n\n**Parameters:**\n- `someFunctionName` — the name of the function to execute (string).\n- `[...]` — optional arguments to pass to the function.",
+        documentation: "Specifies a postprocessing activity executed in parallel to the main activities of a task. Must be called after the last activity block.\n\n**Parameters:**\n- `someFunctionName` -- the name of the function to execute (string).\n- `[...]` -- optional arguments to pass to the function.",
         insertText: "PostActivity(${1:someFunctionName})",
     },
 ];
@@ -843,7 +843,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetCount",
         signature: "sequence.SetCount(count)",
         description: "Sets the current total number of positions in this sequence",
-        documentation: "Sets the current total number of positions in this sequence.\n\n**Parameter:** `count` — the current total number of positions (integer).",
+        documentation: "Sets the current total number of positions in this sequence.\n\n**Parameter:** `count` -- the current total number of positions (integer).",
         insertText: "SetCount(${1:count})",
     },
     {
@@ -859,7 +859,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetCurrentPosition",
         signature: "sequence.SetCurrentPosition(currentPosition)",
         description: "Sets the current position in this sequence",
-        documentation: "Sets the current position in this sequence.\n\n**Parameter:** `currentPosition` — the current position (integer, 1-based index).",
+        documentation: "Sets the current position in this sequence.\n\n**Parameter:** `currentPosition` -- the current position (integer, 1-based index).",
         insertText: "SetCurrentPosition(${1:currentPosition})",
     },
     {
@@ -883,7 +883,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetMax",
         signature: "sequence.SetMax(max)",
         description: "Sets the maximum number of positions in this sequence",
-        documentation: "Sets the maximum number of positions in this sequence.\n\n**Parameter:** `max` — the maximum number of positions (integer).",
+        documentation: "Sets the maximum number of positions in this sequence.\n\n**Parameter:** `max` -- the maximum number of positions (integer).",
         insertText: "SetMax(${1:max})",
     },
     {
@@ -891,7 +891,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Increment",
         signature: "sequence.Increment(step)",
         description: "Moves the current position by a specified number of positions",
-        documentation: "Moves the current position in this sequence by `step` positions. The new current position will be current + step. Note that step can be negative.\n\n**Parameter:** `step` — the number of positions to move (integer).\n\n**Return:** The new current position (integer, 1-based index).",
+        documentation: "Moves the current position in this sequence by `step` positions. The new current position will be current + step. Note that step can be negative.\n\n**Parameter:** `step` -- the number of positions to move (integer).\n\n**Return:** The new current position (integer, 1-based index).",
         insertText: "Increment(${1:step})",
     },
     {
@@ -899,15 +899,15 @@ exports.ELEMENT_FUNCTIONS = [
         name: "CopySequence",
         signature: "sequence.CopySequence(seqObj)",
         description: "Copies the specified sequence object to this sequence",
-        documentation: "Copies the specified sequence object to this sequence object.\n\n**Parameter:** `seqObj` — the sequence object to copy.",
+        documentation: "Copies the specified sequence object to this sequence object.\n\n**Parameter:** `seqObj` -- the sequence object to copy.",
         insertText: "CopySequence(${1:seqObj})",
     },
     {
         objectType: "sequence",
         name: "OperatorAssignSeq",
         signature: "sequence.OperatorAssignSeq(seqObj)",
-        description: "Assignment (=) operator — copies another sequence to this sequence",
-        documentation: "The assignment (`=`) operator copies the specified sequence object to this sequence object and returns this sequence object.\n\n**Parameter:** `seqObj` — the sequence object to copy.\n\n**Example:**\n```\nsequence s1, s2;\n//...\ns1 = s2;\n```",
+        description: "Assignment (=) operator -- copies another sequence to this sequence",
+        documentation: "The assignment (`=`) operator copies the specified sequence object to this sequence object and returns this sequence object.\n\n**Parameter:** `seqObj` -- the sequence object to copy.\n\n**Example:**\n```\nsequence s1, s2;\n//...\ns1 = s2;\n```",
         insertText: "OperatorAssignSeq(${1:seqObj})",
     },
     {
@@ -915,7 +915,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "RemoveAt",
         signature: "sequence.RemoveAt(position)",
         description: "Removes the specified position from this sequence",
-        documentation: "Removes the specified position from this sequence. If the removed position is before the current position, the current position is decremented by one.\n\n**Parameter:** `position` — the 1-based position to remove (integer).",
+        documentation: "Removes the specified position from this sequence. If the removed position is before the current position, the current position is decremented by one.\n\n**Parameter:** `position` -- the 1-based position to remove (integer).",
         insertText: "RemoveAt(${1:position})",
     },
     {
@@ -923,7 +923,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "DeleteLabware",
         signature: "sequence.DeleteLabware(labwareId)",
         description: "Removes all positions with the specified labware id",
-        documentation: "Removes all positions which have the specified labware id from this sequence.\n\n**Parameter:** `labwareId` — the labware id of the positions to remove (string).",
+        documentation: "Removes all positions which have the specified labware id from this sequence.\n\n**Parameter:** `labwareId` -- the labware id of the positions to remove (string).",
         insertText: "DeleteLabware(${1:labwareId})",
     },
     {
@@ -931,7 +931,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "InsertAt",
         signature: "sequence.InsertAt(position, labwareId, positionId)",
         description: "Inserts a new position at a specified position in this sequence",
-        documentation: "Inserts a new position at the specified position in this sequence. If the inserted position is before the current position, the current position is incremented by one.\n\n**Parameters:**\n- `position` — the 1-based position to insert at (integer).\n- `labwareId` — the labware id of the new position (string).\n- `positionId` — the position id of the new position (string).",
+        documentation: "Inserts a new position at the specified position in this sequence. If the inserted position is before the current position, the current position is incremented by one.\n\n**Parameters:**\n- `position` -- the 1-based position to insert at (integer).\n- `labwareId` -- the labware id of the new position (string).\n- `positionId` -- the position id of the new position (string).",
         insertText: "InsertAt(${1:position}, ${2:labwareId}, ${3:positionId})",
     },
     {
@@ -939,7 +939,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Add",
         signature: "sequence.Add(labwareId, positionId)",
         description: "Appends a new position to the end of this sequence",
-        documentation: "Appends a new position to the end of this sequence.\n\n**Parameters:**\n- `labwareId` — the labware id of the new position (string).\n- `positionId` — the position id of the new position (string).",
+        documentation: "Appends a new position to the end of this sequence.\n\n**Parameters:**\n- `labwareId` -- the labware id of the new position (string).\n- `positionId` -- the position id of the new position (string).",
         insertText: "Add(${1:labwareId}, ${2:positionId})",
     },
     {
@@ -947,7 +947,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "LookupPosition",
         signature: "sequence.LookupPosition(labId, posId, start, forward)",
         description: "Looks up a specified labware position in this sequence",
-        documentation: "Looks up a specified labware position in this sequence.\n\n**Parameters:**\n- `labId` — the name of the labware to look up (string).\n- `posId` — the name of the position to look up (string). If empty, only the labware name is used as the search criteria.\n- `start` — the starting position for the lookup (integer; 1-based).\n- `forward` — whether to search forward or backward (integer; 0 = backward, 1 = forward).\n\n**Return:** The sequence position if found (integer; 1-based); otherwise 0.",
+        documentation: "Looks up a specified labware position in this sequence.\n\n**Parameters:**\n- `labId` -- the name of the labware to look up (string).\n- `posId` -- the name of the position to look up (string). If empty, only the labware name is used as the search criteria.\n- `start` -- the starting position for the lookup (integer; 1-based).\n- `forward` -- whether to search forward or backward (integer; 0 = backward, 1 = forward).\n\n**Return:** The sequence position if found (integer; 1-based); otherwise 0.",
         insertText: "LookupPosition(${1:labId}, ${2:posId}, ${3:start}, ${4:forward})",
     },
     {
@@ -979,7 +979,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetUsedPositions",
         signature: "sequence.SetUsedPositions(usedPositions)",
         description: "Sets the number of used positions in this sequence",
-        documentation: "Sets the number of used positions in this sequence.\n\n**Parameter:** `usedPositions` — the number of used positions (integer).",
+        documentation: "Sets the number of used positions in this sequence.\n\n**Parameter:** `usedPositions` -- the number of used positions (integer).",
         insertText: "SetUsedPositions(${1:usedPositions})",
     },
     {
@@ -987,7 +987,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Edit",
         signature: "sequence.Edit(deviceContext, title, prompt, timeout, initFromCfg, first, last, editable, cfgFile)",
         description: "Allows editing of the sequence through a graphical dialog",
-        documentation: "Provides a way to edit a sequence graphically.\n\n**Parameters:**\n- `deviceContext` — the device context of the sequence (device).\n- `title` — the title of the edit sequence dialog box (string).\n- `prompt` — the prompt of the edit sequence dialog box (string).\n- `timeout` — auto-dismiss time in seconds (non-negative float).\n- `initFromCfg` — whether to initialize from a configuration file (integer; hslTrue or hslFalse).\n- `first` — the first position in the sequence (integer, 1-based).\n- `last` — the last position in the sequence (integer).\n- `editable` — whether sequence editing by the user is enabled (integer).\n- `cfgFile` — configuration file name for the sequence (string).\n\n**Remark:** Manipulations to a sequence from HSL are not written to the deck layout definition file.",
+        documentation: "Provides a way to edit a sequence graphically.\n\n**Parameters:**\n- `deviceContext` -- the device context of the sequence (device).\n- `title` -- the title of the edit sequence dialog box (string).\n- `prompt` -- the prompt of the edit sequence dialog box (string).\n- `timeout` -- auto-dismiss time in seconds (non-negative float).\n- `initFromCfg` -- whether to initialize from a configuration file (integer; hslTrue or hslFalse).\n- `first` -- the first position in the sequence (integer, 1-based).\n- `last` -- the last position in the sequence (integer).\n- `editable` -- whether sequence editing by the user is enabled (integer).\n- `cfgFile` -- configuration file name for the sequence (string).\n\n**Remark:** Manipulations to a sequence from HSL are not written to the deck layout definition file.",
         insertText: "Edit(${1:deviceContext}, ${2:title}, ${3:prompt}, ${4:timeout}, ${5:initFromCfg}, ${6:first}, ${7:last}, ${8:editable}, ${9:cfgFile})",
     },
     {
@@ -995,7 +995,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Edit2",
         signature: "sequence.Edit2(deviceContext, title, prompt, timeout, sound, initFromCfg, editedSequence, editable, cfgFile)",
         description: "Displays the Edit Sequence Dialog with deck layout visualization",
-        documentation: "Displays the Edit Sequence Dialog, which shows the deck layout with all the sequence positions of the original sequence. Sequence positions can be enabled/disabled graphically using the mouse.\n\n**Parameters:**\n- `deviceContext` — the device context of the sequence (device).\n- `title` — the title of the edit sequence dialog box (string).\n- `prompt` — the prompt of the edit sequence dialog box (string).\n- `timeout` — auto-dismiss time in seconds (non-negative float).\n- `sound` — name of a .wav sound file to play (string; empty = no sound).\n- `initFromCfg` — whether to initialize from a configuration file (integer; hslTrue or hslFalse).\n- `editedSequence` — sequence object containing the edited positions (sequence).\n- `editable` — whether sequence editing by the user is enabled (integer).\n- `cfgFile` — configuration file name for the sequence (string).\n\n**Remark:** Manipulations to a sequence from HSL are not written to the deck layout definition file.",
+        documentation: "Displays the Edit Sequence Dialog, which shows the deck layout with all the sequence positions of the original sequence. Sequence positions can be enabled/disabled graphically using the mouse.\n\n**Parameters:**\n- `deviceContext` -- the device context of the sequence (device).\n- `title` -- the title of the edit sequence dialog box (string).\n- `prompt` -- the prompt of the edit sequence dialog box (string).\n- `timeout` -- auto-dismiss time in seconds (non-negative float).\n- `sound` -- name of a .wav sound file to play (string; empty = no sound).\n- `initFromCfg` -- whether to initialize from a configuration file (integer; hslTrue or hslFalse).\n- `editedSequence` -- sequence object containing the edited positions (sequence).\n- `editable` -- whether sequence editing by the user is enabled (integer).\n- `cfgFile` -- configuration file name for the sequence (string).\n\n**Remark:** Manipulations to a sequence from HSL are not written to the deck layout definition file.",
         insertText: "Edit2(${1:deviceContext}, ${2:title}, ${3:prompt}, ${4:timeout}, ${5:sound}, ${6:initFromCfg}, ${7:editedSequence}, ${8:editable}, ${9:cfgFile})",
     },
     {
@@ -1003,7 +1003,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "ReadFromFile",
         signature: "sequence.ReadFromFile(deviceContext, indexesOnly, cfgFile)",
         description: "Initializes the sequence instance data from a configuration file",
-        documentation: "Initializes the sequence instance data from a configuration file.\n\n**Parameters:**\n- `deviceContext` — the device context of the sequence (device).\n- `indexesOnly` — whether only the indexes should be read (integer; hslTrue or hslFalse).\n- `cfgFile` — the configuration file name (string), e.g., an ASCII text file, a Microsoft Excel file, or a Microsoft Jet database.\n\n**Return:**\n- Greater than 0 if the function succeeds.\n- -1 if the sequence could not be found in the database table.\n- -2 if the configuration file could not be found.",
+        documentation: "Initializes the sequence instance data from a configuration file.\n\n**Parameters:**\n- `deviceContext` -- the device context of the sequence (device).\n- `indexesOnly` -- whether only the indexes should be read (integer; hslTrue or hslFalse).\n- `cfgFile` -- the configuration file name (string), e.g., an ASCII text file, a Microsoft Excel file, or a Microsoft Jet database.\n\n**Return:**\n- Greater than 0 if the function succeeds.\n- -1 if the sequence could not be found in the database table.\n- -2 if the configuration file could not be found.",
         insertText: "ReadFromFile(${1:deviceContext}, ${2:indexesOnly}, ${3:cfgFile})",
     },
     {
@@ -1011,7 +1011,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "WriteToFile",
         signature: "sequence.WriteToFile(deviceContext, indexesOnly, cfgFile)",
         description: "Writes the sequence instance data to a configuration file",
-        documentation: "Writes the sequence instance data to a configuration file.\n\n**Parameters:**\n- `deviceContext` — the device context of the sequence (device).\n- `indexesOnly` — whether only the indexes should be written (integer; hslTrue or hslFalse).\n- `cfgFile` — the configuration file name (string), e.g., an ASCII text file, a Microsoft Excel file, or a Microsoft Jet database.",
+        documentation: "Writes the sequence instance data to a configuration file.\n\n**Parameters:**\n- `deviceContext` -- the device context of the sequence (device).\n- `indexesOnly` -- whether only the indexes should be written (integer; hslTrue or hslFalse).\n- `cfgFile` -- the configuration file name (string), e.g., an ASCII text file, a Microsoft Excel file, or a Microsoft Jet database.",
         insertText: "WriteToFile(${1:deviceContext}, ${2:indexesOnly}, ${3:cfgFile})",
     },
     {
@@ -1027,7 +1027,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetLabwareIds",
         signature: "sequence.GetLabwareIds(labIds)",
         description: "Retrieves the unique labware names of the sequence",
-        documentation: "Retrieves the unique labware names of the sequence.\n\n**Parameter:** `labIds` — a reference to an array of variables to retrieve the unique labware names.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Retrieves the unique labware names of the sequence.\n\n**Parameter:** `labIds` -- a reference to an array of variables to retrieve the unique labware names.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "GetLabwareIds(${1:labIds})",
     },
     {
@@ -1043,7 +1043,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "EqualsToSequence",
         signature: "sequence.EqualsToSequence(seqObj)",
         description: "Checks whether this sequence equals another sequence",
-        documentation: "Checks whether this sequence equals the specified sequence.\n\n**Parameter:** `seqObj` — the sequence object to compare with.\n\n**Return:** Non-zero if the sequences are equal; otherwise zero (0).",
+        documentation: "Checks whether this sequence equals the specified sequence.\n\n**Parameter:** `seqObj` -- the sequence object to compare with.\n\n**Return:** Non-zero if the sequences are equal; otherwise zero (0).",
         insertText: "EqualsToSequence(${1:seqObj})",
     },
     {
@@ -1051,7 +1051,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetSequenceProperty",
         signature: "sequence.SetSequenceProperty(position, propertyName, propertyValue)",
         description: "Sets a named property for a position in this sequence",
-        documentation: "Sets a named property for a specified position in this sequence.\n\n**Parameters:**\n- `position` — the 1-based position (integer).\n- `propertyName` — the name of the property (string).\n- `propertyValue` — the value of the property (variable).",
+        documentation: "Sets a named property for a specified position in this sequence.\n\n**Parameters:**\n- `position` -- the 1-based position (integer).\n- `propertyName` -- the name of the property (string).\n- `propertyValue` -- the value of the property (variable).",
         insertText: "SetSequenceProperty(${1:position}, ${2:propertyName}, ${3:propertyValue})",
     },
     {
@@ -1059,7 +1059,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetSequencePropertyRange",
         signature: "sequence.SetSequencePropertyRange(fromPosition, toPosition, propertyName, propertyValue)",
         description: "Sets a named property for a range of positions",
-        documentation: "Sets a named property for a range of positions in this sequence.\n\n**Parameters:**\n- `fromPosition` — the 1-based start position (integer).\n- `toPosition` — the 1-based end position (integer).\n- `propertyName` — the name of the property (string).\n- `propertyValue` — the value of the property (variable).",
+        documentation: "Sets a named property for a range of positions in this sequence.\n\n**Parameters:**\n- `fromPosition` -- the 1-based start position (integer).\n- `toPosition` -- the 1-based end position (integer).\n- `propertyName` -- the name of the property (string).\n- `propertyValue` -- the value of the property (variable).",
         insertText: "SetSequencePropertyRange(${1:fromPosition}, ${2:toPosition}, ${3:propertyName}, ${4:propertyValue})",
     },
     {
@@ -1067,7 +1067,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetSequenceProperty",
         signature: "sequence.GetSequenceProperty(position, propertyName)",
         description: "Gets a named property for a position in this sequence",
-        documentation: "Gets a named property for a specified position in this sequence.\n\n**Parameters:**\n- `position` — the 1-based position (integer).\n- `propertyName` — the name of the property (string).\n\n**Return:** The value of the property (variable).",
+        documentation: "Gets a named property for a specified position in this sequence.\n\n**Parameters:**\n- `position` -- the 1-based position (integer).\n- `propertyName` -- the name of the property (string).\n\n**Return:** The value of the property (variable).",
         insertText: "GetSequenceProperty(${1:position}, ${2:propertyName})",
     },
     {
@@ -1075,7 +1075,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "RemoveSequenceProperty",
         signature: "sequence.RemoveSequenceProperty(position, propertyName)",
         description: "Removes a named property for a position in this sequence",
-        documentation: "Removes a named property for a specified position in this sequence.\n\n**Parameters:**\n- `position` — the 1-based position (integer).\n- `propertyName` — the name of the property (string).",
+        documentation: "Removes a named property for a specified position in this sequence.\n\n**Parameters:**\n- `position` -- the 1-based position (integer).\n- `propertyName` -- the name of the property (string).",
         insertText: "RemoveSequenceProperty(${1:position}, ${2:propertyName})",
     },
     {
@@ -1083,7 +1083,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "RemoveAllSequenceProperties",
         signature: "sequence.RemoveAllSequenceProperties(position)",
         description: "Removes all named properties for a position in this sequence",
-        documentation: "Removes all named properties for a specified position in this sequence.\n\n**Parameter:** `position` — the 1-based position (integer).",
+        documentation: "Removes all named properties for a specified position in this sequence.\n\n**Parameter:** `position` -- the 1-based position (integer).",
         insertText: "RemoveAllSequenceProperties(${1:position})",
     },
     // ── Device ───────────────────────────────────────────────────────
@@ -1092,7 +1092,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetSequence",
         signature: "device.GetSequence(seqId)",
         description: "Returns a copy of the deck sequence with the given name",
-        documentation: "Returns a copy of the deck sequence with the name seqId.\n\n**Parameter:** `seqId` — the name of the desired deck sequence (string).\n\n**Return:** A sequence object containing a copy of the desired deck sequence. Can be empty if the device does not contain the desired deck sequence.",
+        documentation: "Returns a copy of the deck sequence with the name seqId.\n\n**Parameter:** `seqId` -- the name of the desired deck sequence (string).\n\n**Return:** A sequence object containing a copy of the desired deck sequence. Can be empty if the device does not contain the desired deck sequence.",
         insertText: "GetSequence(${1:seqId})",
     },
     {
@@ -1100,7 +1100,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetSequenceRef",
         signature: "device.GetSequenceRef(seqId, seqObj)",
         description: "Gets a reference to the deck sequence with the given name",
-        documentation: "Gets a reference to the deck sequence with the name seqId.\n\n**Parameters:**\n- `seqId` — the name of the desired deck sequence (string).\n- `seqObj` — a sequence to retrieve a reference to the specified deck sequence (sequence).\n\n**Return:** Non-zero if the desired deck sequence was found; otherwise zero (0).",
+        documentation: "Gets a reference to the deck sequence with the name seqId.\n\n**Parameters:**\n- `seqId` -- the name of the desired deck sequence (string).\n- `seqObj` -- a sequence to retrieve a reference to the specified deck sequence (sequence).\n\n**Return:** Non-zero if the desired deck sequence was found; otherwise zero (0).",
         insertText: "GetSequenceRef(${1:seqId}, ${2:seqObj})",
     },
     {
@@ -1108,7 +1108,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "ResetSequence",
         signature: "device.ResetSequence(seqId)",
         description: "Reloads the original deck sequence from the deck layout file",
-        documentation: "Reloads the original deck sequence with the name seqId from the deck layout file; all indexes, limits and positions are re-initialized. The sequence must exist.\n\n**Parameter:** `seqId` — the name of the deck sequence to reset (string).\n\n**Return:** Non-zero if the desired deck sequence was found; otherwise zero (0).",
+        documentation: "Reloads the original deck sequence with the name seqId from the deck layout file; all indexes, limits and positions are re-initialized. The sequence must exist.\n\n**Parameter:** `seqId` -- the name of the deck sequence to reset (string).\n\n**Return:** Non-zero if the desired deck sequence was found; otherwise zero (0).",
         insertText: "ResetSequence(${1:seqId})",
     },
     {
@@ -1116,7 +1116,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "CopyResetSequence",
         signature: "device.CopyResetSequence(seqId, seqObj)",
         description: "Reloads a copy of the original deck sequence into a sequence object",
-        documentation: "Reloads a copy of the original deck sequence with the name seqId from the deck layout file into the sequence object seqObj. All indexes, limits and positions are re-initialized. The original deck sequence remains unchanged.\n\n**Parameters:**\n- `seqId` — the name of the desired deck sequence (string).\n- `seqObj` — a sequence to retrieve a copy of the specified deck sequence (sequence).\n\n**Return:** Non-zero if the desired deck sequence was found; otherwise zero (0).",
+        documentation: "Reloads a copy of the original deck sequence with the name seqId from the deck layout file into the sequence object seqObj. All indexes, limits and positions are re-initialized. The original deck sequence remains unchanged.\n\n**Parameters:**\n- `seqId` -- the name of the desired deck sequence (string).\n- `seqObj` -- a sequence to retrieve a copy of the specified deck sequence (sequence).\n\n**Return:** Non-zero if the desired deck sequence was found; otherwise zero (0).",
         insertText: "CopyResetSequence(${1:seqId}, ${2:seqObj})",
     },
     {
@@ -1124,7 +1124,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "AddLabware",
         signature: "device.AddLabware(labId, cfgFile, position [,preloadedLabIdBase])",
         description: "Adds the specified labware to the deck layout using deck coordinates",
-        documentation: "Adds the specified labware to the deck layout using deck coordinates.\n\n**Parameters:**\n- `labId` — the name of the labware item to add (string).\n- `cfgFile` — the configuration file name for the labware item (string).\n- `position` — the position vector (x, y, z, angle) relative to the deck coordinate system (array of floats).\n- `preloadedLabIdBase` — optional base name of preloaded labware on a named template (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remark:** Manipulations to the deck layout from HSL are not written to the deck layout definition file.",
+        documentation: "Adds the specified labware to the deck layout using deck coordinates.\n\n**Parameters:**\n- `labId` -- the name of the labware item to add (string).\n- `cfgFile` -- the configuration file name for the labware item (string).\n- `position` -- the position vector (x, y, z, angle) relative to the deck coordinate system (array of floats).\n- `preloadedLabIdBase` -- optional base name of preloaded labware on a named template (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remark:** Manipulations to the deck layout from HSL are not written to the deck layout definition file.",
         insertText: "AddLabware(${1:labId}, ${2:cfgFile}, ${3:position})",
     },
     {
@@ -1132,7 +1132,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "RemoveLabware",
         signature: "device.RemoveLabware(labwareId)",
         description: "Removes the specified labware from the deck layout",
-        documentation: "Removes the specified labware from the deck layout.\n\n**Parameter:** `labwareId` — the labware id to remove (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Removes the specified labware from the deck layout.\n\n**Parameter:** `labwareId` -- the labware id to remove (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "RemoveLabware(${1:labwareId})",
     },
     {
@@ -1140,7 +1140,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "AddContainerToRack",
         signature: "device.AddContainerToRack(rackId, posId, cfgFile, offset)",
         description: "Replaces a container on a rectangular pre-loaded rack",
-        documentation: "Replaces a container on a rectangular pre-loaded rack.\n\n**Parameters:**\n- `rackId` — the name of the rack (labware id) where to replace the container (string).\n- `posId` — the name of the position (position id) on the rack (string).\n- `cfgFile` — the configuration file name for the container to replace (string).\n- `offset` — the offsets (x, y, z) of the container relative to the container position (array of floats).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remark:** Manipulations to the deck layout from HSL are not written to the deck layout definition file.",
+        documentation: "Replaces a container on a rectangular pre-loaded rack.\n\n**Parameters:**\n- `rackId` -- the name of the rack (labware id) where to replace the container (string).\n- `posId` -- the name of the position (position id) on the rack (string).\n- `cfgFile` -- the configuration file name for the container to replace (string).\n- `offset` -- the offsets (x, y, z) of the container relative to the container position (array of floats).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remark:** Manipulations to the deck layout from HSL are not written to the deck layout definition file.",
         insertText: "AddContainerToRack(${1:rackId}, ${2:posId}, ${3:cfgFile}, ${4:offset})",
     },
     {
@@ -1148,7 +1148,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "AddLabwareToTemplate",
         signature: "device.AddLabwareToTemplate(labwareId, configFile, templateId, siteId)",
         description: "Adds the specified labware to the deck site on the named template",
-        documentation: "Adds the specified labware to the deck site on the named template.\n\n**Parameters:**\n- `labwareId` — the name of the labware item to add (string).\n- `configFile` — the configuration file name for the labware item (string).\n- `templateId` — the name of the template (string).\n- `siteId` — the name of the site on the template (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remark:** Manipulations to the deck layout from HSL are not written to the deck layout definition file.",
+        documentation: "Adds the specified labware to the deck site on the named template.\n\n**Parameters:**\n- `labwareId` -- the name of the labware item to add (string).\n- `configFile` -- the configuration file name for the labware item (string).\n- `templateId` -- the name of the template (string).\n- `siteId` -- the name of the site on the template (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remark:** Manipulations to the deck layout from HSL are not written to the deck layout definition file.",
         insertText: "AddLabwareToTemplate(${1:labwareId}, ${2:configFile}, ${3:templateId}, ${4:siteId})",
     },
     {
@@ -1156,7 +1156,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "RemoveLabwareFromTemplate",
         signature: "device.RemoveLabwareFromTemplate(labwareId, templateId)",
         description: "Removes the specified labware from the named template",
-        documentation: "Removes the specified labware from the named template.\n\n**Parameters:**\n- `labwareId` — the name of the labware item to remove (string).\n- `templateId` — the name of the template (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remark:** Manipulations to the deck layout from HSL are not written to the deck layout definition file.",
+        documentation: "Removes the specified labware from the named template.\n\n**Parameters:**\n- `labwareId` -- the name of the labware item to remove (string).\n- `templateId` -- the name of the template (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remark:** Manipulations to the deck layout from HSL are not written to the deck layout definition file.",
         insertText: "RemoveLabwareFromTemplate(${1:labwareId}, ${2:templateId})",
     },
     {
@@ -1164,7 +1164,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "IsValidLabwareForCurrentDeckLayout",
         signature: "device.IsValidLabwareForCurrentDeckLayout(labwareId)",
         description: "Checks if the specified labware is valid for the current deck layout",
-        documentation: "Checks if the specified labware is valid for the current deck layout.\n\n**Parameter:** `labwareId` — the labware id to check (string).\n\n**Return:** Non-zero if the labware is valid; otherwise zero (0).",
+        documentation: "Checks if the specified labware is valid for the current deck layout.\n\n**Parameter:** `labwareId` -- the labware id to check (string).\n\n**Return:** Non-zero if the labware is valid; otherwise zero (0).",
         insertText: "IsValidLabwareForCurrentDeckLayout(${1:labwareId})",
     },
     {
@@ -1172,7 +1172,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetLabwarePosition",
         signature: "device.GetLabwarePosition(labId, position [,posId])",
         description: "Obtains the position of the specified labware item from the deck layout",
-        documentation: "Obtains the position of the specified labware item from the deck layout using deck coordinates.\n\n**Parameters:**\n- `labId` — the name of the labware item (string).\n- `position` — a reference to an array of variables to retrieve the position (x, y, z, angle).\n- `posId` — optional name of the position to convert to deck coordinates (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Obtains the position of the specified labware item from the deck layout using deck coordinates.\n\n**Parameters:**\n- `labId` -- the name of the labware item (string).\n- `position` -- a reference to an array of variables to retrieve the position (x, y, z, angle).\n- `posId` -- optional name of the position to convert to deck coordinates (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "GetLabwarePosition(${1:labId}, ${2:position})",
     },
     {
@@ -1180,7 +1180,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetLabwarePositionEx",
         signature: "device.GetLabwarePositionEx(labId, position [,posId])",
         description: "Obtains the extended position information of the specified labware item",
-        documentation: "Obtains the extended position information of the specified labware item from the deck layout using deck coordinates.\n\n**Parameters:**\n- `labId` — the name of the labware item (string).\n- `position` — a reference to an array of variables to retrieve the extended position information (x, y, z, angle, dx, dy, boundaries, etc.).\n- `posId` — optional name of the position to convert to deck coordinates (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Obtains the extended position information of the specified labware item from the deck layout using deck coordinates.\n\n**Parameters:**\n- `labId` -- the name of the labware item (string).\n- `position` -- a reference to an array of variables to retrieve the extended position information (x, y, z, angle, dx, dy, boundaries, etc.).\n- `posId` -- optional name of the position to convert to deck coordinates (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "GetLabwarePositionEx(${1:labId}, ${2:position})",
     },
     {
@@ -1188,7 +1188,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetTemplateLabwareNames",
         signature: "device.GetTemplateLabwareNames(templateNames, labwareNames)",
         description: "Returns labware names with associated template name",
-        documentation: "Returns labware names with associated template name.\n\n**Parameters:**\n- `templateNames` — a reference to an array of variables to retrieve the associated template names.\n- `labwareNames` — a reference to an array of variables to retrieve the labware names.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Returns labware names with associated template name.\n\n**Parameters:**\n- `templateNames` -- a reference to an array of variables to retrieve the associated template names.\n- `labwareNames` -- a reference to an array of variables to retrieve the labware names.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "GetTemplateLabwareNames(${1:templateNames}, ${2:labwareNames})",
     },
     {
@@ -1196,7 +1196,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetPositionsLabwareNames",
         signature: "device.GetPositionsLabwareNames(sequenceObj, labwareName, templateSites, labwareNames, positionNames)",
         description: "Returns template sites with associated labware names or labware names with the associated position names",
-        documentation: "Returns template sites with associated labware names or labware names with the associated position names of all positions on the specified labware referenced by the specified sequence.\n\n**Parameters:**\n- `sequenceObj` — the sequence object (sequence).\n- `labwareName` — the labware name (string).\n- `templateSites` — a reference to an array of variables to retrieve the associated template sites.\n- `labwareNames` — a reference to an array of variables to retrieve the associated labware names.\n- `positionNames` — a reference to an array of variables to retrieve the associated position names.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Returns template sites with associated labware names or labware names with the associated position names of all positions on the specified labware referenced by the specified sequence.\n\n**Parameters:**\n- `sequenceObj` -- the sequence object (sequence).\n- `labwareName` -- the labware name (string).\n- `templateSites` -- a reference to an array of variables to retrieve the associated template sites.\n- `labwareNames` -- a reference to an array of variables to retrieve the associated labware names.\n- `positionNames` -- a reference to an array of variables to retrieve the associated position names.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "GetPositionsLabwareNames(${1:sequenceObj}, ${2:labwareName}, ${3:templateSites}, ${4:labwareNames}, ${5:positionNames})",
     },
     {
@@ -1204,7 +1204,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetLabwareData",
         signature: "device.GetLabwareData(labId, propertyKeys, propertyValues)",
         description: "Returns the property values for the specified property keys",
-        documentation: "Returns the property values for the property keys specified via propertyKeys.\n\n**Parameters:**\n- `labId` — the name of the labware (string).\n- `propertyKeys` — a reference to an array of variables containing the property keys.\n- `propertyValues` — a reference to an array of variables to retrieve the property values.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Returns the property values for the property keys specified via propertyKeys.\n\n**Parameters:**\n- `labId` -- the name of the labware (string).\n- `propertyKeys` -- a reference to an array of variables containing the property keys.\n- `propertyValues` -- a reference to an array of variables to retrieve the property values.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "GetLabwareData(${1:labId}, ${2:propertyKeys}, ${3:propertyValues})",
     },
     {
@@ -1212,7 +1212,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetBarcodeData",
         signature: "device.GetBarcodeData(labwareId, positionId)",
         description: "Returns the barcode data string for a labware position",
-        documentation: "Returns the barcode data string for a labware position.\n\n**Parameters:**\n- `labwareId` — the labware id (string).\n- `positionId` — the position id (string).\n\n**Return:** The barcode data (string).",
+        documentation: "Returns the barcode data string for a labware position.\n\n**Parameters:**\n- `labwareId` -- the labware id (string).\n- `positionId` -- the position id (string).\n\n**Return:** The barcode data (string).",
         insertText: "GetBarcodeData(${1:labwareId}, ${2:positionId})",
     },
     {
@@ -1220,7 +1220,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetBarcodeData",
         signature: "device.SetBarcodeData(labwareId, positionId, barcodeData)",
         description: "Sets the barcode data for a labware position",
-        documentation: "Sets the barcode data for a labware position.\n\n**Parameters:**\n- `labwareId` — the labware id (string).\n- `positionId` — the position id (string).\n- `barcodeData` — the barcode data to set (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Sets the barcode data for a labware position.\n\n**Parameters:**\n- `labwareId` -- the labware id (string).\n- `positionId` -- the position id (string).\n- `barcodeData` -- the barcode data to set (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "SetBarcodeData(${1:labwareId}, ${2:positionId}, ${3:barcodeData})",
     },
     {
@@ -1228,7 +1228,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetUniqueBarcode",
         signature: "device.GetUniqueBarcode(labwareId, positionId)",
         description: "Returns the unique barcode for a labware position",
-        documentation: "Returns the unique barcode for a labware position.\n\n**Parameters:**\n- `labwareId` — the labware id (string).\n- `positionId` — the position id (string).\n\n**Return:** The unique barcode (integer).",
+        documentation: "Returns the unique barcode for a labware position.\n\n**Parameters:**\n- `labwareId` -- the labware id (string).\n- `positionId` -- the position id (string).\n\n**Return:** The unique barcode (integer).",
         insertText: "GetUniqueBarcode(${1:labwareId}, ${2:positionId})",
     },
     {
@@ -1236,7 +1236,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetUniqueBarcode",
         signature: "device.SetUniqueBarcode(labwareId, positionId, barcode)",
         description: "Sets the unique barcode for a labware position",
-        documentation: "Sets the unique barcode for a labware position.\n\n**Parameters:**\n- `labwareId` — the labware id (string).\n- `positionId` — the position id (string).\n- `barcode` — the unique barcode to set (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Sets the unique barcode for a labware position.\n\n**Parameters:**\n- `labwareId` -- the labware id (string).\n- `positionId` -- the position id (string).\n- `barcode` -- the unique barcode to set (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "SetUniqueBarcode(${1:labwareId}, ${2:positionId}, ${3:barcode})",
     },
     {
@@ -1244,7 +1244,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "ComputeContainerVolume",
         signature: "device.ComputeContainerVolume(labId, posId, height, deckCoordinates [,connectedContainers])",
         description: "Calculates the volume for the container at the specified position and height",
-        documentation: "Calculates the volume (in mL) for the container at the specified position and the specified internal height.\n\n**Parameters:**\n- `labId` — the name of the container (string).\n- `posId` — the position of the container (string).\n- `height` — the internal height in mm (float).\n- `deckCoordinates` — whether the height is measured in deck coordinates (integer; hslTrue or hslFalse).\n- `connectedContainers` — optional flag for connected containers (integer; hslTrue or hslFalse, defaults to hslFalse).\n\n**Return:** The volume (in mL) of the specified container at the specified internal height.",
+        documentation: "Calculates the volume (in mL) for the container at the specified position and the specified internal height.\n\n**Parameters:**\n- `labId` -- the name of the container (string).\n- `posId` -- the position of the container (string).\n- `height` -- the internal height in mm (float).\n- `deckCoordinates` -- whether the height is measured in deck coordinates (integer; hslTrue or hslFalse).\n- `connectedContainers` -- optional flag for connected containers (integer; hslTrue or hslFalse, defaults to hslFalse).\n\n**Return:** The volume (in mL) of the specified container at the specified internal height.",
         insertText: "ComputeContainerVolume(${1:labId}, ${2:posId}, ${3:height}, ${4:deckCoordinates})",
     },
     {
@@ -1252,7 +1252,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "AddSequence",
         signature: "device.AddSequence(sequenceObj, initFromCfg, first, last, editable, cfgFile)",
         description: "Adds a sequence to the collection holding the editable sequences of the device",
-        documentation: "Adds a sequence to the collection holding the editable sequences of the device.\n\n**Parameters:**\n- `sequenceObj` — the sequence object to add (sequence).\n- `initFromCfg` — reserved for future use (integer; use hslFalse).\n- `first` — the first position in the sequence (integer; 1-based).\n- `last` — the last position in the sequence (integer).\n- `editable` — whether sequence editing by the user is enabled (integer; hslTrue or hslFalse).\n- `cfgFile` — reserved for future use (string; use empty string).\n\n**Note:** Use `device.RemoveSequences()` to remove sequences previously added by `device.AddSequence()`.",
+        documentation: "Adds a sequence to the collection holding the editable sequences of the device.\n\n**Parameters:**\n- `sequenceObj` -- the sequence object to add (sequence).\n- `initFromCfg` -- reserved for future use (integer; use hslFalse).\n- `first` -- the first position in the sequence (integer; 1-based).\n- `last` -- the last position in the sequence (integer).\n- `editable` -- whether sequence editing by the user is enabled (integer; hslTrue or hslFalse).\n- `cfgFile` -- reserved for future use (string; use empty string).\n\n**Note:** Use `device.RemoveSequences()` to remove sequences previously added by `device.AddSequence()`.",
         insertText: "AddSequence(${1:sequenceObj}, ${2:initFromCfg}, ${3:first}, ${4:last}, ${5:editable}, ${6:cfgFile})",
     },
     {
@@ -1260,7 +1260,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "AddSequence2",
         signature: "device.AddSequence2(editedSequence, baseSequence, editable)",
         description: "Adds a sequence to the collection holding the editable sequences of the device",
-        documentation: "Adds a sequence to the collection holding the editable sequences of the device. After adding all editable sequences, call device.EditSequences() to display the Edit Sequence Dialog.\n\n**Parameters:**\n- `editedSequence` — the sequence object containing edited sequence positions (sequence).\n- `baseSequence` — the sequence object containing the base sequence positions (sequence).\n- `editable` — whether sequence editing by the user is enabled (integer; hslTrue or hslFalse).\n\n**Note:** Use `device.RemoveSequences()` to remove sequences previously added.",
+        documentation: "Adds a sequence to the collection holding the editable sequences of the device. After adding all editable sequences, call device.EditSequences() to display the Edit Sequence Dialog.\n\n**Parameters:**\n- `editedSequence` -- the sequence object containing edited sequence positions (sequence).\n- `baseSequence` -- the sequence object containing the base sequence positions (sequence).\n- `editable` -- whether sequence editing by the user is enabled (integer; hslTrue or hslFalse).\n\n**Note:** Use `device.RemoveSequences()` to remove sequences previously added.",
         insertText: "AddSequence2(${1:editedSequence}, ${2:baseSequence}, ${3:editable})",
     },
     {
@@ -1268,7 +1268,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "EditSequences",
         signature: "device.EditSequences(title, prompt, timeout [,sound])",
         description: "Displays the Edit Sequence Dialog",
-        documentation: "Displays the Edit Sequence Dialog, which shows the deck layout with all the sequence positions of sequences set by AddSequence() or AddSequence2().\n\n**Parameters:**\n- `title` — the title of the edit sequences dialog box (string).\n- `prompt` — the prompt of the edit sequences dialog box (string).\n- `timeout` — auto-dismiss time in seconds (non-negative float).\n- `sound` — optional name of a .wav sound file to play (string).\n\n**Remark:** Manipulations to a sequence from HSL are not written to the deck layout definition file.",
+        documentation: "Displays the Edit Sequence Dialog, which shows the deck layout with all the sequence positions of sequences set by AddSequence() or AddSequence2().\n\n**Parameters:**\n- `title` -- the title of the edit sequences dialog box (string).\n- `prompt` -- the prompt of the edit sequences dialog box (string).\n- `timeout` -- auto-dismiss time in seconds (non-negative float).\n- `sound` -- optional name of a .wav sound file to play (string).\n\n**Remark:** Manipulations to a sequence from HSL are not written to the deck layout definition file.",
         insertText: "EditSequences(${1:title}, ${2:prompt}, ${3:timeout})",
     },
     {
@@ -1308,7 +1308,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetCfgValueWithKey",
         signature: "device.GetCfgValueWithKey(key)",
         description: "Returns the configuration value for the instrument mapped to a specified key",
-        documentation: "Returns the configuration value for the instrument mapped to a specified key (integer, float, or string).\n\n**Parameter:** `key` — specifies the key identifying the configuration value to look up.",
+        documentation: "Returns the configuration value for the instrument mapped to a specified key (integer, float, or string).\n\n**Parameter:** `key` -- specifies the key identifying the configuration value to look up.",
         insertText: "GetCfgValueWithKey(${1:key})",
     },
     {
@@ -1323,8 +1323,8 @@ exports.ELEMENT_FUNCTIONS = [
         objectType: "device",
         name: "OperatorAssignDev",
         signature: "device.OperatorAssignDev(devObj)",
-        description: "Assignment (=) operator — copies another device to this device",
-        documentation: "The assignment (`=`) operator copies the specified device object to this device object.\n\n**Parameter:** `devObj` — the device object to copy.",
+        description: "Assignment (=) operator -- copies another device to this device",
+        documentation: "The assignment (`=`) operator copies the specified device object to this device object.\n\n**Parameter:** `devObj` -- the device object to copy.",
         insertText: "OperatorAssignDev(${1:devObj})",
     },
     {
@@ -1340,7 +1340,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetDeckLayoutObject",
         signature: "device.GetDeckLayoutObject([iid])",
         description: "Gets the deck layout object",
-        documentation: "Gets the deck layout object.\n\n**Parameter:** `iid` — optional interface id (string).\n\n**Return:** The deck layout object.",
+        documentation: "Gets the deck layout object.\n\n**Parameter:** `iid` -- optional interface id (string).\n\n**Return:** The deck layout object.",
         insertText: "GetDeckLayoutObject(${1:iid})",
     },
     {
@@ -1356,7 +1356,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetChildCommandObjects",
         signature: "device.GetChildCommandObjects(instrumentNames, childCommands)",
         description: "Gets the child command objects associated with this device",
-        documentation: "Gets the child command objects associated with this device.\n\n**Parameters:**\n- `instrumentNames` — a reference to an array of variables to retrieve the instrument (key) names of the child commands.\n- `childCommands` — a reference to an array of objects to retrieve the child commands.",
+        documentation: "Gets the child command objects associated with this device.\n\n**Parameters:**\n- `instrumentNames` -- a reference to an array of variables to retrieve the instrument (key) names of the child commands.\n- `childCommands` -- a reference to an array of objects to retrieve the child commands.",
         insertText: "GetChildCommandObjects(${1:instrumentNames}, ${2:childCommands})",
     },
     {
@@ -1364,7 +1364,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetChildInstrumentInfo",
         signature: "device.GetChildInstrumentInfo(instrumentNames, instrumentViewNames, instrumentReleaseVersions)",
         description: "Gets the information about the child instruments associated with this device",
-        documentation: "Gets the information about the child instruments associated with this device.\n\n**Parameters:**\n- `instrumentNames` — a reference to an array of variables to retrieve the instrument (key) names.\n- `instrumentViewNames` — a reference to an array of variables to retrieve the instrument view names.\n- `instrumentReleaseVersions` — a reference to an array of variables to retrieve the instrument release versions.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Gets the information about the child instruments associated with this device.\n\n**Parameters:**\n- `instrumentNames` -- a reference to an array of variables to retrieve the instrument (key) names.\n- `instrumentViewNames` -- a reference to an array of variables to retrieve the instrument view names.\n- `instrumentReleaseVersions` -- a reference to an array of variables to retrieve the instrument release versions.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "GetChildInstrumentInfo(${1:instrumentNames}, ${2:instrumentViewNames}, ${3:instrumentReleaseVersions})",
     },
     // ── Dialog ───────────────────────────────────────────────────────
@@ -1381,7 +1381,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetInputSize",
         signature: "dialog.SetInputSize(count)",
         description: "Sets the number of input fields in the dialog",
-        documentation: "Sets the number of input fields in the dialog.\n\n**Parameter:** `count` — the number of input fields (integer).",
+        documentation: "Sets the number of input fields in the dialog.\n\n**Parameter:** `count` -- the number of input fields (integer).",
         insertText: "SetInputSize(${1:count})",
     },
     {
@@ -1389,7 +1389,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetInputField",
         signature: "dialog.SetInputField(index, prompt, type [,default] [,minimum] [,maximum])",
         description: "Sets the input field at the specified index",
-        documentation: "Sets the input field at the specified index.\n\n**Parameters:**\n- `index` — an integer field index >= 0 and < GetInputSize().\n- `prompt` — the input request prompt to display (string).\n- `type` — the input type: hslInteger ('i'), hslFloat ('f'), hslString ('s').\n- `default` — optional default value (integer, float, or string).\n- `minimum` — optional minimum value (integer or float; ignored for hslString).\n- `maximum` — optional maximum value (integer or float; ignored for hslString).",
+        documentation: "Sets the input field at the specified index.\n\n**Parameters:**\n- `index` -- an integer field index >= 0 and < GetInputSize().\n- `prompt` -- the input request prompt to display (string).\n- `type` -- the input type: hslInteger ('i'), hslFloat ('f'), hslString ('s').\n- `default` -- optional default value (integer, float, or string).\n- `minimum` -- optional minimum value (integer or float; ignored for hslString).\n- `maximum` -- optional maximum value (integer or float; ignored for hslString).",
         insertText: "SetInputField(${1:index}, ${2:prompt}, ${3:type})",
     },
     {
@@ -1397,7 +1397,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetInputField",
         signature: "dialog.GetInputField(index)",
         description: "Gets the value of the input field at the specified index",
-        documentation: "Gets the value of the input field at the specified index.\n\n**Parameter:** `index` — an integer field index >= 0 and < GetInputSize().\n\n**Return:** The value of the input field currently at this index.",
+        documentation: "Gets the value of the input field at the specified index.\n\n**Parameter:** `index` -- an integer field index >= 0 and < GetInputSize().\n\n**Return:** The value of the input field currently at this index.",
         insertText: "GetInputField(${1:index})",
     },
     {
@@ -1405,7 +1405,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "ShowInput",
         signature: "dialog.ShowInput([title] [,timeout] [,type])",
         description: "Invokes the modeless input dialog box and returns the result",
-        documentation: "Invokes the modeless input dialog box and returns the dialog box result when done.\n\n**Parameters (all optional):**\n- `title` — the title of the input dialog box (string).\n- `timeout` — auto-dismiss time in seconds (non-negative float, default hslInfinite).\n- `type` — button configuration: hslOKOnly(0), hslOKCancel(1, default). Default button: hslDefButton1(0), hslDefButton2(256).\n\n**Return:** hslOK(1) if OK was selected, hslCancel(2) if Cancel was selected.",
+        documentation: "Invokes the modeless input dialog box and returns the dialog box result when done.\n\n**Parameters (all optional):**\n- `title` -- the title of the input dialog box (string).\n- `timeout` -- auto-dismiss time in seconds (non-negative float, default hslInfinite).\n- `type` -- button configuration: hslOKOnly(0), hslOKCancel(1, default). Default button: hslDefButton1(0), hslDefButton2(256).\n\n**Return:** hslOK(1) if OK was selected, hslCancel(2) if Cancel was selected.",
         insertText: "ShowInput(${1:title})",
     },
     {
@@ -1413,7 +1413,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetOutput",
         signature: "dialog.SetOutput(text)",
         description: "Sets the output text of the dialog",
-        documentation: "Sets the output text of the dialog.\n\n**Parameter:** `text` — the output text (string).",
+        documentation: "Sets the output text of the dialog.\n\n**Parameter:** `text` -- the output text (string).",
         insertText: "SetOutput(${1:text})",
     },
     {
@@ -1421,7 +1421,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "ShowOutput",
         signature: "dialog.ShowOutput([title] [,type] [,timeout])",
         description: "Invokes the modeless output dialog box and returns the result",
-        documentation: "Invokes the modeless output dialog box and returns the dialog box result when done.\n\n**Parameters (all optional):**\n- `title` — the title of the output dialog box (string).\n- `type` — button/icon combination (integer). Buttons: hslOKOnly(0, default), hslOKCancel(1), hslAbortRetryIgnore(2), hslYesNoCancel(3), hslYesNo(4), hslRetryCancel(5). Icons: hslError(16), hslQuestion(32), hslExclamation(48), hslInformation(64). Default button: hslDefButton1(0), hslDefButton2(256), hslDefButton3(512).\n- `timeout` — auto-dismiss time in seconds (non-negative float, default hslInfinite).\n\n**Return:** hslOK(1), hslCancel(2), hslAbort(3), hslRetry(4), hslIgnore(5), hslYes(6), hslNo(7).",
+        documentation: "Invokes the modeless output dialog box and returns the dialog box result when done.\n\n**Parameters (all optional):**\n- `title` -- the title of the output dialog box (string).\n- `type` -- button/icon combination (integer). Buttons: hslOKOnly(0, default), hslOKCancel(1), hslAbortRetryIgnore(2), hslYesNoCancel(3), hslYesNo(4), hslRetryCancel(5). Icons: hslError(16), hslQuestion(32), hslExclamation(48), hslInformation(64). Default button: hslDefButton1(0), hslDefButton2(256), hslDefButton3(512).\n- `timeout` -- auto-dismiss time in seconds (non-negative float, default hslInfinite).\n\n**Return:** hslOK(1), hslCancel(2), hslAbort(3), hslRetry(4), hslIgnore(5), hslYes(6), hslNo(7).",
         insertText: "ShowOutput(${1:title})",
     },
     {
@@ -1429,7 +1429,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "PlaySound",
         signature: "dialog.PlaySound(sound)",
         description: "Plays a sound specified by file name or system event",
-        documentation: "Plays a sound specified by the file name provided or a system event.\n\n**Parameter:** `sound` — a string that specifies the sound to play. Can be a file name (relative or absolute) or a system sound alias. If empty, any currently playing waveform sound is stopped.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Plays a sound specified by the file name provided or a system event.\n\n**Parameter:** `sound` -- a string that specifies the sound to play. Can be a file name (relative or absolute) or a system sound alias. If empty, any currently playing waveform sound is stopped.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "PlaySound(${1:sound})",
     },
     {
@@ -1437,7 +1437,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "InitCustomDialog",
         signature: "dialog.InitCustomDialog(dialogName)",
         description: "Initializes a custom dialog by name",
-        documentation: "Initializes a custom dialog by its name.\n\n**Parameter:** `dialogName` — the name of the custom dialog to initialize (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Initializes a custom dialog by its name.\n\n**Parameter:** `dialogName` -- the name of the custom dialog to initialize (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "InitCustomDialog(${1:dialogName})",
     },
     {
@@ -1445,7 +1445,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "ShowCustomDialog",
         signature: "dialog.ShowCustomDialog([timeout])",
         description: "Displays the custom dialog and returns the result",
-        documentation: "Displays the custom dialog and returns the dialog result when done.\n\n**Parameter:** `timeout` — (optional) specifies the amount of time to wait before the dialog is automatically dismissed (in seconds, non-negative floating-point number). Default is hslInfinite.\n\n**Return:** The dialog result code.",
+        documentation: "Displays the custom dialog and returns the dialog result when done.\n\n**Parameter:** `timeout` -- (optional) specifies the amount of time to wait before the dialog is automatically dismissed (in seconds, non-negative floating-point number). Default is hslInfinite.\n\n**Return:** The dialog result code.",
         insertText: "ShowCustomDialog(${1:timeout})",
     },
     {
@@ -1453,7 +1453,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetCustomDialogProperty",
         signature: "dialog.GetCustomDialogProperty(propertyName)",
         description: "Gets a property value from the custom dialog",
-        documentation: "Gets the value of a property from the custom dialog.\n\n**Parameter:** `propertyName` — the name of the property to retrieve (string).\n\n**Return:** The property value (integer, float, or string).",
+        documentation: "Gets the value of a property from the custom dialog.\n\n**Parameter:** `propertyName` -- the name of the property to retrieve (string).\n\n**Return:** The property value (integer, float, or string).",
         insertText: "GetCustomDialogProperty(${1:propertyName})",
     },
     {
@@ -1461,7 +1461,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetCustomDialogProperty",
         signature: "dialog.SetCustomDialogProperty(propertyName, propertyValue)",
         description: "Sets a property value in the custom dialog",
-        documentation: "Sets the value of a property in the custom dialog.\n\n**Parameters:**\n- `propertyName` — the name of the property to set (string).\n- `propertyValue` — the value to set (integer, float, or string).",
+        documentation: "Sets the value of a property in the custom dialog.\n\n**Parameters:**\n- `propertyName` -- the name of the property to set (string).\n- `propertyValue` -- the value to set (integer, float, or string).",
         insertText: "SetCustomDialogProperty(${1:propertyName}, ${2:propertyValue})",
     },
     {
@@ -1469,7 +1469,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetCustomDialogArrayProperty",
         signature: "dialog.GetCustomDialogArrayProperty(propertyName, arrayRef)",
         description: "Gets an array property value from the custom dialog",
-        documentation: "Gets the value of an array property from the custom dialog.\n\n**Parameters:**\n- `propertyName` — the name of the array property to retrieve (string).\n- `arrayRef` — a reference to an array to receive the property values.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Gets the value of an array property from the custom dialog.\n\n**Parameters:**\n- `propertyName` -- the name of the array property to retrieve (string).\n- `arrayRef` -- a reference to an array to receive the property values.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "GetCustomDialogArrayProperty(${1:propertyName}, ${2:arrayRef})",
     },
     {
@@ -1477,7 +1477,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetCustomDialogArrayProperty",
         signature: "dialog.SetCustomDialogArrayProperty(propertyName, arrayRef)",
         description: "Sets an array property value in the custom dialog",
-        documentation: "Sets the value of an array property in the custom dialog.\n\n**Parameters:**\n- `propertyName` — the name of the array property to set (string).\n- `arrayRef` — a reference to an array containing the property values.",
+        documentation: "Sets the value of an array property in the custom dialog.\n\n**Parameters:**\n- `propertyName` -- the name of the array property to set (string).\n- `arrayRef` -- a reference to an array containing the property values.",
         insertText: "SetCustomDialogArrayProperty(${1:propertyName}, ${2:arrayRef})",
     },
     // ── Timer ────────────────────────────────────────────────────────
@@ -1486,7 +1486,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetTimer",
         signature: "timer.SetTimer(dueTime [,scale])",
         description: "Activates the timer to be signaled after the specified time interval",
-        documentation: "Activates the calling timer to be signaled after the specified time interval.\n\n**Parameters:**\n- `dueTime` — the time at which the timer is signaled (in seconds; non-negative float). Use hslInfinite for the timer to never be signaled.\n- `scale` — optional; indicates whether dueTime should be scaled using the time scale factor when simulation mode is on (integer; 0 = don't scale, 1 = scale; defaults to 0).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Activates the calling timer to be signaled after the specified time interval.\n\n**Parameters:**\n- `dueTime` -- the time at which the timer is signaled (in seconds; non-negative float). Use hslInfinite for the timer to never be signaled.\n- `scale` -- optional; indicates whether dueTime should be scaled using the time scale factor when simulation mode is on (integer; 0 = don't scale, 1 = scale; defaults to 0).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "SetTimer(${1:dueTime})",
     },
     {
@@ -1494,7 +1494,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetAbsTimer",
         signature: "timer.SetAbsTimer(YYYY, MM, DD, hh, mm, ss)",
         description: "Activates the timer to be signaled at the specified absolute time",
-        documentation: "Activates the calling timer to be signaled at the specified absolute time.\n\n**Parameters:**\n- `YYYY` — the year (integer, range: 1970-2038).\n- `MM` — the month; January is 1 (integer, range: 1-12).\n- `DD` — the day of the month (integer, range: 1-31).\n- `hh` — the hour (integer).\n- `mm` — the minutes (integer).\n- `ss` — the seconds (integer).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Activates the calling timer to be signaled at the specified absolute time.\n\n**Parameters:**\n- `YYYY` -- the year (integer, range: 1970-2038).\n- `MM` -- the month; January is 1 (integer, range: 1-12).\n- `DD` -- the day of the month (integer, range: 1-31).\n- `hh` -- the hour (integer).\n- `mm` -- the minutes (integer).\n- `ss` -- the seconds (integer).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "SetAbsTimer(${1:YYYY}, ${2:MM}, ${3:DD}, ${4:hh}, ${5:mm}, ${6:ss})",
     },
     {
@@ -1502,7 +1502,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "WaitTimer",
         signature: "timer.WaitTimer([show] [,isStoppable])",
         description: "Waits until the timer expires",
-        documentation: "Waits until the time interval of the calling timer expires. If the timer has already been signaled, the function returns immediately.\n\n**Parameters (all optional):**\n- `show` — how the timer displays (integer; hslTrue = shows the timer (default), hslFalse = hides the timer).\n- `isStoppable` — whether the timer is stoppable (integer; hslTrue = stoppable, hslFalse = not stoppable (default)).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0). hslAbort if the Stop Timer button is selected.",
+        documentation: "Waits until the time interval of the calling timer expires. If the timer has already been signaled, the function returns immediately.\n\n**Parameters (all optional):**\n- `show` -- how the timer displays (integer; hslTrue = shows the timer (default), hslFalse = hides the timer).\n- `isStoppable` -- whether the timer is stoppable (integer; hslTrue = stoppable, hslFalse = not stoppable (default)).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0). hslAbort if the Stop Timer button is selected.",
         insertText: "WaitTimer(${1:show}, ${2:isStoppable})",
     },
     {
@@ -1534,7 +1534,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetTimerViewName",
         signature: "timer.SetTimerViewName(name)",
         description: "Sets the timer view name",
-        documentation: "Sets the timer view name.\n\n**Parameter:** `name` — the timer view name (string).",
+        documentation: "Sets the timer view name.\n\n**Parameter:** `name` -- the timer view name (string).",
         insertText: "SetTimerViewName(${1:name})",
     },
     {
@@ -1559,7 +1559,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "WaitEvent",
         signature: "event.WaitEvent(timeout)",
         description: "Waits for the event to be signaled",
-        documentation: "Waits for the event to be signaled.\n\n**Parameter:** `timeout` — the timeout in seconds (variable). Use `hslInfinite` for no timeout.\n\n**Return:** Non-zero if the event was signaled; zero (0) if the wait timed out.",
+        documentation: "Waits for the event to be signaled.\n\n**Parameter:** `timeout` -- the timeout in seconds (variable). Use `hslInfinite` for no timeout.\n\n**Return:** Non-zero if the event was signaled; zero (0) if the wait timed out.",
         insertText: "WaitEvent(${1:timeout})",
     },
     // ── Resource ─────────────────────────────────────────────────────
@@ -1592,7 +1592,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Disable",
         signature: "resource.Disable(unit [,cancelTaskOnDemand])",
         description: "Disables the specified unit of the resource",
-        documentation: "Disables the specified unit of the resource.\n\n**Parameters:**\n- `unit` — the unit of the resource to disable (integer; >= 1 and <= GetMaxCount()).\n- `cancelTaskOnDemand` — optional; whether a task requiring this unit should be cancelled on demand (integer; 0 = don't cancel, non-zero = cancel; defaults to 0).\n\n**Return:** Non-zero if the function was successful; otherwise zero (0).\n\n**Remarks:** Useful to signal a resource breakdown to the Scheduler before re-scheduling. An activity requiring a disabled unit cannot start until the unit is enabled.",
+        documentation: "Disables the specified unit of the resource.\n\n**Parameters:**\n- `unit` -- the unit of the resource to disable (integer; >= 1 and <= GetMaxCount()).\n- `cancelTaskOnDemand` -- optional; whether a task requiring this unit should be cancelled on demand (integer; 0 = don't cancel, non-zero = cancel; defaults to 0).\n\n**Return:** Non-zero if the function was successful; otherwise zero (0).\n\n**Remarks:** Useful to signal a resource breakdown to the Scheduler before re-scheduling. An activity requiring a disabled unit cannot start until the unit is enabled.",
         insertText: "Disable(${1:unit})",
     },
     {
@@ -1600,7 +1600,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Enable",
         signature: "resource.Enable(unit)",
         description: "Enables the specified unit of the resource",
-        documentation: "Enables the specified unit of the resource.\n\n**Parameter:** `unit` — the unit of the resource to enable (integer; >= 1 and <= GetMaxCount()).\n\n**Return:** Non-zero if the function was successful; otherwise zero (0).\n\n**Remark:** Useful to make a previously broken resource available again to the Scheduler before re-scheduling.",
+        documentation: "Enables the specified unit of the resource.\n\n**Parameter:** `unit` -- the unit of the resource to enable (integer; >= 1 and <= GetMaxCount()).\n\n**Return:** Non-zero if the function was successful; otherwise zero (0).\n\n**Remark:** Useful to make a previously broken resource available again to the Scheduler before re-scheduling.",
         insertText: "Enable(${1:unit})",
     },
     {
@@ -1616,7 +1616,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "IsEnabled",
         signature: "resource.IsEnabled(unit)",
         description: "Indicates whether the specified unit is enabled",
-        documentation: "Indicates whether the specified unit of the resource is enabled.\n\n**Parameter:** `unit` — the unit of the resource (integer; >= 1 and <= GetMaxCount()).\n\n**Return:** Non-zero if the unit is enabled; otherwise zero (0).",
+        documentation: "Indicates whether the specified unit of the resource is enabled.\n\n**Parameter:** `unit` -- the unit of the resource (integer; >= 1 and <= GetMaxCount()).\n\n**Return:** Non-zero if the unit is enabled; otherwise zero (0).",
         insertText: "IsEnabled(${1:unit})",
     },
     {
@@ -1624,7 +1624,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "DisableAll",
         signature: "resource.DisableAll([cancelTaskOnDemand])",
         description: "Disables all units of the resource",
-        documentation: "Disables all units of the resource.\n\n**Parameter:** `cancelTaskOnDemand` — optional; whether a task requiring this unit should be cancelled (integer; 0 = don't cancel, non-zero = cancel; defaults to 0).\n\n**Return:** Non-zero if the function was successful; otherwise zero (0).",
+        documentation: "Disables all units of the resource.\n\n**Parameter:** `cancelTaskOnDemand` -- optional; whether a task requiring this unit should be cancelled (integer; 0 = don't cancel, non-zero = cancel; defaults to 0).\n\n**Return:** Non-zero if the function was successful; otherwise zero (0).",
         insertText: "DisableAll()",
     },
     {
@@ -1640,7 +1640,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "EqualsToResource",
         signature: "resource.EqualsToResource(res)",
         description: "Determines whether two resources are equal",
-        documentation: "Determines whether the specified resource is equal to the current resource.\n\n**Parameter:** `res` — the resource to compare with the current resource.\n\n**Return:** Non-zero if the specified resource is equal to the current resource; otherwise zero (0).",
+        documentation: "Determines whether the specified resource is equal to the current resource.\n\n**Parameter:** `res` -- the resource to compare with the current resource.\n\n**Return:** Non-zero if the specified resource is equal to the current resource; otherwise zero (0).",
         insertText: "EqualsToResource(${1:res})",
     },
     {
@@ -1648,7 +1648,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetDistribution",
         signature: "resource.SetDistribution(distribution [,distributionOption])",
         description: "Specifies the distribution of resource units",
-        documentation: "Specifies the distribution of the resource units that the Scheduler uses.\n\n**Parameters:**\n- `distribution` — 0 = first fit, 1 = next fit, 2 = random fit.\n- `distributionOption` — optional; for next fit distribution, specifies whether to continue with the next unit after a task switch (0) or after a task iteration (1). Defaults to 0.\n\n**Return:** Non-zero if the function was successful; otherwise zero (0).",
+        documentation: "Specifies the distribution of the resource units that the Scheduler uses.\n\n**Parameters:**\n- `distribution` -- 0 = first fit, 1 = next fit, 2 = random fit.\n- `distributionOption` -- optional; for next fit distribution, specifies whether to continue with the next unit after a task switch (0) or after a task iteration (1). Defaults to 0.\n\n**Return:** Non-zero if the function was successful; otherwise zero (0).",
         insertText: "SetDistribution(${1:distribution})",
     },
     // ── File ─────────────────────────────────────────────────────────
@@ -1657,7 +1657,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Open",
         signature: "file.Open(fileName, openMode [, shareMode, accessType, timeout, baudRate, parity, dataBits, stopBits, handshaking, dataFormatting, DTR, RTS, mode])",
         description: "Opens a file or communications resource",
-        documentation: "Opens a file, document-based data source, or a communications resource.\n\n**Parameters:**\n- `fileName` — the file name or connection string (string). For COM ports, use `\"COMn\"`.\n- `openMode` — the open mode: `hslRead`, `hslWrite`, `hslAppend`.\n- *Optional COM port parameters:* `shareMode`, `accessType`, `timeout` (ms), `baudRate` (110–256000), `parity` (`hslNoParity`, `hslOddParity`, `hslEvenParity`, `hslMarkParity`, `hslSpaceParity`), `dataBits` (5–8), `stopBits` (`hslOneStopBit`, `hslOne5StopBits`, `hslTwoStopBits`), `handshaking` (`hslNoHandshaking`, `hslXonXoff`, `hslRequestToSend`, `hslRequestToSendXonXoff`), `dataFormatting` (`hslBinaryMode`, `hslASCIIMode`), `DTR`, `RTS`, `mode`.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Opens a file, document-based data source, or a communications resource.\n\n**Parameters:**\n- `fileName` -- the file name or connection string (string). For COM ports, use `\"COMn\"`.\n- `openMode` -- the open mode: `hslRead`, `hslWrite`, `hslAppend`.\n- *Optional COM port parameters:* `shareMode`, `accessType`, `timeout` (ms), `baudRate` (110-256000), `parity` (`hslNoParity`, `hslOddParity`, `hslEvenParity`, `hslMarkParity`, `hslSpaceParity`), `dataBits` (5-8), `stopBits` (`hslOneStopBit`, `hslOne5StopBits`, `hslTwoStopBits`), `handshaking` (`hslNoHandshaking`, `hslXonXoff`, `hslRequestToSend`, `hslRequestToSendXonXoff`), `dataFormatting` (`hslBinaryMode`, `hslASCIIMode`), `DTR`, `RTS`, `mode`.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "Open(${1:fileName}, ${2:openMode})",
     },
     {
@@ -1665,7 +1665,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetDelimiter",
         signature: "file.SetDelimiter(delimiter)",
         description: "Sets the delimiter for the file",
-        documentation: "Sets the delimiter for a document-based ASCII text file.\n\n**Parameter:** `delimiter` — the delimiter type. Values: `hslCSVDelimited`, `hslTabDelimited`, `hslFixedLength`, `hslAsciiText`.",
+        documentation: "Sets the delimiter for a document-based ASCII text file.\n\n**Parameter:** `delimiter` -- the delimiter type. Values: `hslCSVDelimited`, `hslTabDelimited`, `hslFixedLength`, `hslAsciiText`.",
         insertText: "SetDelimiter(${1:delimiter})",
     },
     {
@@ -1673,7 +1673,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetExtendedProperties",
         signature: "file.SetExtendedProperties(connectionString)",
         description: "Sets the extended properties for the file",
-        documentation: "Sets the extended properties in the connection string for the file. Extended properties are provider-specific connection parameters passed directly to the provider.\n\n**Parameter:** `connectionString` — the extended properties connection string (string).",
+        documentation: "Sets the extended properties in the connection string for the file. Extended properties are provider-specific connection parameters passed directly to the provider.\n\n**Parameter:** `connectionString` -- the extended properties connection string (string).",
         insertText: "SetExtendedProperties(${1:connectionString})",
     },
     {
@@ -1689,7 +1689,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "WriteString",
         signature: "file.WriteString(str)",
         description: "Writes a string to the file",
-        documentation: "Writes a string to the file or communications resource.\n\n**Parameter:** `str` — the string to write (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Writes a string to the file or communications resource.\n\n**Parameter:** `str` -- the string to write (string).\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "WriteString(${1:str})",
     },
     {
@@ -1697,7 +1697,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Seek",
         signature: "file.Seek(numRows [,start] [,criteria])",
         description: "Repositions the cursor in a file object",
-        documentation: "Repositions the cursor in a file object by moving the current cursor by a specified number of rows.\n\n**Parameters:**\n- `numRows` — number of rows to move the current cursor (signed integer; must be unsigned for document-based ASCII text files).\n- `start` — optional starting row: hslCurrent(0, default), hslFirst(1), hslLast(2).\n- `criteria` — optional search criteria string specifying column name, comparison operator, and value.\n\n**Return:** The row number of the new cursor position if allowed; otherwise 0.",
+        documentation: "Repositions the cursor in a file object by moving the current cursor by a specified number of rows.\n\n**Parameters:**\n- `numRows` -- number of rows to move the current cursor (signed integer; must be unsigned for document-based ASCII text files).\n- `start` -- optional starting row: hslCurrent(0, default), hslFirst(1), hslLast(2).\n- `criteria` -- optional search criteria string specifying column name, comparison operator, and value.\n\n**Return:** The row number of the new cursor position if allowed; otherwise 0.",
         insertText: "Seek(${1:numRows})",
     },
     {
@@ -1721,7 +1721,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "AddField",
         signature: "file.AddField(fieldNo, variableObj, type, width)",
         description: "Adds a field to the record definition",
-        documentation: "Adds a field to the record definition of the file object.\n\n**Parameters:**\n- `fieldNo` — the field number, 1-based (integer).\n- `variableObj` — the variable object associated with the field.\n- `type` — the type of the field. Values: `hslInteger`, `hslFloat`, `hslString`, `hslDate`.\n- `width` — the width of the field (integer). Ignored for `hslCSVDelimited` and `hslTabDelimited` files.",
+        documentation: "Adds a field to the record definition of the file object.\n\n**Parameters:**\n- `fieldNo` -- the field number, 1-based (integer).\n- `variableObj` -- the variable object associated with the field.\n- `type` -- the type of the field. Values: `hslInteger`, `hslFloat`, `hslString`, `hslDate`.\n- `width` -- the width of the field (integer). Ignored for `hslCSVDelimited` and `hslTabDelimited` files.",
         insertText: "AddField(${1:fieldNo}, ${2:variableObj}, ${3:type}, ${4:width})",
     },
     {
@@ -1762,7 +1762,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SpanExcluding",
         signature: "string.SpanExcluding(str)",
         description: "Extracts characters preceding the first occurrence of any character in str",
-        documentation: "Searches the string for the first occurrence of any character in the specified set `str`. Extracts and returns all characters preceding that first occurrence.\n\n**Parameter:** `str` — a string interpreted as a set of characters.\n\n**Return:** A substring of characters not in `str`, from the beginning up to (but excluding) the first character found in `str`. Returns the entire string if no character in `str` is found.",
+        documentation: "Searches the string for the first occurrence of any character in the specified set `str`. Extracts and returns all characters preceding that first occurrence.\n\n**Parameter:** `str` -- a string interpreted as a set of characters.\n\n**Return:** A substring of characters not in `str`, from the beginning up to (but excluding) the first character found in `str`. Returns the entire string if no character in `str` is found.",
         insertText: "SpanExcluding(${1:str})",
     },
     {
@@ -1770,7 +1770,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Find",
         signature: "string.Find(str)",
         description: "Searches the string for the first match of a substring",
-        documentation: "Searches this string for the first match of a substring.\n\n**Parameter:** `str` — a substring to search for.\n\n**Return:** The zero-based index of the first character that matches; -1 if the substring is not found.",
+        documentation: "Searches this string for the first match of a substring.\n\n**Parameter:** `str` -- a substring to search for.\n\n**Return:** The zero-based index of the first character that matches; -1 if the substring is not found.",
         insertText: "Find(${1:str})",
     },
     {
@@ -1778,7 +1778,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Left",
         signature: "string.Left(count)",
         description: "Extracts the leftmost count characters from the string",
-        documentation: "Extracts the first (leftmost) `count` characters from this string object. If `count` exceeds the string length, the entire string is extracted.\n\n**Parameter:** `count` — the number of characters to extract (unsigned integer).\n\n**Return:** A string containing the extracted characters.",
+        documentation: "Extracts the first (leftmost) `count` characters from this string object. If `count` exceeds the string length, the entire string is extracted.\n\n**Parameter:** `count` -- the number of characters to extract (unsigned integer).\n\n**Return:** A string containing the extracted characters.",
         insertText: "Left(${1:count})",
     },
     {
@@ -1786,7 +1786,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Mid",
         signature: "string.Mid(first, count)",
         description: "Extracts a substring starting at position first with length count",
-        documentation: "Extracts a substring of length `count` characters, starting at position `first` (zero-based).\n\n**Parameters:**\n- `first` — the zero-based index of the first character (unsigned integer).\n- `count` — the number of characters to extract (unsigned integer).\n\n**Return:** A string containing the extracted characters.",
+        documentation: "Extracts a substring of length `count` characters, starting at position `first` (zero-based).\n\n**Parameters:**\n- `first` -- the zero-based index of the first character (unsigned integer).\n- `count` -- the number of characters to extract (unsigned integer).\n\n**Return:** A string containing the extracted characters.",
         insertText: "Mid(${1:first}, ${2:count})",
     },
     {
@@ -1794,7 +1794,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Right",
         signature: "string.Right(count)",
         description: "Extracts the rightmost count characters from the string",
-        documentation: "Extracts the last (rightmost) `count` characters from this string object. If `count` exceeds the string length, the entire string is extracted.\n\n**Parameter:** `count` — the number of characters to extract (unsigned integer).\n\n**Return:** A string containing the extracted characters.",
+        documentation: "Extracts the last (rightmost) `count` characters from this string object. If `count` exceeds the string length, the entire string is extracted.\n\n**Parameter:** `count` -- the number of characters to extract (unsigned integer).\n\n**Return:** A string containing the extracted characters.",
         insertText: "Right(${1:count})",
     },
     {
@@ -1826,15 +1826,15 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Compare",
         signature: "string.Compare(str)",
         description: "Compares this string with another string",
-        documentation: "Compares this string object with another string `str`.\n\n**Parameter:** `str` — the other string used for comparison.\n\n**Return:**\n- `0` if the strings are equal.\n- `< 0` if this string is less than `str`.\n- `> 0` if this string is greater than `str`.",
+        documentation: "Compares this string object with another string `str`.\n\n**Parameter:** `str` -- the other string used for comparison.\n\n**Return:**\n- `0` if the strings are equal.\n- `< 0` if this string is less than `str`.\n- `> 0` if this string is greater than `str`.",
         insertText: "Compare(${1:str})",
     },
     {
         objectType: "string",
         name: "OperatorAssignStr",
         signature: "string.OperatorAssignStr(str)",
-        description: "Assignment (=) operator — reinitializes a string with new data",
-        documentation: "The assignment (`=`) operator reinitializes an existing string object with new data.\n\n**Parameter:** `str` — the string to copy into this string object.\n\n**Example:**\n```\nstring s1, s2;\n//...\ns1 = s2;\n```",
+        description: "Assignment (=) operator -- reinitializes a string with new data",
+        documentation: "The assignment (`=`) operator reinitializes an existing string object with new data.\n\n**Parameter:** `str` -- the string to copy into this string object.\n\n**Example:**\n```\nstring s1, s2;\n//...\ns1 = s2;\n```",
         insertText: "OperatorAssignStr(${1:str})",
     },
     // ── Array ────────────────────────────────────────────────────────
@@ -1851,7 +1851,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetSize",
         signature: "array.SetSize(newSize)",
         description: "Sets the size of the array",
-        documentation: "Establishes the size of an empty or existing array; allocates memory if necessary.\n\n**Parameter:** `newSize` — the new array size (number of elements, integer). Must be >= 0.",
+        documentation: "Establishes the size of an empty or existing array; allocates memory if necessary.\n\n**Parameter:** `newSize` -- the new array size (number of elements, integer). Must be >= 0.",
         insertText: "SetSize(${1:newSize})",
     },
     {
@@ -1859,7 +1859,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetAt",
         signature: "array.SetAt(index, newElement)",
         description: "Sets the value at a specified index; array not allowed to grow",
-        documentation: "Sets the value for a specified index; the array is not allowed to grow.\n\n**Parameters:**\n- `index` — an integer index >= 0 and < `GetSize()`.\n- `newElement` — the new element value to store at the specified position.",
+        documentation: "Sets the value for a specified index; the array is not allowed to grow.\n\n**Parameters:**\n- `index` -- an integer index >= 0 and < `GetSize()`.\n- `newElement` -- the new element value to store at the specified position.",
         insertText: "SetAt(${1:index}, ${2:newElement})",
     },
     {
@@ -1867,7 +1867,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "InsertElementAt",
         signature: "array.InsertElementAt(index, newElement)",
         description: "Inserts an element at a specified index",
-        documentation: "Inserts an element at a specified index.\n\n**Parameters:**\n- `index` — an integer index >= 0 and < `GetSize()`.\n- `newElement` — the new element to insert.",
+        documentation: "Inserts an element at a specified index.\n\n**Parameters:**\n- `index` -- an integer index >= 0 and < `GetSize()`.\n- `newElement` -- the new element to insert.",
         insertText: "InsertElementAt(${1:index}, ${2:newElement})",
     },
     {
@@ -1875,7 +1875,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "RemoveElementAt",
         signature: "array.RemoveElementAt(index)",
         description: "Removes an element at a specified index",
-        documentation: "Removes an element at a specified index. All elements above the removed element are shifted down.\n\n**Parameter:** `index` — an integer index >= 0 and < `GetSize()`.",
+        documentation: "Removes an element at a specified index. All elements above the removed element are shifted down.\n\n**Parameter:** `index` -- an integer index >= 0 and < `GetSize()`.",
         insertText: "RemoveElementAt(${1:index})",
     },
     {
@@ -1883,7 +1883,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetAt",
         signature: "array.GetAt(index)",
         description: "Returns the value at a specified index",
-        documentation: "Returns the value at a specified index.\n\n**Parameter:** `index` — an integer index >= 0 and < `GetSize()`.\n\n**Return:** The array element currently at this index.",
+        documentation: "Returns the value at a specified index.\n\n**Parameter:** `index` -- an integer index >= 0 and < `GetSize()`.\n\n**Return:** The array element currently at this index.",
         insertText: "GetAt(${1:index})",
     },
     {
@@ -1891,7 +1891,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "ElementAt",
         signature: "array.ElementAt(index)",
         description: "Returns a temporary reference to the element at a specified index",
-        documentation: "Returns a temporary reference to the element pointer within the array.\n\n**Parameter:** `index` — an integer index >= 0 and < `GetSize()`.\n\n**Return:** A reference to the array element at this index.",
+        documentation: "Returns a temporary reference to the element pointer within the array.\n\n**Parameter:** `index` -- an integer index >= 0 and < `GetSize()`.\n\n**Return:** A reference to the array element at this index.",
         insertText: "ElementAt(${1:index})",
     },
     {
@@ -1899,15 +1899,15 @@ exports.ELEMENT_FUNCTIONS = [
         name: "AddAsLast",
         signature: "array.AddAsLast(newElement)",
         description: "Adds a new element to the end of the array, growing it by 1",
-        documentation: "Adds a new element to the end of an array, growing the array by 1.\n\n**Parameter:** `newElement` — the element to add.\n\n**Return:** The index of the added element (integer).",
+        documentation: "Adds a new element to the end of an array, growing the array by 1.\n\n**Parameter:** `newElement` -- the element to add.\n\n**Return:** The index of the added element (integer).",
         insertText: "AddAsLast(${1:newElement})",
     },
     {
         objectType: "array",
         name: "OperatorAssignArr",
         signature: "array.OperatorAssignArr(arr)",
-        description: "Assignment (=) operator — copies another array to this array",
-        documentation: "Copies another array to the array; grows the array if necessary.\n\n**Parameter:** `arr` — the other array.\n\n**Example:**\n```\nvariable arr1[], arr2[];\n//...\narr1 = arr2;\n```",
+        description: "Assignment (=) operator -- copies another array to this array",
+        documentation: "Copies another array to the array; grows the array if necessary.\n\n**Parameter:** `arr` -- the other array.\n\n**Example:**\n```\nvariable arr1[], arr2[];\n//...\narr1 = arr2;\n```",
         insertText: "OperatorAssignArr(${1:arr})",
     },
     // ── Error ────────────────────────────────────────────────────────
@@ -1924,7 +1924,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetId",
         signature: "error.SetId(num)",
         description: "Sets a numeric value that specifies an error",
-        documentation: "Sets a numeric value that specifies an error.\n\n**Parameter:** `num` — a numeric value that specifies an error (integer).",
+        documentation: "Sets a numeric value that specifies an error.\n\n**Parameter:** `num` -- a numeric value that specifies an error (integer).",
         insertText: "SetId(${1:num})",
     },
     {
@@ -1940,7 +1940,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetDescription",
         signature: "error.SetDescription(desc)",
         description: "Sets a descriptive string associated with an error",
-        documentation: "Sets a descriptive string associated with an error.\n\n**Parameter:** `desc` — a descriptive string associated with an error (string).",
+        documentation: "Sets a descriptive string associated with an error.\n\n**Parameter:** `desc` -- a descriptive string associated with an error (string).",
         insertText: "SetDescription(${1:desc})",
     },
     {
@@ -1956,7 +1956,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "SetData",
         signature: "error.SetData(data)",
         description: "Sets the data to store in the error object",
-        documentation: "Sets the data to store in the error object.\n\n**Parameter:** `data` — the data to store (array of variables).",
+        documentation: "Sets the data to store in the error object.\n\n**Parameter:** `data` -- the data to store (array of variables).",
         insertText: "SetData(${1:data})",
     },
     {
@@ -1964,7 +1964,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "Raise",
         signature: "error.Raise([num] [, desc] [, helpFileName])",
         description: "Generates a run-time error that is traced automatically",
-        documentation: "Generates a run-time error that is traced automatically.\n\n**Parameters (all optional):**\n- `num` — a numeric value that specifies the error (integer, must not be zero).\n- `desc` — a descriptive string associated with the error (string).\n- `helpFileName` — the name of the help file that describes the error (string).\n\n**Remark:** Use `Raise()` without parameters to re-throw the current error.",
+        documentation: "Generates a run-time error that is traced automatically.\n\n**Parameters (all optional):**\n- `num` -- a numeric value that specifies the error (integer, must not be zero).\n- `desc` -- a descriptive string associated with the error (string).\n- `helpFileName` -- the name of the help file that describes the error (string).\n\n**Remark:** Use `Raise()` without parameters to re-throw the current error.",
         insertText: "Raise(${1:num}, ${2:desc})",
     },
     {
@@ -1981,7 +1981,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "CreateObject",
         signature: "object.CreateObject(progId [, withEvents])",
         description: "Creates and returns a reference to an Automation object",
-        documentation: "Creates and returns a reference to an Automation object.\n\n**Parameters:**\n- `progId` — the program identifier of the application providing the object (string).\n- `withEvents` — (optional) specifies that the object is used to respond to events. Values: `hslTrue`, `hslFalse`.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remarks:**\n- Before calling this function, release any reference to an already created Automation object by calling `ReleaseObject()`.\n- HSL does not support events having **in/out** or **out** parameters (the event will be ignored).\n- HSL reads the component type library and automatically connects to the default outgoing dispatch interface.\n\n**Using Events:**\n1. Declare a variable with `hslTrue`: `variable withEvents(hslTrue);`\n2. Call `CreateObject` with the withEvents parameter: `myObj.CreateObject(\"ProgId\", withEvents);`\n3. Define event handler functions in the **same namespace** as the object. Each handler is named `objectName_EventName` and its signature must match the component's type library.\n\n**Example:**\n```\nvariable withEvents(hslTrue);\nobject outlook;\noutlook.CreateObject(\"Outlook.Application\", withEvents);\n\nfunction outlook_ItemSend(object item, variable cancel)\n{\n    // handle event\n}\n```",
+        documentation: "Creates and returns a reference to an Automation object.\n\n**Parameters:**\n- `progId` -- the program identifier of the application providing the object (string).\n- `withEvents` -- (optional) specifies that the object is used to respond to events. Values: `hslTrue`, `hslFalse`.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remarks:**\n- Before calling this function, release any reference to an already created Automation object by calling `ReleaseObject()`.\n- HSL does not support events having **in/out** or **out** parameters (the event will be ignored).\n- HSL reads the component type library and automatically connects to the default outgoing dispatch interface.\n\n**Using Events:**\n1. Declare a variable with `hslTrue`: `variable withEvents(hslTrue);`\n2. Call `CreateObject` with the withEvents parameter: `myObj.CreateObject(\"ProgId\", withEvents);`\n3. Define event handler functions in the **same namespace** as the object. Each handler is named `objectName_EventName` and its signature must match the component's type library.\n\n**Example:**\n```\nvariable withEvents(hslTrue);\nobject outlook;\noutlook.CreateObject(\"Outlook.Application\", withEvents);\n\nfunction outlook_ItemSend(object item, variable cancel)\n{\n    // handle event\n}\n```",
         insertText: "CreateObject(${1:progId})",
     },
     {
@@ -2005,7 +2005,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetObject",
         signature: "object.GetObject(interfaceName, obj)",
         description: "Returns a reference to the specified interface on this object by name",
-        documentation: "Returns a reference to the specified interface on this object.\n\n**Parameters:**\n- `interfaceName` — name of the requested interface (string, e.g., `\"IEditDeckLayout6\"`).\n- `obj` — a reference to an object to retrieve the specified interface.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remark:** Before calling this function, release any reference to an already created Automation object by calling `ReleaseObject()`.",
+        documentation: "Returns a reference to the specified interface on this object.\n\n**Parameters:**\n- `interfaceName` -- name of the requested interface (string, e.g., `\"IEditDeckLayout6\"`).\n- `obj` -- a reference to an object to retrieve the specified interface.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).\n\n**Remark:** Before calling this function, release any reference to an already created Automation object by calling `ReleaseObject()`.",
         insertText: "GetObject(${1:interfaceName}, ${2:obj})",
     },
     {
@@ -2013,7 +2013,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "GetObject2",
         signature: "object.GetObject2(interfaceId, obj)",
         description: "Returns a reference to the specified interface on this object by GUID",
-        documentation: "Returns a reference to the specified interface on this object using an interface identifier.\n\n**Parameters:**\n- `interfaceId` — identifier of the requested interface (string, e.g., `\"{FC399424-0445-45FA-BB89-0F43205BB602}\"`).\n- `obj` — a reference to an object to retrieve the specified interface.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
+        documentation: "Returns a reference to the specified interface on this object using an interface identifier.\n\n**Parameters:**\n- `interfaceId` -- identifier of the requested interface (string, e.g., `\"{FC399424-0445-45FA-BB89-0F43205BB602}\"`).\n- `obj` -- a reference to an object to retrieve the specified interface.\n\n**Return:** Non-zero if the function succeeds; otherwise zero (0).",
         insertText: "GetObject2(${1:interfaceId}, ${2:obj})",
     },
     {
@@ -2021,7 +2021,7 @@ exports.ELEMENT_FUNCTIONS = [
         name: "EnumNext",
         signature: "object.EnumNext(nextItem)",
         description: "Retrieves the next item in the enumeration sequence",
-        documentation: "Retrieves the next item in the enumeration sequence.\n\n**Parameter:** `nextItem` — a reference to a variable or object to retrieve the next item.\n\n**Return:** 1 if a subsequent item exists in the enumeration sequence; otherwise 0.\n\n**Remark:** HSL provides enumeration functions to allow enumeration of items maintained by an object. Repeatedly call `EnumNext` to get successive references to each item in the collection.",
+        documentation: "Retrieves the next item in the enumeration sequence.\n\n**Parameter:** `nextItem` -- a reference to a variable or object to retrieve the next item.\n\n**Return:** 1 if a subsequent item exists in the enumeration sequence; otherwise 0.\n\n**Remark:** HSL provides enumeration functions to allow enumeration of items maintained by an object. Repeatedly call `EnumNext` to get successive references to each item in the collection.",
         insertText: "EnumNext(${1:nextItem})",
     },
     {
@@ -2036,8 +2036,8 @@ exports.ELEMENT_FUNCTIONS = [
         objectType: "object",
         name: "OperatorAssignObj",
         signature: "object.OperatorAssignObj(obj)",
-        description: "Assignment (=) operator — assigns another object to this object",
-        documentation: "The assignment (`=`) assigns another object to this object.\n\n**Parameter:** `obj` — the object that should be assigned to this object.",
+        description: "Assignment (=) operator -- assigns another object to this object",
+        documentation: "The assignment (`=`) assigns another object to this object.\n\n**Parameter:** `obj` -- the object that should be assigned to this object.",
         insertText: "OperatorAssignObj(${1:obj})",
     },
 ];
@@ -2064,12 +2064,12 @@ exports.KEYWORDS = [
     {
         name: "onerror",
         description: "Error handler directive",
-        documentation: "The `onerror` statement defines how errors are handled.\n\n**Usage:**\n- `onerror goto <label>;` — jump to a label on error.\n- `onerror goto 0;` — disable the current error handler.\n\nThe error handler has access to the `err` object to inspect error details.",
+        documentation: "The `onerror` statement defines how errors are handled.\n\n**Usage:**\n- `onerror goto <label>;` -- jump to a label on error.\n- `onerror goto 0;` -- disable the current error handler.\n\nThe error handler has access to the `err` object to inspect error details.",
     },
     {
         name: "resume",
         description: "Resume execution after an error",
-        documentation: "The `resume` statement resumes execution after an error has been handled.\n\n**Usage:**\n- `resume next;` — continue at the statement following the one that caused the error.",
+        documentation: "The `resume` statement resumes execution after an error has been handled.\n\n**Usage:**\n- `resume next;` -- continue at the statement following the one that caused the error.",
     },
     {
         name: "loop",
@@ -2109,7 +2109,7 @@ exports.KEYWORDS = [
 function buildCompletionItems() {
     const libraryItems = exports.BUILTIN_FUNCTIONS.map((fn) => {
         const item = new vscode.CompletionItem(fn.name, vscode.CompletionItemKind.Function);
-        item.detail = `${fn.name}${fn.signature}  —  ${fn.description}`;
+        item.detail = `${fn.name}${fn.signature}  --  ${fn.description}`;
         item.documentation = new vscode.MarkdownString(fn.documentation);
         item.insertText = new vscode.SnippetString(fn.insertText);
         return item;
@@ -2117,7 +2117,7 @@ function buildCompletionItems() {
     const elementItems = exports.ELEMENT_FUNCTIONS.map((fn) => {
         const label = `${fn.objectType}.${fn.name}`;
         const item = new vscode.CompletionItem(label, vscode.CompletionItemKind.Method);
-        item.detail = `${fn.signature}  —  ${fn.description}`;
+        item.detail = `${fn.signature}  --  ${fn.description}`;
         item.documentation = new vscode.MarkdownString(`*(${fn.objectType} method)*\n\n${fn.documentation}`);
         item.insertText = new vscode.SnippetString(fn.insertText);
         // Allow matching by both "objectType.method" and just "method"

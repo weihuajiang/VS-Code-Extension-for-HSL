@@ -19,18 +19,18 @@ match their payloads, and the Hamilton Method Editor fails with
 
 Repair Strategy
 ---------------
-1. **Strip** — replace every ``0x0D 0x0A`` pair with a lone ``0x0A``.
+1. **Strip** -- replace every ``0x0D 0x0A`` pair with a lone ``0x0A``.
    This undoes the CRLF normalization and restores the original binary
    structure.
-2. **Parse** — decode the resulting binary through the HxCfgFile v3 codec.
+2. **Parse** -- decode the resulting binary through the HxCfgFile v3 codec.
    If parsing succeeds the structure is sound.
-3. **Rebuild** — emit a clean binary from the parsed model.  The codec
+3. **Rebuild** -- emit a clean binary from the parsed model.  The codec
    writes legitimate ``\\r\\n`` sequences in the footer/metadata, so the
    output is byte-for-byte correct.
 
 The only data loss is that token strings which originally contained
 ``\\r\\n`` (e.g., Comment text) will lose their ``\\r``.  In practice this
-is harmless — the Hamilton Method Editor re-normalizes these on the next
+is harmless -- the Hamilton Method Editor re-normalizes these on the next
 save.
 
 CLI Usage
@@ -46,10 +46,10 @@ CLI Usage
     # Repair to a different output path
     python -m standalone_med_tools.repair_corrupt repair input.med -o repaired.med
 
-    # Dry-run — show what would happen without writing anything
+    # Dry-run -- show what would happen without writing anything
     python -m standalone_med_tools.repair_corrupt repair input.med --dry-run
 
-    # Batch mode — process every .med / .stp in a directory tree
+    # Batch mode -- process every .med / .stp in a directory tree
     python -m standalone_med_tools.repair_corrupt repair --batch C:/Methods/
 
     # Validate binary structure (no corruption check, just parse and dump)
@@ -80,11 +80,11 @@ def _count_byte_patterns(data: bytes) -> Dict[str, int]:
 
     Returns a dict with the following keys:
 
-    * ``lone_lf``   — count of ``0x0A`` bytes **not** preceded by ``0x0D``
-    * ``crlf_pairs`` — count of ``0x0D 0x0A`` pairs
-    * ``total_lf``  — ``lone_lf + crlf_pairs``
-    * ``lone_cr``   — count of ``0x0D`` bytes **not** followed by ``0x0A``
-    * ``size``      — total byte count of *data*
+    * ``lone_lf``   -- count of ``0x0A`` bytes **not** preceded by ``0x0D``
+    * ``crlf_pairs`` -- count of ``0x0D 0x0A`` pairs
+    * ``total_lf``  -- ``lone_lf + crlf_pairs``
+    * ``lone_cr``   -- count of ``0x0D`` bytes **not** followed by ``0x0A``
+    * ``size``      -- total byte count of *data*
 
     This is the foundational metric used by :func:`detect_corruption`.
     """
@@ -123,7 +123,7 @@ def detect_corruption(data: bytes) -> Dict[str, object]:
     (inside length prefixes and token data) **and** ``0x0D 0x0A`` pairs
     (in the metadata footer and occasionally inside token strings).
 
-    A CRLF-corrupted file has *zero* lone ``0x0A`` bytes — every single
+    A CRLF-corrupted file has *zero* lone ``0x0A`` bytes -- every single
     one was paired with a preceding ``0x0D``.  The heuristic fires when
     the file contains more than five ``0x0A`` bytes total and none of
     them are standalone.
@@ -138,13 +138,13 @@ def detect_corruption(data: bytes) -> Dict[str, object]:
     dict
         Keys:
 
-        * ``is_corrupt`` (*bool*) — ``True`` when corruption is detected.
-        * ``lone_lf`` (*int*) — number of lone ``0x0A`` bytes.
-        * ``crlf_pairs`` (*int*) — number of ``0x0D 0x0A`` pairs.
-        * ``total_lf`` (*int*) — ``lone_lf + crlf_pairs``.
-        * ``lone_cr`` (*int*) — stray ``0x0D`` bytes (unusual).
-        * ``size`` (*int*) — total file size.
-        * ``estimated_extra_bytes`` (*int*) — bytes added by corruption
+        * ``is_corrupt`` (*bool*) -- ``True`` when corruption is detected.
+        * ``lone_lf`` (*int*) -- number of lone ``0x0A`` bytes.
+        * ``crlf_pairs`` (*int*) -- number of ``0x0D 0x0A`` pairs.
+        * ``total_lf`` (*int*) -- ``lone_lf + crlf_pairs``.
+        * ``lone_cr`` (*int*) -- stray ``0x0D`` bytes (unusual).
+        * ``size`` (*int*) -- total file size.
+        * ``estimated_extra_bytes`` (*int*) -- bytes added by corruption
           (equal to ``crlf_pairs`` when corrupt, else 0).
     """
     counts = _count_byte_patterns(data)
@@ -176,9 +176,9 @@ def byte_level_corruption_report(
 
     Each entry is a dict with:
 
-    * ``offset`` — file offset of the ``0x0D`` byte in the pair.
-    * ``context_hex`` — hex dump of the surrounding bytes.
-    * ``context_ascii`` — printable-ASCII representation (non-printable → ``.``).
+    * ``offset`` -- file offset of the ``0x0D`` byte in the pair.
+    * ``context_hex`` -- hex dump of the surrounding bytes.
+    * ``context_ascii`` -- printable-ASCII representation (non-printable → ``.``).
 
     Parameters
     ----------
@@ -253,9 +253,9 @@ def repair_crlf_corruption(data: bytes) -> bytes:
 
     Performs the three-step pipeline:
 
-    1. :func:`strip_crlf` — remove all ``0x0D`` preceding ``0x0A``.
-    2. :func:`parse_binary_med` — decode the binary into an in-memory model.
-    3. :func:`build_binary_med` — re-encode to a clean binary.
+    1. :func:`strip_crlf` -- remove all ``0x0D`` preceding ``0x0A``.
+    2. :func:`parse_binary_med` -- decode the binary into an in-memory model.
+    3. :func:`build_binary_med` -- re-encode to a clean binary.
 
     Step 3 is essential because the codec knows which ``\\r\\n`` sequences
     are *legitimate* (e.g., in the footer) and writes them back correctly.
@@ -288,7 +288,7 @@ def repair_crlf_corruption(data: bytes) -> bytes:
 def validate_binary(data: bytes) -> Tuple[bool, str]:
     """Parse a binary .med / .stp file and return a structural summary.
 
-    This function does **not** attempt corruption repair — it parses the
+    This function does **not** attempt corruption repair -- it parses the
     raw bytes as-is.  Use it on healthy files (or post-repair) to verify
     structural integrity.
 
@@ -448,7 +448,7 @@ def _process_one_file(
     Returns
     -------
     tuple[bool, str]
-        ``(repaired, message)`` — *repaired* is ``True`` when the file
+        ``(repaired, message)`` -- *repaired* is ``True`` when the file
         was (or would be) written; *message* is a human-readable report.
     """
     lines: List[str] = []
@@ -469,7 +469,7 @@ def _process_one_file(
                 )
 
     if not diag["is_corrupt"] and not force:
-        lines.append("  Status: OK — file does not appear corrupted.")
+        lines.append("  Status: OK -- file does not appear corrupted.")
         return False, "\n".join(lines)
 
     # Attempt repair
@@ -493,7 +493,7 @@ def _process_one_file(
         lines.append("    Validation: OK (binary parses correctly)")
     except Exception as exc:
         lines.append(f"    Validation: FAILED ({exc})")
-        lines.append("  Aborting — repaired file is not valid.")
+        lines.append("  Aborting -- repaired file is not valid.")
         return False, "\n".join(lines)
 
     if dry_run:
@@ -513,11 +513,11 @@ def _process_one_file(
 
 
 # ---------------------------------------------------------------------------
-# CLI — subcommands
+# CLI -- subcommands
 # ---------------------------------------------------------------------------
 
 def _cmd_check(args: argparse.Namespace) -> int:
-    """``check`` subcommand — report corruption without modifying files.
+    """``check`` subcommand -- report corruption without modifying files.
 
     Parameters
     ----------
@@ -554,7 +554,7 @@ def _cmd_check(args: argparse.Namespace) -> int:
 
 
 def _cmd_repair(args: argparse.Namespace) -> int:
-    """``repair`` subcommand — repair one or more corrupt files.
+    """``repair`` subcommand -- repair one or more corrupt files.
 
     Supports single-file and ``--batch`` modes, ``--dry-run``, ``--force``,
     and ``--verbose`` flags.
@@ -628,7 +628,7 @@ def _cmd_repair(args: argparse.Namespace) -> int:
 
 
 def _cmd_validate(args: argparse.Namespace) -> int:
-    """``validate`` subcommand — parse a binary file and report its structure.
+    """``validate`` subcommand -- parse a binary file and report its structure.
 
     This does **not** perform corruption repair; it reads the file as-is
     and reports whether it can be parsed and what its internal structure

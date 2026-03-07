@@ -176,7 +176,7 @@ class TestReadWriteU32LE(unittest.TestCase):
 # ── 5. Short-string roundtrip ─────────────────────────────────────────────
 
 class TestShortStringRoundtrip(unittest.TestCase):
-    """Short strings (0–255 bytes) survive write → read."""
+    """Short strings (0-255 bytes) survive write → read."""
 
     def _roundtrip(self, s: str) -> None:
         encoded = _write_short_string(s)
@@ -241,7 +241,7 @@ class TestVarStringShort(unittest.TestCase):
 # ── 8. Var-string long ────────────────────────────────────────────────────
 
 class TestVarStringLong(unittest.TestCase):
-    """Var-strings 255–65535 bytes use 0xFF + u16 length."""
+    """Var-strings 255-65535 bytes use 0xFF + u16 length."""
 
     def test_255_bytes(self):
         s = "C" * 255
@@ -277,7 +277,7 @@ class TestVarStringOverflow(unittest.TestCase):
             _write_var_string("F" * 65536)
 
 
-# ── 10. Parse text — simple ───────────────────────────────────────────────
+# ── 10. Parse text -- simple ───────────────────────────────────────────────
 
 class TestParseTextSimple(unittest.TestCase):
     """Parse a minimal valid text format."""

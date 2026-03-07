@@ -88,7 +88,7 @@ function parseHslDocument(text: string): ParsedStep[] {
       continue;
     }
 
-    // function/method declarations (forward declarations — skip)
+    // function/method declarations (forward declarations -- skip)
     if (/^\s*(private\s+)?function\s+\w+\s*\(.*\)\s*\w+\s*;/.test(trimmed)) {
       continue;
     }
