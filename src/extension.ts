@@ -1,9 +1,13 @@
 import * as vscode from "vscode";
 import * as path from "path";
+import * as fs from "fs";
+import * as cp from "child_process";
 import { buildCompletionItems } from "./builtins";
 import { createHslDiagnostics } from "./diagnostics";
 import { registerHslIntelliSense } from "./hslIntellisense";
 import { registerStpHoverProvider } from "./stpHoverProvider";
+
+const HAMILTON_EDITOR_PATH = "C:\\Program Files (x86)\\Hamilton\\Bin\\HxHSLMetEd.exe";
 
 /**
  * Called once when the extension is activated.
@@ -70,6 +74,36 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   );
   context.subscriptions.push(runMethodCommand);
+
+  // Register the Open in Hamilton HSL Editor command (only if editor executable exists)
+  const hamiltonEditorAvailable = fs.existsSync(HAMILTON_EDITOR_PATH);
+  vscode.commands.executeCommand("setContext", "hsl.hamiltonEditorAvailable", hamiltonEditorAvailable);
+
+  const openInHamiltonEditorCommand = vscode.commands.registerCommand(
+    "hsl.openInHamiltonEditor",
+    (uri?: vscode.Uri) => {
+      let filePath: string;
+      if (uri) {
+        filePath = uri.fsPath;
+      } else {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active file to open.");
+          return;
+        }
+        filePath = editor.document.fileName;
+      }
+
+      cp.execFile(HAMILTON_EDITOR_PATH, [filePath], (err) => {
+        if (err) {
+          vscode.window.showErrorMessage(
+            `Failed to open Hamilton HSL Editor: ${err.message}`
+          );
+        }
+      });
+    }
+  );
+  context.subscriptions.push(openInHamiltonEditorCommand);
 }
 
 /**

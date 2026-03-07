@@ -57,6 +57,11 @@
         "title": "Run HSL Method",
         "category": "HSL",
         "icon": "$(play)"
+      },
+      {
+        "command": "hsl.openInHamiltonEditor",
+        "title": "Open in Hamilton HSL Editor",
+        "category": "HSL"
       }
     ],
     "menus": {
@@ -71,6 +76,18 @@
         {
           "command": "hsl.runMethod",
           "when": "resourceLangId == hsl",
+          "group": "navigation"
+        },
+        {
+          "command": "hsl.openInHamiltonEditor",
+          "when": "resourceLangId == hsl && hsl.hamiltonEditorAvailable",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "hsl.openInHamiltonEditor",
+          "when": "resourceLangId == hsl && hsl.hamiltonEditorAvailable",
           "group": "navigation"
         }
       ]
