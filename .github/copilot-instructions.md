@@ -19,20 +19,20 @@ The HSL code itself does **not** contain the pipetting parameters (volume, liqui
 
 ### Step Type CLSIDs
 
-| CLSID (underscore format) | Step Type |
-|---|---|
-| `1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2` | Initialize |
-| `541143F5_7FA2_11D3_AD85_0004ACB1DCB2` | Aspirate (single channel) |
-| `541143F8_7FA2_11D3_AD85_0004ACB1DCB2` | Dispense (single channel) |
-| `541143FA_7FA2_11D3_AD85_0004ACB1DCB2` | TipPickUp (single channel) |
-| `541143FC_7FA2_11D3_AD85_0004ACB1DCB2` | TipEject (single channel) |
-| `54114400_7FA2_11D3_AD85_0004ACB1DCB2` | UnloadCarrier |
-| `54114402_7FA2_11D3_AD85_0004ACB1DCB2` | LoadCarrier |
-| `827392A0_B7E8_4472_9ED3_B45B71B5D27A` | Head96Aspirate (CO-RE 96) |
-| `A48573A5_62ED_4951_9EF9_03207EFE34FB` | Head96Dispense (CO-RE 96) |
-| `BD0D210B_0816_4C86_A903_D6B2DF73F78B` | Head96TipPickUp (CO-RE 96) |
-| `2880E77A_3D6D_40FE_AF57_1BD1FE13960C` | Head96TipEject (CO-RE 96) |
-| `EA251BFB_66DE_48D1_83E5_6884B4DD8D11` | MoveAutoLoad |
+| CLSID (underscore format) | GUID | Step Type |
+|---|---|---|
+| `1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2` | `{1C0C0CB0-7C87-11D3-AD83-0004ACB1DCB2}` | Initialize |
+| `541143F5_7FA2_11D3_AD85_0004ACB1DCB2` | `{541143F5-7FA2-11D3-AD85-0004ACB1DCB2}` | Aspirate (single channel) |
+| `541143F8_7FA2_11D3_AD85_0004ACB1DCB2` | `{541143F8-7FA2-11D3-AD85-0004ACB1DCB2}` | Dispense (single channel) |
+| `541143FA_7FA2_11D3_AD85_0004ACB1DCB2` | `{541143FA-7FA2-11D3-AD85-0004ACB1DCB2}` | TipPickUp (single channel) |
+| `541143FC_7FA2_11D3_AD85_0004ACB1DCB2` | `{541143FC-7FA2-11D3-AD85-0004ACB1DCB2}` | TipEject (single channel) |
+| `54114400_7FA2_11D3_AD85_0004ACB1DCB2` | `{54114400-7FA2-11D3-AD85-0004ACB1DCB2}` | UnloadCarrier |
+| `54114402_7FA2_11D3_AD85_0004ACB1DCB2` | `{54114402-7FA2-11D3-AD85-0004ACB1DCB2}` | LoadCarrier |
+| `827392A0_B7E8_4472_9ED3_B45B71B5D27A` | `{827392A0-B7E8-4472-9ED3-B45B71B5D27A}` | Head96Aspirate (CO-RE 96) |
+| `A48573A5_62ED_4951_9EF9_03207EFE34FB` | `{A48573A5-62ED-4951-9EF9-03207EFE34FB}` | Head96Dispense (CO-RE 96) |
+| `BD0D210B_0816_4C86_A903_D6B2DF73F78B` | `{BD0D210B-0816-4C86-A903-D6B2DF73F78B}` | Head96TipPickUp (CO-RE 96) |
+| `2880E77A_3D6D_40FE_AF57_1BD1FE13960C` | `{2880E77A-3D6D-40FE-AF57-1BD1FE13960C}` | Head96TipEject (CO-RE 96) |
+| `EA251BFB_66DE_48D1_83E5_6884B4DD8D11` | `{EA251BFB-66DE-48D1-83E5-6884B4DD8D11}` | MoveAutoLoad |
 
 ---
 
@@ -151,3 +151,221 @@ When reviewing pipetting steps, check for these potential issues:
 6. **Dispense volume ≠ aspirate volume**: Unless performing partial dispenses, these should usually match within a pipetting cycle.
 7. **Sequence counting mismatch**: If a sequence is set to "Manually" but inside a loop without manual position management, positions won't advance.
 8. **Liquid following without LLD**: Liquid following requires LLD to detect the surface; having it on without LLD is unusual though not always wrong.
+
+---
+
+## HSL Language Rules (Critical for Code Generation)
+
+The following rules **must** be followed when generating or modifying HSL code. Violating any of these causes compile errors in the VENUS syntax checker.
+
+### Type System — `variable` vs `string`
+
+HSL has distinct types: `variable`, `string`, `sequence`, `device`, `object`, `timer`, `event`, `file`, `resource`, `dialog`.
+
+**`string` member functions** (`.GetLength()`, `.Find()`, `.Left()`, `.Mid()`, `.Right()`, `.Compare()`, `.MakeUpper()`, `.MakeLower()`, `.SpanExcluding()`) are available **only** on the `string` type. Calling them on a `variable` produces **VENUS error 1317**.
+
+**`variable`** is a generic type that can hold numbers or text, but it does **not** have string member functions.
+
+#### Rule: When you need string member functions, use `string` type
+
+```hsl
+// WRONG — causes error 1317 on every member function call
+variable strInput;
+variable intLen;
+intLen = strInput.GetLength();       // ERROR: GetLength is not a member of variable
+
+// CORRECT — use string type
+string strInput;
+variable intLen;
+intLen = strInput.GetLength();       // OK: GetLength is a member of string
+```
+
+#### Rule: Converting `variable` to `string` for member function use
+
+When a function receives a `variable` parameter but needs to use string member functions internally, declare a local `string` variable and assign:
+
+```hsl
+function MyFunction(variable i_strInput) void
+{
+   string strLocal;
+   variable intLen;
+
+   strLocal = i_strInput;                // assign variable to string
+   intLen = strLocal.GetLength();        // now member functions work
+}
+```
+
+This avoids changing the function's public signature while enabling string operations internally.
+
+#### String member functions reference
+
+| Method | Signature | Returns |
+|---|---|---|
+| `GetLength` | `str.GetLength()` | integer — length of string |
+| `Find` | `str.Find(searchStr)` | integer — index of first occurrence, or -1 |
+| `Left` | `str.Left(count)` | string — leftmost `count` characters |
+| `Mid` | `str.Mid(start, count)` | string — substring from `start` for `count` chars |
+| `Right` | `str.Right(count)` | string — rightmost `count` characters |
+| `Compare` | `str.Compare(other)` | integer — <0, 0, or >0 (lexicographic) |
+| `MakeUpper` | `str.MakeUpper()` | void — converts to uppercase in place |
+| `MakeLower` | `str.MakeLower()` | void — converts to lowercase in place |
+| `SpanExcluding` | `str.SpanExcluding(charSet)` | string — prefix before any character in charSet |
+
+### Sequence Member Functions
+
+**`sequence.GetPositionId()`** takes **zero** arguments (VENUS error 1315 if called with arguments). You must first call `sequence.SetCurrentPosition(index)` to set the position, then call `GetPositionId()`:
+
+```hsl
+// WRONG — GetPositionId takes 0 arguments
+strId = mySeq.GetPositionId(intIndex);     // ERROR 1315
+
+// CORRECT — SetCurrentPosition first, then GetPositionId
+mySeq.SetCurrentPosition(intIndex);
+strId = mySeq.GetPositionId();
+```
+
+**`sequence.Add(labwareId, positionId)`** — the first argument is the **labware ID**, the second is the **position ID**:
+
+```hsl
+// WRONG — arguments are swapped
+mySeq.Add("A1", "");           // puts "A1" as labwareId, "" as positionId
+
+// CORRECT
+mySeq.Add("", "A1");           // "" as labwareId, "A1" as positionId
+```
+
+### Function Visibility — `private` Scope
+
+**`private` functions can only be called from within the same file** (VENUS error 1343). If a helper file needs to call a function defined in another file, that function must **not** be `private`.
+
+```hsl
+// In LibraryA.hsl
+namespace LibA
+{
+   private function _InternalOnly() void;    // only callable within LibraryA.hsl
+   function SharedHelper() void;             // callable from any file that includes LibraryA.hsl
+}
+
+// In LibraryB.hsl — after #include "LibraryA.hsl"
+LibA::_InternalOnly();     // ERROR 1343 — private function
+LibA::SharedHelper();      // OK
+```
+
+Use the underscore prefix (`_FunctionName`) as a naming convention for internal functions, but only mark them `private` if they are truly file-local.
+
+### No Anonymous Blocks Inside Functions
+
+HSL does **not** support C-style anonymous blocks (`{ ... }`) with local variable declarations inside functions. All variable declarations must be at the **top** of the function/method body, before any executable code.
+
+```hsl
+// WRONG — anonymous block with local declarations
+method main()
+{
+   variable x;
+   x = 5;
+   {
+      variable y;       // ERROR — HSL does not support block-scoped declarations
+      y = x + 1;
+   }
+}
+
+// CORRECT — all declarations at the top
+method main()
+{
+   variable x;
+   variable y;
+
+   x = 5;
+   y = x + 1;
+}
+```
+
+### Variable Declarations Must Be at Top of Scope
+
+All `variable`, `string`, `sequence`, `object`, and other type declarations must appear at the **beginning** of their enclosing scope (function, method, or namespace), before any executable statements. Interleaving declarations with code is a syntax error.
+
+```hsl
+// WRONG — declaration after executable code
+function Example() void
+{
+   variable x;
+   x = 5;
+   variable y;          // ERROR — declaration after executable statement
+   y = 10;
+}
+
+// CORRECT
+function Example() void
+{
+   variable x;
+   variable y;
+
+   x = 5;
+   y = 10;
+}
+```
+
+### Array Element Assignment
+
+Array element assignment using bracket notation (`arr[index] = value`) is valid HSL syntax. However, place **one assignment per line** for parser compatibility:
+
+```hsl
+// AVOID — multiple assignments on one line (may cause parser issues)
+arrRows[0] = "A"; arrRows[1] = "B"; arrRows[2] = "C";
+
+// PREFERRED — one per line
+arrRows[0] = "A";
+arrRows[1] = "B";
+arrRows[2] = "C";
+```
+
+### No `continue` Keyword
+
+HSL does **not** support the `continue` keyword in loops. Use conditional logic instead:
+
+```hsl
+// WRONG
+while(i < 10)
+{
+   i = i + 1;
+   if(i == 5) continue;    // ERROR — 'continue' not supported
+   Trace(IStr(i));
+}
+
+// CORRECT
+while(i < 10)
+{
+   i = i + 1;
+   if(i != 5)
+   {
+      Trace(IStr(i));
+   }
+}
+```
+
+### No Compound Assignment Operators
+
+HSL does **not** support `+=`, `-=`, `*=`, `/=`. Use explicit assignment:
+
+```hsl
+// WRONG
+x += 5;          // ERROR
+
+// CORRECT
+x = x + 5;
+```
+
+### Function Declaration and Definition Pairing
+
+Every function must have both a forward **declaration** (prototype ending with `;`) and a **definition** (implementation with `{ ... }`). The signatures must match exactly (modifiers, name, parameter types, return type).
+
+```hsl
+// Forward declaration
+function MyFunc(variable i_param) variable;
+
+// Definition — must match exactly
+function MyFunc(variable i_param) variable
+{
+   return(i_param + 1);
+}
+```
