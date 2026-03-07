@@ -6,6 +6,7 @@ import { buildCompletionItems } from "./builtins";
 import { createHslDiagnostics } from "./diagnostics";
 import { registerHslIntelliSense } from "./hslIntellisense";
 import { registerStpHoverProvider } from "./stpHoverProvider";
+import { registerHslMethodEditor } from "./hslMethodEditor";
 
 const HAMILTON_EDITOR_PATH = "C:\\Program Files (x86)\\Hamilton\\Bin\\HxHSLMetEd.exe";
 
@@ -41,6 +42,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Register STP hover provider (pipetting step tooltips)
   registerStpHoverProvider(context);
+
+  // Register the Hamilton HSL Method Editor (custom editor)
+  registerHslMethodEditor(context);
 
   // Register the Run HSL Method command
   const runMethodCommand = vscode.commands.registerCommand(

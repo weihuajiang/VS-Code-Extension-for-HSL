@@ -43,6 +43,7 @@ const builtins_1 = require("./builtins");
 const diagnostics_1 = require("./diagnostics");
 const hslIntellisense_1 = require("./hslIntellisense");
 const stpHoverProvider_1 = require("./stpHoverProvider");
+const hslMethodEditor_1 = require("./hslMethodEditor");
 const HAMILTON_EDITOR_PATH = "C:\\Program Files (x86)\\Hamilton\\Bin\\HxHSLMetEd.exe";
 /**
  * Called once when the extension is activated.
@@ -63,6 +64,8 @@ function activate(context) {
     (0, diagnostics_1.createHslDiagnostics)(context);
     // Register STP hover provider (pipetting step tooltips)
     (0, stpHoverProvider_1.registerStpHoverProvider)(context);
+    // Register the Hamilton HSL Method Editor (custom editor)
+    (0, hslMethodEditor_1.registerHslMethodEditor)(context);
     // Register the Run HSL Method command
     const runMethodCommand = vscode.commands.registerCommand("hsl.runMethod", () => {
         const editor = vscode.window.activeTextEditor;

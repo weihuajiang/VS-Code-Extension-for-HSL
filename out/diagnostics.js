@@ -142,6 +142,8 @@ async function refreshDiagnostics(document, collection) {
     checkFunctionDeclarationDefinitionPairing(document, ignoredRanges, diagnostics);
     // Check for string-only member functions called on non-string types
     checkStringMemberOnWrongType(document, ignoredRanges, diagnostics);
+    // Check for '+' concatenation used with string-typed variables
+    checkStringConcatenation(document, ignoredRanges, diagnostics);
     // Check for anonymous blocks with variable declarations inside functions
     checkAnonymousBlocks(document, ignoredRanges, diagnostics);
     // Check that ML_STAR is initialized before use
@@ -1536,6 +1538,88 @@ function checkAnonymousBlocks(document, ignoredRanges, diagnostics) {
                 }
                 braceDepth = Math.max(0, braceDepth - 1);
             }
+        }
+    }
+}
+// ── String concatenation with '+' on string-typed variables ─────────────
+/**
+ * The '+' concatenation operator is defined only for the `variable` type.
+ * Using '+' on a `string`-typed variable produces VENUS error 1222.
+ *
+ * This checker scans for assignment expressions like:
+ *   strX = ... + strY ...     where strY is declared as `string`
+ *   strX = ... strY + ...     where strY is declared as `string`
+ *
+ * and flags them when a `string`-typed identifier participates as an
+ * operand of '+' concatenation.
+ */
+function checkStringConcatenation(document, ignoredRanges, diagnostics) {
+    const fullText = document.getText();
+    const cleanText = buildMaskedText(fullText, ignoredRanges);
+    // Phase 1: collect identifiers declared as `string`
+    const stringVars = new Set();
+    const declPattern = /\bstring\s*(&?)\s+([A-Za-z_]\w*)/g;
+    let declMatch;
+    while ((declMatch = declPattern.exec(cleanText)) !== null) {
+        stringVars.add(declMatch[2]);
+    }
+    if (stringVars.size === 0) {
+        return;
+    }
+    // Phase 2: scan for `identifier + expr` or `expr + identifier`
+    // where the identifier is a string-typed variable.
+    // We look for  `stringVar +`  or  `+ stringVar`  patterns.
+    for (const varName of stringVars) {
+        // Pattern: stringVar followed by +  (but not inside a .Method() call)
+        // Escape varName for regex (it's always an identifier so safe)
+        const patternStr = `\\b${varName}\\s*\\+(?!=)`;
+        const patternPlus = new RegExp(patternStr, "g");
+        let m;
+        while ((m = patternPlus.exec(cleanText)) !== null) {
+            // Skip if inside ignored range
+            if (isInsideIgnoredRange(m.index, ignoredRanges)) {
+                continue;
+            }
+            // Skip if this is inside a function parameter list (declaration context)
+            if (isLikelyDeclarationContext(cleanText, m.index)) {
+                continue;
+            }
+            const linePos = document.positionAt(m.index);
+            const range = new vscode.Range(linePos.line, linePos.character, linePos.line, linePos.character + varName.length);
+            const diag = new vscode.Diagnostic(range, `The '+' concatenation operator does not work with 'string' type. ` +
+                `'${varName}' is declared as 'string'. Use a 'variable' for concatenation, ` +
+                `then assign to 'string' when you need member functions like .Find() or .GetLength().`, vscode.DiagnosticSeverity.Error);
+            diag.source = "hsl";
+            diag.code = "string-concat-with-plus";
+            diagnostics.push(diag);
+        }
+        // Pattern: + followed by stringVar
+        const patternPre = new RegExp(`\\+\\s*\\b${varName}\\b`, "g");
+        while ((m = patternPre.exec(cleanText)) !== null) {
+            if (isInsideIgnoredRange(m.index, ignoredRanges)) {
+                continue;
+            }
+            if (isLikelyDeclarationContext(cleanText, m.index)) {
+                continue;
+            }
+            // Find the position of the variable name within the match
+            const varOffset = m[0].indexOf(varName);
+            const absOffset = m.index + varOffset;
+            const linePos = document.positionAt(absOffset);
+            const range = new vscode.Range(linePos.line, linePos.character, linePos.line, linePos.character + varName.length);
+            // Avoid duplicate diagnostics if we already flagged the same location
+            const isDuplicate = diagnostics.some((d) => d.code === "string-concat-with-plus" &&
+                d.range.start.line === range.start.line &&
+                d.range.start.character === range.start.character);
+            if (isDuplicate) {
+                continue;
+            }
+            const diag = new vscode.Diagnostic(range, `The '+' concatenation operator does not work with 'string' type. ` +
+                `'${varName}' is declared as 'string'. Use a 'variable' for concatenation, ` +
+                `then assign to 'string' when you need member functions like .Find() or .GetLength().`, vscode.DiagnosticSeverity.Error);
+            diag.source = "hsl";
+            diag.code = "string-concat-with-plus";
+            diagnostics.push(diag);
         }
     }
 }

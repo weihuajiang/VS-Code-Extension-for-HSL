@@ -2,7 +2,7 @@
   "name": "hsl-language-support",
   "displayName": "HSL (Hamilton) Language Support",
   "description": "Base language support for Hamilton Standard Language (HSL)",
-  "version": "1.9.3",
+  "version": "1.9.9",
   "publisher": "ZacharyMilot",
   "author": "Zachary Milot",
   "repository": {
@@ -49,6 +49,24 @@
       {
         "language": "hsl",
         "path": "./snippets/hsl.code-snippets"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "hsl.methodEditor",
+        "displayName": "Hamilton HSL Method Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.hsl"
+          },
+          {
+            "filenamePattern": "*.hs_"
+          },
+          {
+            "filenamePattern": "*.sub"
+          }
+        ],
+        "priority": "option"
       }
     ],
     "commands": [
