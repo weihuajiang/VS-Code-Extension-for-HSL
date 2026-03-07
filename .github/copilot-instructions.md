@@ -409,3 +409,85 @@ function MyFunc(variable i_param) variable
    return(i_param + 1);
 }
 ```
+
+---
+
+## HSL Debugger -- Simulation Runtime
+
+This workspace includes a **Python-based HSL simulation runtime** at `HSL Debugger/hsl_runtime/`. It preprocesses, tokenizes, parses, and interprets HSL source code entirely in Python -- no Hamilton hardware or VENUS installation is required at runtime (only the Hamilton library `.hsl`/`.sub` files are needed for `#include` resolution).
+
+**Use this debugger to run, test, and validate HSL method files.** When you write or modify HSL code and need to verify it works, run it through this debugger rather than guessing.
+
+### Purpose and Scope
+
+The HSL Debugger is **exclusively for executing and testing HSL method files** -- files that contain a `method main()` entry point. It is not a general HSL compiler or library validator.
+
+**Critical limitation:** The debugger **will fail** if you try to run a library file (`.hsl` or `.sub`) that does not contain a `method main()`. Library files define functions and namespaces but have no entry point. The interpreter will emit `"No main() method found"` and only process top-level declarations without executing any logic. To test a library, you must create or use a method file that `#include`s the library and calls its functions from `method main()`.
+
+### How to Run
+
+```powershell
+cd "HSL Debugger"
+python -m hsl_runtime.main "<path-to-method.hsl>" --hamilton-dir "C:\Program Files (x86)\Hamilton"
+```
+
+### Command-Line Options
+
+| Flag | Description |
+|------|-------------|
+| `--verbose` | Show detailed trace output (default) |
+| `--quiet` | Suppress trace output |
+| `--dump-tokens` | Print token stream and exit |
+| `--dump-ast` | Print abstract syntax tree and exit |
+| `--dump-preprocessed` | Print preprocessed source and exit |
+| `--max-iterations N` | Safety limit for loops (default: 100,000) |
+| `--hamilton-dir PATH` | Hamilton installation directory (default: `C:\Program Files (x86)\Hamilton`) |
+| `--log-dir PATH` | Directory for `.trc` trace log output (default: `<hamilton-dir>/Logfiles/vscode`) |
+
+### What the Debugger Does
+
+1. **Preprocesses** the HSL file -- resolves `#include` directives, `#define` macros, and conditional compilation (`#ifdef`/`#ifndef`).
+2. **Tokenizes** the preprocessed source into an HSL token stream.
+3. **Parses** tokens into an abstract syntax tree (AST).
+4. **Executes** the AST in simulation mode:
+   - All HSL control flow (if/else, while, for, return, abort) executes for real.
+   - All variable assignments, string operations, array operations, and sequence operations execute for real.
+   - Device steps (`ML_STAR._<CLSID>(...)`) are recognized but return simulated success -- no firmware commands are generated. This is the same approach Hamilton's own `HxRun.exe` uses in simulation mode: a virtual device that always returns OK.
+   - COM objects (e.g., `BarcodedTipTracking.Engine`) are simulated with pure-Python implementations.
+   - `Trace()` and `FormatTrace()` output is captured and written to a `.trc` file in Hamilton's trace log format.
+
+### What the Debugger Does NOT Do
+
+- **No deck layout loading** -- `.lay` files are not parsed; labware positions are not validated.
+- **No `.stp` file reading** -- pipetting parameters (volumes, LLD, liquid classes) are not decoded.
+- **No firmware emulation** -- device steps are stubs that return success, not a physics simulation.
+- **No library-only execution** -- the file **must** have `method main()` or execution will not occur.
+
+### Interpreting Output
+
+- **Exit code 0** = success. The method's `main()` ran to completion.
+- **Exit code 1** = failure. Check the terminal output for the phase that failed (Preprocessor, Lexer, Parser, or Runtime).
+- **Trace log** = written to `<hamilton-dir>/Logfiles/vscode/<MethodName>_<RunId>_Trace.trc` in standard Hamilton `.trc` format.
+- **`[HSL TRACE]` lines** in terminal output show every `Trace()` call from the method.
+
+### Example: Testing a Library
+
+If you have a library `MyLib.hsl` with helper functions, you cannot run it directly. Create a test method:
+
+```hsl
+#include "MyLib.hsl"
+
+method main()
+{
+   variable result;
+   // Call library functions and verify results
+   result = MyLib::SomeFunction("test input");
+   Trace("Result: ");
+   Trace(result);
+}
+```
+
+Then run:
+```powershell
+python -m hsl_runtime.main "TestMyLib.hsl"
+```
