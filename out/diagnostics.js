@@ -140,6 +140,10 @@ async function refreshDiagnostics(document, collection) {
     await checkFunctionCallArity(document, diagnostics);
     // Check that every function has both a declaration (prototype) and definition (implementation)
     checkFunctionDeclarationDefinitionPairing(document, ignoredRanges, diagnostics);
+    // Check for string-only member functions called on non-string types
+    checkStringMemberOnWrongType(document, ignoredRanges, diagnostics);
+    // Check for anonymous blocks with variable declarations inside functions
+    checkAnonymousBlocks(document, ignoredRanges, diagnostics);
     // Check that ML_STAR is initialized before use
     checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics);
     collection.set(document.uri, diagnostics);
@@ -280,13 +284,27 @@ async function checkFunctionCallArity(document, diagnostics) {
             }
         }
     }
-    const methodCallPattern = /\b[A-Za-z_]\w*(?:\[[^\]]+\])?\s*\.\s*([A-Za-z_]\w*)\s*\(/g;
+    // Collect identifiers declared as `object` type so we can skip arity
+    // checking on their method calls — COM objects define their own methods
+    // which cannot be statically validated.
+    const objectTypedVars = new Set();
+    const objectDeclPattern = /\bobject\s+(\w+)/g;
+    let objMatch;
+    while ((objMatch = objectDeclPattern.exec(cleanText)) !== null) {
+        objectTypedVars.add(objMatch[1]);
+    }
+    const methodCallPattern = /\b([A-Za-z_]\w*)(?:\[[^\]]+\])?\s*\.\s*([A-Za-z_]\w*)\s*\(/g;
     while ((match = methodCallPattern.exec(cleanText)) !== null) {
-        const methodName = match[1];
+        const receiverName = match[1];
+        const methodName = match[2];
         // Find the actual start of the captured method name in the matched text
         const fullMatchText = match[0];
         const capturedOffset = fullMatchText.lastIndexOf(methodName);
         const methodNameIndex = match.index + capturedOffset;
+        // Skip arity validation for COM objects — they define their own methods
+        if (objectTypedVars.has(receiverName)) {
+            continue;
+        }
         const openParenIndex = methodCallPattern.lastIndex - 1;
         const closeParenIndex = findMatchingParen(cleanText, openParenIndex);
         if (closeParenIndex < 0) {
@@ -1309,6 +1327,215 @@ function checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics) {
             diagnostics.push(diag);
             // Only flag the first occurrence — one error is enough
             return;
+        }
+    }
+}
+// ── String member function on wrong type enforcement ────────────────────
+/**
+ * The following member functions are ONLY valid on the `string` type.
+ * Calling them on a `variable` (or any other non-string type) produces
+ * VENUS error 1317.
+ */
+const STRING_ONLY_METHODS = new Set([
+    "getlength",
+    "find",
+    "left",
+    "mid",
+    "right",
+    "compare",
+    "makeupper",
+    "makelower",
+    "spanexcluding",
+]);
+/**
+ * HSL types that are NOT `string` — if a variable is declared with one of
+ * these types and then has a string-only member function called on it, that
+ * is an error.
+ */
+const NON_STRING_TYPES = new Set([
+    "variable",
+    "sequence",
+    "device",
+    "object",
+    "timer",
+    "event",
+    "file",
+    "resource",
+    "dialog",
+]);
+/**
+ * Check for `.GetLength()`, `.Find()`, etc. called on identifiers whose
+ * declared type is `variable` (or another non-string type).
+ *
+ * Approach:
+ *   1. Scan for all `variable`, `string`, etc. declarations and record
+ *      each identifier's type.
+ *   2. Scan for `identifier.MethodName(` patterns where MethodName is a
+ *      string-only method.
+ *   3. If the identifier's declared type is non-string, report an error.
+ *
+ * Limitations: this is a best-effort, single-file analysis that cannot
+ * track types across assignments or function returns.  It catches the most
+ * common error pattern: a parameter or local declared as `variable` with
+ * string member functions called directly on it.
+ */
+function checkStringMemberOnWrongType(document, ignoredRanges, diagnostics) {
+    const fullText = document.getText();
+    const cleanText = buildMaskedText(fullText, ignoredRanges);
+    // ── Phase 1: collect declared identifiers and their types ─────────
+    // Matches: `type  name`, `type& name`, `type  name[]`, including
+    //          multi-declarations like `variable a, b, c;`
+    const declaredTypes = new Map(); // identifier → type
+    const declPattern = /\b(variable|string|sequence|device|object|timer|event|file|resource|dialog)\s*(&?)\s+([A-Za-z_]\w*)/g;
+    let declMatch;
+    while ((declMatch = declPattern.exec(cleanText)) !== null) {
+        const typeName = declMatch[1].toLowerCase();
+        const ident = declMatch[3];
+        // Don't overwrite — first declaration wins (most common scope)
+        if (!declaredTypes.has(ident)) {
+            declaredTypes.set(ident, typeName);
+        }
+    }
+    // Also handle function parameter lists — they produce declarations too.
+    // The regex above already captures `variable i_strFoo` inside parameter
+    // lists, so this is covered.
+    // ── Phase 2: find method calls on identifiers ─────────────────────
+    const methodCallPattern = /\b([A-Za-z_]\w*)\s*\.\s*([A-Za-z_]\w*)\s*\(/g;
+    let mcMatch;
+    while ((mcMatch = methodCallPattern.exec(cleanText)) !== null) {
+        const receiverName = mcMatch[1];
+        const methodName = mcMatch[2];
+        const methodKey = methodName.toLowerCase();
+        if (!STRING_ONLY_METHODS.has(methodKey)) {
+            continue;
+        }
+        const declaredType = declaredTypes.get(receiverName);
+        if (!declaredType) {
+            // Type unknown — could be from an included library; skip.
+            continue;
+        }
+        if (declaredType === "string") {
+            // Correct usage.
+            continue;
+        }
+        if (!NON_STRING_TYPES.has(declaredType)) {
+            continue;
+        }
+        // Build diagnostic
+        const callOffset = mcMatch.index;
+        const dotIdx = cleanText.indexOf(".", callOffset + receiverName.length);
+        const methodStart = dotIdx + 1 + (cleanText.slice(dotIdx + 1).length - cleanText.slice(dotIdx + 1).trimStart().length);
+        const linePos = document.positionAt(callOffset);
+        const methodPos = document.positionAt(methodStart);
+        const range = new vscode.Range(linePos.line, linePos.character, methodPos.line, methodPos.character + methodName.length);
+        const diag = new vscode.Diagnostic(range, `'${methodName}' is a member function of 'string', not '${declaredType}'. ` +
+            `Declare '${receiverName}' as 'string' instead, or assign to a local ` +
+            `'string' variable before calling '.${methodName}()'.`, vscode.DiagnosticSeverity.Error);
+        diag.source = "hsl";
+        diag.code = "string-method-on-wrong-type";
+        diagnostics.push(diag);
+    }
+}
+// ── Anonymous block detection ───────────────────────────────────────────
+/**
+ * Detects `{ ... }` blocks inside function/method bodies that are NOT
+ * preceded by a control-flow keyword (if / else / while / for / switch /
+ * case / default).  HSL does not support C-style anonymous blocks.
+ *
+ * We specifically flag blocks that contain variable declarations, since
+ * those will definitely fail — the developer likely intended block-local
+ * scoping which HSL doesn't have.
+ */
+function checkAnonymousBlocks(document, ignoredRanges, diagnostics) {
+    const fullText = document.getText();
+    const cleanText = buildMaskedText(fullText, ignoredRanges);
+    // Walk through the file tracking brace depth and context.
+    // We only check inside function/method bodies.
+    let inFuncBody = false;
+    let funcBodyDepth = -1;
+    let braceDepth = 0;
+    // Control-flow keywords that legitimately introduce `{` blocks.
+    const controlFlowPattern = /\b(if|else|while|for|switch|case|default|do)\s*$/;
+    const funcMethodPattern = /\b(?:(?:private|public|static|global|const|synchronized)\s+)*(?:function|method)\b/;
+    const lines = cleanText.split(/\r?\n/);
+    let pendingFuncDef = false;
+    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+        const line = lines[lineIdx];
+        const trimmed = line.trim();
+        // Detect function/method header
+        if (funcMethodPattern.test(trimmed) && !trimmed.endsWith(";")) {
+            pendingFuncDef = true;
+        }
+        for (let ci = 0; ci < line.length; ci++) {
+            const ch = line[ci];
+            if (ch === "{") {
+                braceDepth++;
+                if (pendingFuncDef) {
+                    // This is the opening brace of a function/method body
+                    inFuncBody = true;
+                    funcBodyDepth = braceDepth;
+                    pendingFuncDef = false;
+                    continue;
+                }
+                if (inFuncBody && braceDepth > funcBodyDepth) {
+                    // Check whether this `{` is preceded by a control-flow keyword
+                    // on this line or the immediately preceding non-blank lines.
+                    const textBefore = line.slice(0, ci).trimEnd();
+                    const prevLine = lineIdx > 0 ? lines[lineIdx - 1].trim() : "";
+                    const isControlFlow = controlFlowPattern.test(textBefore) ||
+                        controlFlowPattern.test(prevLine) ||
+                        /\)\s*$/.test(textBefore); // e.g. `if(...)`
+                    if (!isControlFlow) {
+                        // This is an anonymous block — check if it contains declarations
+                        const blockStart = lineIdx;
+                        const blockStartCol = ci;
+                        let localDepth = 1;
+                        let hasDeclarations = false;
+                        let scanLine = lineIdx;
+                        let scanCol = ci + 1;
+                        outerScan: while (scanLine < lines.length && localDepth > 0) {
+                            const scanText = lines[scanLine];
+                            const startCol = scanLine === lineIdx ? scanCol : 0;
+                            for (let si = startCol; si < scanText.length; si++) {
+                                if (scanText[si] === "{") {
+                                    localDepth++;
+                                }
+                                else if (scanText[si] === "}") {
+                                    localDepth--;
+                                    if (localDepth === 0) {
+                                        break outerScan;
+                                    }
+                                }
+                            }
+                            // Check if this line inside the block has a declaration
+                            if (scanLine > lineIdx || scanCol > 0) {
+                                const innerTrimmed = scanText.trim();
+                                if (DECL_PATTERN.test(innerTrimmed)) {
+                                    hasDeclarations = true;
+                                }
+                            }
+                            scanLine++;
+                            scanCol = 0;
+                        }
+                        if (hasDeclarations) {
+                            const range = new vscode.Range(blockStart, blockStartCol, blockStart, blockStartCol + 1);
+                            const diag = new vscode.Diagnostic(range, "HSL does not support anonymous '{ }' blocks with variable declarations " +
+                                "inside functions. Move all declarations to the top of the enclosing " +
+                                "function or method body.", vscode.DiagnosticSeverity.Error);
+                            diag.source = "hsl";
+                            diag.code = "anonymous-block-with-declarations";
+                            diagnostics.push(diag);
+                        }
+                    }
+                }
+            }
+            else if (ch === "}") {
+                if (inFuncBody && braceDepth === funcBodyDepth) {
+                    inFuncBody = false;
+                    funcBodyDepth = -1;
+                }
+                braceDepth = Math.max(0, braceDepth - 1);
+            }
         }
     }
 }
