@@ -167,9 +167,6 @@ async function refreshDiagnostics(
   // Check for string-only member functions called on non-string types
   checkStringMemberOnWrongType(document, ignoredRanges, diagnostics);
 
-  // Check for '+' concatenation used with string-typed variables
-  checkStringConcatenation(document, ignoredRanges, diagnostics);
-
   // Check for anonymous blocks with variable declarations inside functions
   checkAnonymousBlocks(document, ignoredRanges, diagnostics);
 

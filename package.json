@@ -2,7 +2,7 @@
   "name": "hsl-language-support",
   "displayName": "HSL (Hamilton) Language Support",
   "description": "Base language support for Hamilton Standard Language (HSL)",
-  "version": "1.91.3",
+  "version": "1.91.4",
   "publisher": "ZacharyMilot",
   "author": "Zachary Milot",
   "repository": {

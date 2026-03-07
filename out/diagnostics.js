@@ -48,6 +48,7 @@ const fs = __importStar(require("fs"));
  *   - Non-ASCII characters (em dashes, en dashes, smart quotes, etc.)
  *   - Variable declarations that are not at the top of their code block
  *   - `continue` keyword usage (not supported in HSL)
+ *   - Array element access used directly in `+` expressions (must assign to temp variable first)
  */
 function createHslDiagnostics(context) {
     const diagnosticCollection = vscode.languages.createDiagnosticCollection("hsl");
@@ -145,10 +146,10 @@ async function refreshDiagnostics(document, collection) {
     checkFunctionDeclarationDefinitionPairing(document, ignoredRanges, diagnostics);
     // Check for string-only member functions called on non-string types
     checkStringMemberOnWrongType(document, ignoredRanges, diagnostics);
-    // Check for '+' concatenation used with string-typed variables
-    checkStringConcatenation(document, ignoredRanges, diagnostics);
     // Check for anonymous blocks with variable declarations inside functions
     checkAnonymousBlocks(document, ignoredRanges, diagnostics);
+    // Check for array element access used directly in + expressions
+    checkArrayElementInExpression(document, ignoredRanges, diagnostics);
     // Check that ML_STAR is initialized before use
     checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics);
     collection.set(document.uri, diagnostics);
@@ -1607,6 +1608,90 @@ function checkAnonymousBlocks(document, ignoredRanges, diagnostics) {
  * and flags them when a `string`-typed identifier participates as an
  * operand of '+' concatenation.
  */
+// ── Array element in expression enforcement ─────────────────────────────
+/**
+ * Detects array element access (e.g. `arr[i]`) used directly as an operand
+ * in a `+` expression.  The VENUS parser cannot handle `arr[idx]` inside
+ * a `+` concatenation / addition -- the bracket notation confuses the
+ * parser and produces cascading "syntax error before ';'" errors.
+ *
+ * The fix is to assign the array element to a temporary variable first:
+ *
+ *   strPos = arrAll[intIdx];       // extract first
+ *   strResult = strResult + strPos; // then use in expression
+ */
+function checkArrayElementInExpression(document, ignoredRanges, diagnostics) {
+    const fullText = document.getText();
+    const cleanText = buildMaskedText(fullText, ignoredRanges);
+    // Match patterns like:
+    //   expr + identifier[expr]       -- array element as right operand of +
+    //   identifier[expr] + expr       -- array element as left operand of +
+    // We look for `+` adjacent to `identifier[...]` (with optional whitespace).
+    //
+    // Pattern explanation:
+    //   \b(\w+)\[  -- identifier followed by [
+    //   [^\]]*\]   -- contents of brackets up to ]
+    //   \s*\+      -- followed by +
+    //   (?!\+|=)   -- not ++ or +=
+    // And the reverse for + before array access.
+    // Case 1: arr[expr] + ...
+    const arrayThenPlus = /\b(\w+)\[([^\]]*)\]\s*\+(?!\+|=)/g;
+    // Case 2: ... + arr[expr]
+    const plusThenArray = /\+\s*\b(\w+)\[([^\]]*)\]/g;
+    const flaggedLines = new Set();
+    let m;
+    // Case 1: arr[expr] +
+    arrayThenPlus.lastIndex = 0;
+    while ((m = arrayThenPlus.exec(cleanText)) !== null) {
+        if (isInsideIgnoredRange(m.index, ignoredRanges)) {
+            continue;
+        }
+        // Skip if this is on a line that looks like a standalone assignment
+        // (arr[i] = expr + ...) -- the array access is the LHS, not in the + expr
+        const linePos = document.positionAt(m.index);
+        const lineText = document.lineAt(linePos.line).text;
+        // Check that the array access is NOT on the left side of an assignment
+        const assignMatch = lineText.match(/^\s*(\w+)\[[^\]]*\]\s*=/);
+        if (assignMatch && assignMatch[1] === m[1]) {
+            continue;
+        }
+        if (flaggedLines.has(linePos.line)) {
+            continue;
+        }
+        flaggedLines.add(linePos.line);
+        const bracketStart = m.index + m[1].length;
+        const bracketEnd = bracketStart + 1 + m[2].length + 1; // [ + contents + ]
+        const range = new vscode.Range(linePos.line, linePos.character, document.positionAt(bracketEnd).line, document.positionAt(bracketEnd).character);
+        const diag = new vscode.Diagnostic(range, `Array element access '${m[1]}[${m[2]}]' cannot be used directly in a '+' expression. ` +
+            `The VENUS parser does not support bracket notation as an operand of '+'. ` +
+            `Assign the array element to a temporary variable first, then use that variable in the expression.`, vscode.DiagnosticSeverity.Error);
+        diag.source = "hsl";
+        diag.code = "array-element-in-expression";
+        diagnostics.push(diag);
+    }
+    // Case 2: + arr[expr]
+    plusThenArray.lastIndex = 0;
+    while ((m = plusThenArray.exec(cleanText)) !== null) {
+        if (isInsideIgnoredRange(m.index, ignoredRanges)) {
+            continue;
+        }
+        const arrayIdStart = m.index + m[0].indexOf(m[1]);
+        const linePos = document.positionAt(arrayIdStart);
+        if (flaggedLines.has(linePos.line)) {
+            continue;
+        }
+        flaggedLines.add(linePos.line);
+        const bracketEnd = arrayIdStart + m[1].length + 1 + m[2].length + 1;
+        const range = new vscode.Range(linePos.line, linePos.character, document.positionAt(bracketEnd).line, document.positionAt(bracketEnd).character);
+        const diag = new vscode.Diagnostic(range, `Array element access '${m[1]}[${m[2]}]' cannot be used directly in a '+' expression. ` +
+            `The VENUS parser does not support bracket notation as an operand of '+'. ` +
+            `Assign the array element to a temporary variable first, then use that variable in the expression.`, vscode.DiagnosticSeverity.Error);
+        diag.source = "hsl";
+        diag.code = "array-element-in-expression";
+        diagnostics.push(diag);
+    }
+}
+// ── String concatenation enforcement ────────────────────────────────────
 function checkStringConcatenation(document, ignoredRanges, diagnostics) {
     const fullText = document.getText();
     const cleanText = buildMaskedText(fullText, ignoredRanges);

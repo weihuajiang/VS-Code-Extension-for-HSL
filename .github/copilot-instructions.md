@@ -228,32 +228,6 @@ This avoids changing the function's public signature while enabling string opera
 | `MakeLower` | `str.MakeLower()` | void -- converts to lowercase in place |
 | `SpanExcluding` | `str.SpanExcluding(charSet)` | string -- prefix before any character in charSet |
 
-#### Rule: The `+` concatenation operator does NOT work with `string` type
-
-The `+` operator for string concatenation is defined **only** for the `variable` type. Using `+` on a `string`-typed variable produces **VENUS error 1222** ("error in string expression").
-
-When you need to both concatenate and use string member functions, use `variable` for building the string with `+`, then assign to `string` for member function calls:
-
-```hsl
-// WRONG -- causes error 1222
-string strCsv;
-string strSearch;
-strCsv = i_strCsv;
-strSearch = "," + strCsv + ",";      // ERROR: '+' does not work with string type
-
-// CORRECT -- use variable for concatenation, string for member functions
-variable varSearch;
-variable varNeedle;
-string strSearch;
-
-varSearch = "," + i_strCsv + ",";    // OK: '+' works with variable
-varNeedle = "," + i_strPos + ",";    // OK: '+' works with variable
-strSearch = varSearch;                  // assign to string for .Find()
-intPos = strSearch.Find(varNeedle);     // OK: Find() is a string member function
-```
-
-Key principle: **`variable` is for arithmetic and concatenation (`+`), `string` is for member functions (`.GetLength()`, `.Find()`, etc.)**. Never use `+` with a `string`-typed variable.
-
 ### Sequence Member Functions
 
 **`sequence.GetPositionId()`** takes **zero** arguments (VENUS error 1315 if called with arguments). You must first call `sequence.SetCurrentPosition(index)` to set the position, then call `GetPositionId()`:
