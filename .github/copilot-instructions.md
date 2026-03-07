@@ -362,6 +362,29 @@ arrRows[1] = "B";
 arrRows[2] = "C";
 ```
 
+### No Array Element Access in `+` Expressions
+
+The VENUS parser **cannot** handle array element access (`arr[index]`) used directly as an operand in a `+` expression (concatenation or addition). The bracket notation confuses the parser and produces cascading "syntax error before ';'" errors (error 1002) followed by "unexpected end of file" (error 1311).
+
+**Always** assign the array element to a temporary variable first, then use that variable in the expression.
+
+The VS Code extension flags this with diagnostic code `array-element-in-expression`.
+
+```hsl
+// WRONG -- causes cascading syntax errors
+strResult = strResult + arrPositions[intIdx];       // ERROR 1002
+strResult = strResult + "," + arrData[i];            // ERROR 1002
+
+// CORRECT -- extract to a temporary variable first
+strPos = arrPositions[intIdx];
+strResult = strResult + strPos;
+
+strItem = arrData[i];
+strResult = strResult + "," + strItem;
+```
+
+This restriction applies to **all** uses of `arr[index]` as an operand of `+`, including both left and right sides. The assignment `arr[index] = value` itself is fine -- only the use inside `+` expressions is prohibited.
+
 ### No `continue` Keyword
 
 HSL does **not** support the `continue` keyword in loops. Use conditional logic instead:
