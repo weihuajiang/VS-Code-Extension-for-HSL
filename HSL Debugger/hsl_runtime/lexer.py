@@ -36,6 +36,11 @@ class TokenType(Enum):
     TIMER = auto()
     EVENT = auto()
     DIALOG = auto()
+    RESOURCE = auto()
+    CHAR_TYPE = auto()
+    SHORT_TYPE = auto()
+    LONG_TYPE = auto()
+    FLOAT_TYPE = auto()
     VOID = auto()
     PRIVATE = auto()
     STATIC = auto()
@@ -46,7 +51,6 @@ class TokenType(Enum):
     FOR = auto()
     WHILE = auto()
     BREAK = auto()
-    CONTINUE = auto()
     RETURN = auto()
     ABORT = auto()
     PAUSE = auto()
@@ -121,6 +125,11 @@ KEYWORDS = {
     'timer': TokenType.TIMER,
     'event': TokenType.EVENT,
     'dialog': TokenType.DIALOG,
+    'resource': TokenType.RESOURCE,
+    'char': TokenType.CHAR_TYPE,
+    'short': TokenType.SHORT_TYPE,
+    'long': TokenType.LONG_TYPE,
+    'float': TokenType.FLOAT_TYPE,
     'void': TokenType.VOID,
     'private': TokenType.PRIVATE,
     'static': TokenType.STATIC,
@@ -131,7 +140,6 @@ KEYWORDS = {
     'for': TokenType.FOR,
     'while': TokenType.WHILE,
     'break': TokenType.BREAK,
-    'continue': TokenType.CONTINUE,
     'return': TokenType.RETURN,
     'abort': TokenType.ABORT,
     'pause': TokenType.PAUSE,

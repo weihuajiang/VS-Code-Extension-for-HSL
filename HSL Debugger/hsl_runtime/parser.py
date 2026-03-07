@@ -26,7 +26,7 @@ Grammar overview (simplified EBNF)
     function_decl  = 'function' IDENT '(' params ')' [ return_type ] ( block | ';' ) ;
     variable_decl  = type_kw ['&'] IDENT [ '[]' ] [ '(' expr ')' | '=' expr ]
                      { ',' ... } ';' ;
-    statement      = block | var_decl | if | for | while | loop | break | continue
+    statement      = block | var_decl | if | for | while | loop | break
                    | return | abort | pause | onerror | resume_next | label
                    | expr_stmt ;
     block          = '{' { statement } '}' ;
@@ -416,6 +416,8 @@ class Parser:
         if tok.type in (TokenType.VARIABLE, TokenType.STRING_TYPE, TokenType.SEQUENCE,
                         TokenType.DEVICE, TokenType.FILE_TYPE, TokenType.OBJECT,
                         TokenType.TIMER, TokenType.EVENT, TokenType.DIALOG,
+                        TokenType.RESOURCE, TokenType.CHAR_TYPE, TokenType.SHORT_TYPE,
+                        TokenType.LONG_TYPE, TokenType.FLOAT_TYPE,
                         TokenType.CONST):
             return self.parse_variable_declaration()
 
@@ -509,6 +511,8 @@ class Parser:
         if tok.type in (TokenType.VARIABLE, TokenType.STRING_TYPE, TokenType.SEQUENCE,
                         TokenType.DEVICE, TokenType.FILE_TYPE, TokenType.OBJECT,
                         TokenType.TIMER, TokenType.EVENT, TokenType.DIALOG,
+                        TokenType.RESOURCE, TokenType.CHAR_TYPE, TokenType.SHORT_TYPE,
+                        TokenType.LONG_TYPE, TokenType.FLOAT_TYPE,
                         TokenType.CONST):
             decl = self.parse_variable_declaration()
             if isinstance(decl, VariableDeclaration):
@@ -732,7 +736,9 @@ class Parser:
 
         if tok.type in (TokenType.VARIABLE, TokenType.STRING_TYPE, TokenType.SEQUENCE,
                         TokenType.DEVICE, TokenType.FILE_TYPE, TokenType.OBJECT,
-                        TokenType.TIMER, TokenType.EVENT, TokenType.DIALOG):
+                        TokenType.TIMER, TokenType.EVENT, TokenType.DIALOG,
+                        TokenType.RESOURCE, TokenType.CHAR_TYPE, TokenType.SHORT_TYPE,
+                        TokenType.LONG_TYPE, TokenType.FLOAT_TYPE):
             param_type = self.advance().value
 
         self.skip_comments_and_markers()
@@ -816,7 +822,6 @@ class Parser:
         ``while``                    ``parse_while()``
         ``loop``                     ``parse_loop()``
         ``break``                    ``BreakStatement``
-        ``continue``                 ``ContinueStatement``
         ``return``                   ``parse_return()``
         ``abort``                    ``AbortStatement``
         ``pause``                    ``PauseStatement``
@@ -853,7 +858,9 @@ class Parser:
         # Variable declaration
         if tok.type in (TokenType.VARIABLE, TokenType.STRING_TYPE, TokenType.SEQUENCE,
                         TokenType.DEVICE, TokenType.FILE_TYPE, TokenType.OBJECT,
-                        TokenType.TIMER, TokenType.EVENT, TokenType.DIALOG):
+                        TokenType.TIMER, TokenType.EVENT, TokenType.DIALOG,
+                        TokenType.RESOURCE, TokenType.CHAR_TYPE, TokenType.SHORT_TYPE,
+                        TokenType.LONG_TYPE, TokenType.FLOAT_TYPE):
             return self.parse_variable_declaration()
 
         # Qualified declarations inside functions
@@ -889,10 +896,6 @@ class Parser:
             self.advance()
             self.match(TokenType.SEMICOLON)
             return BreakStatement(line=tok.line, column=tok.column)
-        if tok.type == TokenType.CONTINUE:
-            self.advance()
-            self.match(TokenType.SEMICOLON)
-            return ContinueStatement(line=tok.line, column=tok.column)
         if tok.type == TokenType.RETURN:
             return self.parse_return()
         if tok.type == TokenType.ABORT:

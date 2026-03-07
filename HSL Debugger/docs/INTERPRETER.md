@@ -601,7 +601,6 @@ def _eval_method_call(self, node):
 | HSL Statement | Python Exception | Caught By |
 |---------------|-----------------|-----------|
 | `break` | `BreakException` | For/while loop handlers |
-| `continue` | `ContinueException` | For/while loop handlers |
 | `return(value)` | `ReturnException(value)` | Function call handler |
 | `abort` | `AbortException` | Top-level execute() |
 
@@ -623,8 +622,6 @@ def _execute_for(self, node):
             self._execute_node(node.body)
         except BreakException:
             break
-        except ContinueException:
-            pass  # fall through to increment
         if node.increment:
             self._eval_expr(node.increment)
         iterations += 1

@@ -139,10 +139,6 @@ class BreakStatement(ASTNode):
     pass
 
 @dataclass
-class ContinueStatement(ASTNode):
-    pass
-
-@dataclass
 class ReturnStatement(ASTNode):
     """return or return(value)"""
     value: Any = None  # Optional expression

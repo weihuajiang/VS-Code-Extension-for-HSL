@@ -394,9 +394,6 @@ class HslEvent:
 class BreakException(Exception):
     pass
 
-class ContinueException(Exception):
-    pass
-
 class ReturnException(Exception):
     def __init__(self, value=None):
         self.value = value
@@ -640,8 +637,6 @@ class Interpreter:
             return self._execute_loop(node)
         if isinstance(node, BreakStatement):
             raise BreakException()
-        if isinstance(node, ContinueStatement):
-            raise ContinueException()
         if isinstance(node, ReturnStatement):
             value = self._eval_expr(node.value) if node.value else None
             raise ReturnException(value)
@@ -820,8 +815,6 @@ class Interpreter:
                 self._execute_node(node.body)
             except BreakException:
                 break
-            except ContinueException:
-                pass
 
             if node.update:
                 self._eval_expr(node.update)
@@ -840,8 +833,6 @@ class Interpreter:
                 self._execute_node(node.body)
             except BreakException:
                 break
-            except ContinueException:
-                pass
 
     def _execute_loop(self, node) -> None:
         """Execute a loop(N) statement -- repeat body N times."""
@@ -852,8 +843,6 @@ class Interpreter:
                 self._execute_node(node.body)
             except BreakException:
                 break
-            except ContinueException:
-                pass
 
     # ========================================================================
     # Expression evaluation

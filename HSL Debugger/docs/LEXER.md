@@ -277,7 +277,6 @@ KEYWORDS = {
     "for":           TokenType.FOR,
     "while":         TokenType.WHILE,
     "break":         TokenType.BREAK,
-    "continue":      TokenType.CONTINUE,
     "return":        TokenType.RETURN,
     "abort":         TokenType.ABORT,
     "pause":         TokenType.PAUSE,

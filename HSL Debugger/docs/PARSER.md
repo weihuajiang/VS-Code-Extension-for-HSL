@@ -180,7 +180,6 @@ Statement      → Block
                | WhileStmt
                | ReturnStmt
                | BreakStmt
-               | ContinueStmt
                | AbortStmt
                | PauseStmt
                | OnErrorStmt
@@ -202,7 +201,6 @@ WhileStmt      → 'while' '(' Expr ')' Statement
 ReturnStmt     → 'return' ['(' Expr ')'] ';'
 
 BreakStmt      → 'break' ';'
-ContinueStmt   → 'continue' ';'
 AbortStmt      → 'abort' ';'
 PauseStmt      → 'pause' ';'
 

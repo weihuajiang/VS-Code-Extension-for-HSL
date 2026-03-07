@@ -353,11 +353,10 @@ Control flow is implemented via Python exceptions:
 | HSL Statement | Python Exception |
 |---------------|-----------------|
 | `break` | `BreakException` |
-| `continue` | `ContinueException` |
 | `return(value)` | `ReturnException(value)` |
 | `abort` | `AbortException` |
 
-Loop constructs (`for`, `while`) catch `BreakException` and `ContinueException`. Function calls catch `ReturnException` to extract the return value.
+Loop constructs (`for`, `while`) catch `BreakException`. Function calls catch `ReturnException` to extract the return value.
 
 ### Safety Limits
 

@@ -241,15 +241,6 @@ class BreakStatement(ASTNode):
 
 Represents `break;` -- exits the innermost loop.
 
-### ContinueStatement
-
-```python
-class ContinueStatement(ASTNode):
-    pass  # No additional fields
-```
-
-Represents `continue;` -- skips to the next loop iteration.
-
 ### ReturnStatement
 
 ```python
@@ -439,7 +430,6 @@ ASTNode
 │   ├── ForLoop
 │   ├── WhileLoop
 │   ├── BreakStatement
-│   ├── ContinueStatement
 │   ├── ReturnStatement
 │   ├── AbortStatement
 │   ├── PauseStatement
