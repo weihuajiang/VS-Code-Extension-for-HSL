@@ -360,13 +360,30 @@ async function checkFunctionCallArity(
     }
   }
 
-  const methodCallPattern = /\b[A-Za-z_]\w*(?:\[[^\]]+\])?\s*\.\s*([A-Za-z_]\w*)\s*\(/g;
+  // Collect identifiers declared as `object` type so we can skip arity
+  // checking on their method calls — COM objects define their own methods
+  // which cannot be statically validated.
+  const objectTypedVars = new Set<string>();
+  const objectDeclPattern = /\bobject\s+(\w+)/g;
+  let objMatch: RegExpExecArray | null;
+  while ((objMatch = objectDeclPattern.exec(cleanText)) !== null) {
+    objectTypedVars.add(objMatch[1]);
+  }
+
+  const methodCallPattern = /\b([A-Za-z_]\w*)(?:\[[^\]]+\])?\s*\.\s*([A-Za-z_]\w*)\s*\(/g;
   while ((match = methodCallPattern.exec(cleanText)) !== null) {
-    const methodName = match[1];
+    const receiverName = match[1];
+    const methodName = match[2];
     // Find the actual start of the captured method name in the matched text
     const fullMatchText = match[0];
     const capturedOffset = fullMatchText.lastIndexOf(methodName);
     const methodNameIndex = match.index + capturedOffset;
+
+    // Skip arity validation for COM objects — they define their own methods
+    if (objectTypedVars.has(receiverName)) {
+      continue;
+    }
+
     const openParenIndex = methodCallPattern.lastIndex - 1;
     const closeParenIndex = findMatchingParen(cleanText, openParenIndex);
     if (closeParenIndex < 0) {
