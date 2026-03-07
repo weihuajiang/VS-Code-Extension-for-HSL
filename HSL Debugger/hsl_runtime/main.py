@@ -18,6 +18,8 @@ import sys
 import os
 import argparse
 import time
+import uuid
+from datetime import datetime
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -49,6 +51,9 @@ def main():
     parser.add_argument("--hamilton-dir", type=str,
                         default=r"C:\Program Files (x86)\Hamilton",
                         help="Hamilton installation directory")
+    parser.add_argument("--log-dir", type=str,
+                        default=None,
+                        help="Directory for trace log file output (default: <hamilton-dir>/Logfiles/vscode)")
 
     args = parser.parse_args()
 
@@ -144,6 +149,7 @@ def main():
     print("[4/4] Executing (SIMULATION)...")
     print("-" * 40)
     t0 = time.time()
+    run_id = uuid.uuid4().hex
     try:
         trace = TraceOutput(verbose=verbose)
         interp = Interpreter(trace=trace)
@@ -162,11 +168,54 @@ def main():
             traceback.print_exc()
         return 1
 
+    # === Write trace log file ===
+    log_dir = args.log_dir or os.path.join(args.hamilton_dir, "Logfiles", "vscode")
+    method_name = os.path.splitext(os.path.basename(hsl_path))[0]
+    log_filename = f"{method_name}_{run_id}_Trace.trc"
+    try:
+        os.makedirs(log_dir, exist_ok=True)
+        log_path = os.path.join(log_dir, log_filename)
+        _write_trace_log(log_path, hsl_path, trace, method_name, run_id)
+        print(f"  Trace log: {log_path}")
+    except Exception as e:
+        print(f"  Warning: Could not write trace log: {e}")
+
     print()
     print("=" * 60)
     print("  Simulation finished successfully")
     print("=" * 60)
     return 0
+
+
+def _write_trace_log(log_path: str, hsl_path: str, trace: TraceOutput,
+                     method_name: str, run_id: str):
+    """Write trace output in Hamilton .trc format."""
+    now = datetime.now()
+    with open(log_path, 'w', encoding='utf-8') as f:
+        ts = now.strftime("%Y-%m-%d %H:%M:%S.") + f"{now.microsecond // 1000:03d}"
+
+        f.write(f"{ts} Venus software version: VS Code HSL Debugger v0.1 (Simulation)\n")
+        f.write(f"{ts} SYSTEM : Analyze method - start; Method file {hsl_path}\n")
+        f.write(f"{ts} SYSTEM : Analyze method - complete; \n")
+        f.write(f"{ts} SYSTEM : Start method - start; \n")
+        f.write(f"{ts} SYSTEM : Start method - progress; User name: {os.getenv('USERNAME', 'unknown')}\n")
+        f.write(f"{ts} SYSTEM : Start method - progress; Simulation mode: VS Code HSL Debugger\n")
+        f.write(f"{ts} SYSTEM : Start method - complete; \n")
+        f.write(f"{ts} SYSTEM : Execute method - start; Method file {hsl_path}\n")
+
+        for msg in trace.messages:
+            ts = now.strftime("%Y-%m-%d %H:%M:%S.") + f"{now.microsecond // 1000:03d}"
+            # Skip internal simulator messages (=== lines, [SIM], [COM] prefixes)
+            if msg.startswith("===") or msg.startswith("[SIM]") or msg.startswith("[COM]"):
+                continue
+            if msg.startswith("WARNING:") or msg.startswith("ERROR:"):
+                f.write(f"{ts} SYSTEM : {msg}\n")
+            else:
+                f.write(f"{ts} USER : Trace - complete; {msg}\n")
+
+        f.write(f"{ts} SYSTEM : Execute method - complete; \n")
+        f.write(f"{ts} SYSTEM : End method - start; \n")
+        f.write(f"{ts} SYSTEM : End method - complete; \n")
 
 
 def _dump_ast(node, indent=0):

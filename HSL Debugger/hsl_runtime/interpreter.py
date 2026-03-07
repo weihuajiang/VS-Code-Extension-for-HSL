@@ -11,10 +11,12 @@ import os
 import sys
 import math
 import time
+import uuid
 import traceback
 from typing import Any, Optional, Callable
 from dataclasses import dataclass, field
 from .ast_nodes import *
+from .com_objects import create_com_object, GenericComObject
 
 
 # ============================================================================
@@ -170,10 +172,10 @@ class HslArray:
 
 
 class HslSequence:
-    """HSL sequence - ordered list of labware positions (simulation stub)."""
+    """HSL sequence - ordered list of labware positions."""
     def __init__(self, name: str = ""):
         self.name = name
-        self.positions: list[dict] = []  # [{labware_id, position_id, properties}]
+        self.positions: list[dict] = []  # [{labware_id, position_id}]
         self.current_pos = 1
         self.max_pos = 0
         self.count = 0
@@ -202,11 +204,29 @@ class HslSequence:
     def get_name(self) -> str:
         return self.name
 
+    def add(self, labware_id: str, position_id: str):
+        """Add a position to the sequence."""
+        self.positions.append({'labware_id': labware_id, 'position_id': position_id})
+
+    def get_position_id(self) -> str:
+        """Get position ID at the current position (1-based)."""
+        idx = self.current_pos - 1
+        if 0 <= idx < len(self.positions):
+            return self.positions[idx]['position_id']
+        return ""
+
+    def get_labware_id(self) -> str:
+        """Get labware ID at the current position (1-based)."""
+        idx = self.current_pos - 1
+        if 0 <= idx < len(self.positions):
+            return self.positions[idx]['labware_id']
+        return ""
+
     def increment(self, n: int = 1):
         self.current_pos += n
 
     def __repr__(self):
-        return f"HslSequence({self.name!r}, pos={self.current_pos})"
+        return f"HslSequence({self.name!r}, pos={self.current_pos}, total={len(self.positions)})"
 
 
 class HslDevice:
@@ -266,15 +286,30 @@ class HslFile:
 
 
 class HslObject:
-    """HSL COM object - simulation stub. No real COM interaction."""
+    """HSL COM object wrapper. Uses real Python-backed COM implementations
+    when available, falls back to a generic property bag."""
     def __init__(self):
         self.prog_id = ""
         self.properties: dict[str, Any] = {}
+        self._com_impl = None  # Real Python-backed COM object
 
     def create_object(self, prog_id: str, *args):
         self.prog_id = prog_id
-        # In simulation, just log the creation
-        return HslValue(1)  # Success
+        # Try to create a real Python-backed COM implementation
+        impl = create_com_object(prog_id)
+        if impl is not None:
+            self._com_impl = impl
+        else:
+            self._com_impl = GenericComObject(prog_id)
+        return HslValue(1)
+
+    def call_method(self, method_name: str, args: list) -> Any:
+        """Call a method on the underlying COM implementation."""
+        if self._com_impl is not None:
+            func = getattr(self._com_impl, method_name, None)
+            if func and callable(func):
+                return func(*args)
+        return None
 
     def __getattr__(self, name):
         if name.startswith('_') or name in ('prog_id', 'properties'):
@@ -697,6 +732,25 @@ class Interpreter:
         """Assign a value to a target (identifier, array access, member access)."""
         if isinstance(target, Identifier):
             existing = self.current_scope.get(target.name)
+            # If not found in current scope, try namespace-qualified name
+            if existing is None and '::' not in target.name and self.call_stack:
+                caller = self.call_stack[-1]
+                if '::' in caller:
+                    parts = caller.split('::')
+                    for depth in range(len(parts) - 1, 0, -1):
+                        ns_prefix = '::'.join(parts[:depth])
+                        qualified = f"{ns_prefix}::{target.name}"
+                        existing = self.current_scope.get(qualified)
+                        if existing is None:
+                            existing = self.global_scope.get(qualified)
+                        if existing is not None:
+                            # Found it -- assign to the qualified name
+                            if isinstance(existing, HslValue):
+                                existing.value = self._to_python(value)
+                            else:
+                                self.global_scope.set(qualified,
+                                    value if isinstance(value, HslValue) else HslValue(value))
+                            return
             if isinstance(existing, HslValue):
                 existing.value = self._to_python(value)
             elif existing is None:
@@ -856,6 +910,23 @@ class Interpreter:
         val = self.current_scope.get(name)
         if val is not None:
             return val
+
+        # Try resolving relative to the current namespace context
+        if '::' not in name and self.call_stack:
+            caller = self.call_stack[-1]
+            if '::' in caller:
+                parts = caller.split('::')
+                for depth in range(len(parts) - 1, 0, -1):
+                    ns_prefix = '::'.join(parts[:depth])
+                    qualified = f"{ns_prefix}::{name}"
+                    val = self.current_scope.get(qualified)
+                    if val is not None:
+                        return val
+                    # Also check global scope directly
+                    val = self.global_scope.get(qualified)
+                    if val is not None:
+                        return val
+
         # Check namespaces
         for ns_name, ns_dict in self.namespaces.items():
             if name in ns_dict:
@@ -1336,6 +1407,15 @@ class Interpreter:
         if name in ('Translate', '::Translate'):
             return args[0] if args else HslValue("")
 
+        # GetUniqueRunId -- returns a 32-char hex string (no dashes)
+        if name in ('GetUniqueRunId', '::GetUniqueRunId'):
+            run_id = uuid.uuid4().hex
+            return HslValue(run_id)
+
+        # GetSimulationMode
+        if name in ('GetSimulationMode', '::GetSimulationMode'):
+            return HslValue(1)  # Always simulation
+
         # RegisterAbortHandler
         if name in ('RegisterAbortHandler', '::RegisterAbortHandler'):
             self.trace.trace(f"[SIM] RegisterAbortHandler: {self._to_python(args[0]) if args else 'none'}")
@@ -1412,16 +1492,37 @@ class Interpreter:
 
     def _call_function(self, name: str, args: list) -> Any:
         """Call a user-defined HSL function."""
+        resolved_name = name
         # Try exact name
         func = self.functions.get(name)
 
         # Try with _Method:: prefix
         if func is None:
-            func = self.functions.get(f"_Method::{name}")
+            candidate = f"_Method::{name}"
+            func = self.functions.get(candidate)
+            if func is not None:
+                resolved_name = candidate
 
         # Try stripping _Method:: prefix
         if func is None and name.startswith("_Method::"):
-            func = self.functions.get(name[len("_Method::"):])
+            candidate = name[len("_Method::"):]
+            func = self.functions.get(candidate)
+            if func is not None:
+                resolved_name = candidate
+
+        # Try resolving relative to the current namespace context
+        if func is None and '::' not in name and self.call_stack:
+            caller = self.call_stack[-1]
+            if '::' in caller:
+                # Try each parent namespace level
+                parts = caller.split('::')
+                for depth in range(len(parts) - 1, 0, -1):
+                    ns_prefix = '::'.join(parts[:depth])
+                    candidate = f"{ns_prefix}::{name}"
+                    func = self.functions.get(candidate)
+                    if func is not None:
+                        resolved_name = candidate
+                        break
 
         # Try as built-in one more time
         if func is None:
@@ -1442,7 +1543,7 @@ class Interpreter:
         # Create new scope for function
         old_scope = self.current_scope
         self.current_scope = Scope(parent=self.global_scope)
-        self.call_stack.append(name)
+        self.call_stack.append(resolved_name)
 
         # Bind parameters
         for i, param in enumerate(func.parameters):
@@ -1522,10 +1623,13 @@ class Interpreter:
             seq.increment(int(self._to_python(args[0])) if args else 1)
             return HslValue(0)
         if method == 'GetLabwareId':
-            return HslValue("")
+            return HslValue(seq.get_labware_id())
         if method == 'GetPositionId':
-            return HslValue("")
+            return HslValue(seq.get_position_id())
         if method == 'Add':
+            labware_id = str(self._to_python(args[0])) if args else ""
+            position_id = str(self._to_python(args[1])) if len(args) > 1 else ""
+            seq.add(labware_id, position_id)
             return HslValue(0)
         if method == 'SetUsedPositions':
             return HslValue(0)
@@ -1640,13 +1744,33 @@ class Interpreter:
         """Handle COM object method calls."""
         if method == 'CreateObject':
             prog_id = str(self._to_python(args[0])) if args else ""
-            self.trace.trace(f"[SIM] Object.CreateObject({prog_id})")
-            obj.prog_id = prog_id
+            obj.create_object(prog_id)
+            if obj._com_impl is not None and not isinstance(obj._com_impl, GenericComObject):
+                self.trace.trace(f"[COM] Object.CreateObject({prog_id}) -- using Python implementation")
+            else:
+                self.trace.trace(f"[SIM] Object.CreateObject({prog_id}) -- generic stub")
             return HslValue(1)
         if method == 'GetObject':
             return HslObject()
 
-        self.trace.trace(f"[SIM] Object.{method}({', '.join(str(self._to_python(a)) for a in args)})")
+        # Try calling the method on the real COM implementation
+        py_args = [self._to_python(a) for a in args]
+        try:
+            result = obj.call_method(method, py_args)
+            if result is not None:
+                self.trace.trace(f"[COM] {obj.prog_id}.{method}({', '.join(str(a) for a in py_args)})")
+                if isinstance(result, str):
+                    return HslValue(result)
+                elif isinstance(result, (int, float)):
+                    return HslValue(result)
+                elif result is None:
+                    return HslValue(0)
+                return HslValue(str(result))
+        except Exception as e:
+            self.trace.error(f"[COM] {obj.prog_id}.{method}() failed: {e}")
+            return HslValue(0)
+
+        self.trace.trace(f"[SIM] Object.{method}({', '.join(str(a) for a in py_args)})")
         return HslValue(0)
 
     def _call_timer_method(self, timer: HslTimer, method: str, args: list) -> Any:
