@@ -1292,7 +1292,7 @@ function checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics) {
     // Find `method main()` body -- we only enforce this in main since that is
     // the entry point where Initialize must be called.  Library functions
     // receive an already-initialised device reference.
-    const mainMethodPattern = /\bmethod\s+main\s*\(/g;
+    const mainMethodPattern = /\bmethod\s+main\s*\(/gi;
     const mainMatch = mainMethodPattern.exec(fullText);
     if (!mainMatch) {
         return;
