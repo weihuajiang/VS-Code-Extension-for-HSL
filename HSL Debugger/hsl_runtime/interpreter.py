@@ -534,7 +534,6 @@ class Interpreter:
         self.trace.trace(f"=== HSL Simulation Runtime v0.1 ===")
         self.trace.trace(f"Source: {program.source_file}")
         self.trace.trace(f"SIMULATION MODE - No hardware interaction")
-        self.trace.trace(f"=" * 40)
 
         # First pass: collect all function/method/namespace declarations
         self._collect_declarations(program.declarations)
@@ -1201,7 +1200,7 @@ class Interpreter:
 
         if name == 'FormatTrace' or name == '::FormatTrace':
             msg = " ".join(str(self._to_python(a)) for a in args)
-            self.trace.trace(f"[FormatTrace] {msg}")
+            self.trace.trace(msg)
             return HslValue(0)
 
         # Type conversion

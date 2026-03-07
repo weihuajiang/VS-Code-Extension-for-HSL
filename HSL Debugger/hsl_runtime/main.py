@@ -19,6 +19,7 @@ import os
 import argparse
 import time
 import uuid
+import winreg
 from datetime import datetime
 
 # Add parent directory to path
@@ -175,7 +176,8 @@ def main():
     try:
         os.makedirs(log_dir, exist_ok=True)
         log_path = os.path.join(log_dir, log_filename)
-        _write_trace_log(log_path, hsl_path, trace, method_name, run_id)
+        _write_trace_log(log_path, hsl_path, trace, method_name, run_id,
+                        hamilton_dir=args.hamilton_dir)
         print(f"  Trace log: {log_path}")
     except Exception as e:
         print(f"  Warning: Could not write trace log: {e}")
@@ -187,35 +189,128 @@ def main():
     return 0
 
 
+# Internal trace messages that should NOT appear in the .trc file.
+# These are runtime status messages, not user Trace() calls.
+_INTERNAL_TRACE_PREFIXES = (
+    "=== ",            # "=== HSL Simulation Runtime..." / "=== Simulation complete ==="
+    "[SIM] ",          # Simulated device stubs
+    "[COM] ",          # COM dispatch logs
+    "Source: ",        # Runtime source file echo
+    "SIMULATION MODE", # Runtime mode banner
+    "Executing ",      # "Executing main()..."
+    "Method aborted",
+    "Method returned",
+    "ABORT called",
+    "PAUSE (simulation",
+)
+
+
+def _get_venus_version(hamilton_dir: str) -> str:
+    """Read the installed Venus software version from the Windows registry.
+    Falls back to 'VS Code HSL Debugger v0.1 (Simulation)' if not found."""
+    try:
+        key = winreg.OpenKey(
+            winreg.HKEY_LOCAL_MACHINE,
+            r"SOFTWARE\WOW6432Node\Hamilton\Venus",
+            0,
+            winreg.KEY_READ,
+        )
+        version, _ = winreg.QueryValueEx(key, "Version")
+        winreg.CloseKey(key)
+        return str(version)
+    except OSError:
+        pass
+    return "VS Code HSL Debugger v0.1 (Simulation)"
+
+
+def _get_phoenix_version(hamilton_dir: str) -> str:
+    """Read the Phoenix (HxRun.exe) file version. Returns '' if not found."""
+    hxrun = os.path.join(hamilton_dir, "Bin", "HxRun.exe")
+    if not os.path.isfile(hxrun):
+        return ""
+    try:
+        # Use ctypes to read the file version resource
+        import ctypes
+        from ctypes import wintypes
+        size = ctypes.windll.version.GetFileVersionInfoSizeW(hxrun, None)
+        if not size:
+            return ""
+        buf = ctypes.create_string_buffer(size)
+        ctypes.windll.version.GetFileVersionInfoW(hxrun, 0, size, buf)
+        # Query the root block for VS_FIXEDFILEINFO
+        p = ctypes.c_void_p()
+        length = wintypes.UINT()
+        ctypes.windll.version.VerQueryValueW(
+            buf, r"\\", ctypes.byref(p), ctypes.byref(length)
+        )
+        if not length.value:
+            return ""
+        # VS_FIXEDFILEINFO struct: first two DWORDs after signature are
+        # dwFileVersionMS and dwFileVersionLS
+        info = ctypes.cast(p, ctypes.POINTER(ctypes.c_uint32 * 13)).contents
+        ms = info[2]  # dwFileVersionMS
+        ls = info[3]  # dwFileVersionLS
+        return f"{ms >> 16}.{ms & 0xFFFF}.{ls >> 16}.{ls & 0xFFFF}"
+    except Exception:
+        return ""
+
+
 def _write_trace_log(log_path: str, hsl_path: str, trace: TraceOutput,
-                     method_name: str, run_id: str):
-    """Write trace output in Hamilton .trc format."""
+                     method_name: str, run_id: str, hamilton_dir: str = ""):
+    """Write trace output in Hamilton .trc format.
+
+    The output replicates the format produced by the Hamilton VENUS Run Control
+    engine (HxRun.exe) so that existing log-analysis tools can parse it.
+    """
+    if not hamilton_dir:
+        hamilton_dir = r"C:\Program Files (x86)\Hamilton"
+
+    venus_ver = _get_venus_version(hamilton_dir)
+    phoenix_ver = _get_phoenix_version(hamilton_dir)
+    username = os.getenv("USERNAME", "unknown")
+
     now = datetime.now()
+
+    def _ts():
+        n = datetime.now()
+        return n.strftime("%Y-%m-%d %H:%M:%S.") + f"{n.microsecond // 1000:03d}"
+
     with open(log_path, 'w', encoding='utf-8') as f:
-        ts = now.strftime("%Y-%m-%d %H:%M:%S.") + f"{now.microsecond // 1000:03d}"
+        # -- Header (matches HxRun.exe output line-for-line) --
+        f.write(f"{_ts()} Venus software version: {venus_ver}\n")
+        f.write(f"{_ts()} SYSTEM : Analyze method - start; Method file {hsl_path}\n")
+        f.write(f"{_ts()} SYSTEM : Analyze method - complete; \n")
+        f.write(f"{_ts()} SYSTEM : Start method - start; \n")
+        f.write(f"{_ts()} SYSTEM : Start method - progress; User name: {username}\n")
+        if phoenix_ver:
+            f.write(f"{_ts()} SYSTEM : Start method - progress; Phoenix software version: {phoenix_ver}\n")
+        f.write(f"{_ts()} SYSTEM : Start method - progress; Database version: Standard\n")
+        f.write(f"{_ts()} SYSTEM : Start method - progress; Sample tracking: Off\n")
+        f.write(f"{_ts()} SYSTEM : Start method - progress; Vector Database: Off\n")
+        f.write(f"{_ts()} SYSTEM : Start method - progress; Simulation mode: VS Code HSL Debugger\n")
+        f.write(f"{_ts()} SYSTEM : Start method - complete; \n")
+        f.write(f"{_ts()} SYSTEM : Execute method - start; Method file {hsl_path}\n")
 
-        f.write(f"{ts} Venus software version: VS Code HSL Debugger v0.1 (Simulation)\n")
-        f.write(f"{ts} SYSTEM : Analyze method - start; Method file {hsl_path}\n")
-        f.write(f"{ts} SYSTEM : Analyze method - complete; \n")
-        f.write(f"{ts} SYSTEM : Start method - start; \n")
-        f.write(f"{ts} SYSTEM : Start method - progress; User name: {os.getenv('USERNAME', 'unknown')}\n")
-        f.write(f"{ts} SYSTEM : Start method - progress; Simulation mode: VS Code HSL Debugger\n")
-        f.write(f"{ts} SYSTEM : Start method - complete; \n")
-        f.write(f"{ts} SYSTEM : Execute method - start; Method file {hsl_path}\n")
-
+        # -- User trace messages --
         for msg in trace.messages:
-            ts = now.strftime("%Y-%m-%d %H:%M:%S.") + f"{now.microsecond // 1000:03d}"
-            # Skip internal simulator messages (=== lines, [SIM], [COM] prefixes)
-            if msg.startswith("===") or msg.startswith("[SIM]") or msg.startswith("[COM]"):
+            # Skip internal runtime messages
+            skip = False
+            for prefix in _INTERNAL_TRACE_PREFIXES:
+                if msg.startswith(prefix):
+                    skip = True
+                    break
+            if skip:
                 continue
-            if msg.startswith("WARNING:") or msg.startswith("ERROR:"):
-                f.write(f"{ts} SYSTEM : {msg}\n")
-            else:
-                f.write(f"{ts} USER : Trace - complete; {msg}\n")
 
-        f.write(f"{ts} SYSTEM : Execute method - complete; \n")
-        f.write(f"{ts} SYSTEM : End method - start; \n")
-        f.write(f"{ts} SYSTEM : End method - complete; \n")
+            if msg.startswith("WARNING:") or msg.startswith("ERROR:"):
+                f.write(f"{_ts()} SYSTEM : {msg}\n")
+            else:
+                f.write(f"{_ts()} USER : Trace - complete; {msg}\n")
+
+        # -- Footer --
+        f.write(f"{_ts()} SYSTEM : Execute method - complete; \n")
+        f.write(f"{_ts()} SYSTEM : End method - start; \n")
+        f.write(f"{_ts()} SYSTEM : End method - complete; \n")
 
 
 def _dump_ast(node, indent=0):
