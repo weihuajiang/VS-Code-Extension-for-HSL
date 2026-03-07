@@ -3,6 +3,7 @@ import { BUILTIN_FUNCTIONS, ELEMENT_FUNCTIONS } from "./builtins";
 import { getHslIndexService } from "./hslIntellisense";
 import { execFile } from "child_process";
 import * as path from "path";
+import * as fs from "fs";
 /**
  * Creates and returns a DiagnosticCollection that validates HSL syntax.
  * Currently checks for:
@@ -29,13 +30,20 @@ export function createHslDiagnostics(
   context.subscriptions.push(
     vscode.workspace.onDidSaveTextDocument((doc) => {
       if (doc.languageId === "hsl") {
-        // Use 32-bit PowerShell to invoke the Hamilton COM object directly
-        const ps32 = path.join(
-          process.env.SystemRoot || "C:\\Windows",
-          "SysWOW64", "WindowsPowerShell", "v1.0", "powershell.exe"
+        // Use the compiled AddCheckSum.exe (.NET wrapper around
+        // IHxSecurityFileCom2::SetFileValidation).  The exe ships in
+        // the extension's out/ directory and targets x86/.NET 4.8 so
+        // it can instantiate the 32-bit Hamilton COM object.
+        const addCheckSumExe = path.join(
+          context.extensionPath, "out", "AddCheckSum.exe"
         );
-        const psCommand = `$obj = New-Object -ComObject Hamilton.HxSecurityCom; $obj.SetFileValidation('${doc.fileName.replace(/'/g, "''")}', 0, '//')`;
-        execFile(ps32, ["-NoProfile", "-Command", psCommand], (err) => {
+        if (!fs.existsSync(addCheckSumExe)) {
+          vscode.window.showWarningMessage(
+            `HSL Checksum update skipped: AddCheckSum.exe not found at ${addCheckSumExe}`
+          );
+          return;
+        }
+        execFile(addCheckSumExe, [doc.fileName], (err) => {
           if (err) {
             vscode.window.showWarningMessage(
               `HSL Checksum update failed: ${err.message}`
@@ -150,6 +158,9 @@ async function refreshDiagnostics(
 
   // Check that every function has both a declaration (prototype) and definition (implementation)
   checkFunctionDeclarationDefinitionPairing(document, ignoredRanges, diagnostics);
+
+  // Check that ML_STAR is initialized before use
+  checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics);
 
   collection.set(document.uri, diagnostics);
 }
@@ -1574,4 +1585,149 @@ function splitArgsForSignature(paramList: string): string[] {
     parts.push(current.trim());
   }
   return parts.filter((p) => p.length > 0);
+}
+
+// ── Initialize step enforcement ─────────────────────────────────────────
+
+/** The Initialize CLSID (underscore format) used in ML_STAR._<CLSID>() calls. */
+const INITIALIZE_CLSID = "1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2";
+
+/**
+ * Detects when ML_STAR (or any device object) is used in a `method main()`
+ * body without a preceding Initialize step.  The Initialize step
+ * (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2(...)`) must be called
+ * before any other device commands can execute.
+ *
+ * Reports an error on the first device usage line that appears before
+ * (or without) the Initialize call.
+ */
+function checkInitializeBeforeDeviceUse(
+  document: vscode.TextDocument,
+  ignoredRanges: OffsetRange[],
+  diagnostics: vscode.Diagnostic[]
+): void {
+  const fullText = document.getText();
+
+  // Find `method main()` body — we only enforce this in main since that is
+  // the entry point where Initialize must be called.  Library functions
+  // receive an already-initialised device reference.
+  const mainMethodPattern = /\bmethod\s+main\s*\(/g;
+  const mainMatch = mainMethodPattern.exec(fullText);
+  if (!mainMatch) {
+    return;
+  }
+
+  // Find the opening brace of main()
+  let mainBodyStart = -1;
+  for (let i = mainMatch.index + mainMatch[0].length; i < fullText.length; i++) {
+    if (fullText[i] === "{") {
+      mainBodyStart = i;
+      break;
+    }
+  }
+  if (mainBodyStart < 0) {
+    return;
+  }
+
+  // Find the matching closing brace
+  let depth = 0;
+  let mainBodyEnd = -1;
+  for (let i = mainBodyStart; i < fullText.length; i++) {
+    if (isInsideIgnoredRange(i, ignoredRanges)) {
+      continue;
+    }
+    if (fullText[i] === "{") {
+      depth++;
+    } else if (fullText[i] === "}") {
+      depth--;
+      if (depth === 0) {
+        mainBodyEnd = i;
+        break;
+      }
+    }
+  }
+  if (mainBodyEnd < 0) {
+    mainBodyEnd = fullText.length;
+  }
+
+  const mainBody = fullText.slice(mainBodyStart, mainBodyEnd + 1);
+  const mainBodyOffset = mainBodyStart;
+
+  // Detect `global device` declarations to learn device variable names.
+  // Default to ML_STAR if none found.
+  const deviceNames = new Set<string>();
+  const globalDevicePattern = /\bglobal\s+device\s+([A-Za-z_]\w*)/g;
+  let devMatch: RegExpExecArray | null;
+  while ((devMatch = globalDevicePattern.exec(fullText)) !== null) {
+    deviceNames.add(devMatch[1]);
+  }
+  if (deviceNames.size === 0) {
+    deviceNames.add("ML_STAR");
+  }
+
+  // Build a pattern that matches:
+  //   DEVICE._<any CLSID>( ... )   — device step calls
+  // We check for the Initialize CLSID specifically.
+  const deviceNamesEscaped = Array.from(deviceNames)
+    .map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
+
+  // Find the Initialize call within main body
+  const initPattern = new RegExp(
+    `\\b(?:${deviceNamesEscaped})\\._${INITIALIZE_CLSID}\\s*\\(`,
+    "i"
+  );
+  const initMatch = initPattern.exec(mainBody);
+  const initOffset = initMatch
+    ? mainBodyOffset + initMatch.index
+    : -1;
+
+  // Find ALL device step calls (DEVICE._CLSID(...)) in main body
+  const deviceStepPattern = new RegExp(
+    `\\b(${deviceNamesEscaped})\\._([0-9A-Fa-f_]+)\\s*\\(`,
+    "gi"
+  );
+  let stepMatch: RegExpExecArray | null;
+
+  while ((stepMatch = deviceStepPattern.exec(mainBody)) !== null) {
+    const absoluteOffset = mainBodyOffset + stepMatch.index;
+
+    // Skip if inside a comment or string
+    if (isInsideIgnoredRange(absoluteOffset, ignoredRanges)) {
+      continue;
+    }
+
+    const clsid = stepMatch[2];
+
+    // Skip the Initialize call itself
+    if (clsid.toUpperCase() === INITIALIZE_CLSID) {
+      continue;
+    }
+
+    // If Initialize was never found, or this call appears before it
+    if (initOffset < 0 || absoluteOffset < initOffset) {
+      const pos = document.positionAt(absoluteOffset);
+      const endPos = document.positionAt(
+        absoluteOffset + stepMatch[0].length - 1
+      );
+      const range = new vscode.Range(pos, endPos);
+
+      const deviceName = stepMatch[1];
+      const diag = new vscode.Diagnostic(
+        range,
+        `Device '${deviceName}' is used before the Initialize step. ` +
+          `The Initialize step (${deviceName}._${INITIALIZE_CLSID}(...)) ` +
+          `must be called before any other instrument commands. Without it, ` +
+          `the instrument hardware is not initialised and all subsequent ` +
+          `device commands will fail at runtime.`,
+        vscode.DiagnosticSeverity.Error
+      );
+      diag.source = "hsl";
+      diag.code = "missing-initialize-step";
+      diagnostics.push(diag);
+
+      // Only flag the first occurrence — one error is enough
+      return;
+    }
+  }
 }

@@ -107,11 +107,43 @@ For the step above, the `.stp` file contains:
 
 ---
 
+## Initialize Step Requirement (Critical)
+
+The **Initialize** step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("guid")`) **must** be called inside `method main()` before **any** other instrument commands that use the device object (typically `ML_STAR`). This includes — but is not limited to — all pipetting steps (Aspirate, Dispense, TipPickUp, TipEject), carrier movements (LoadCarrier, UnloadCarrier, MoveAutoLoad), and CO-RE 96 head operations (Head96Aspirate, Head96Dispense, Head96TipPickUp, Head96TipEject).
+
+Without the Initialize step the instrument hardware is **not** initialised. Every subsequent device command will fail at runtime.
+
+### Rules
+
+1. **One Initialize per `method main()`**: Place the Initialize call early in `method main()`, before any `ML_STAR._*` call.
+2. **Not needed in library functions**: Functions and sub-methods receive an already-initialised `device &` reference; they must not call Initialize again.
+3. **Omitting Initialize is a critical syntax error**: The VS Code extension flags the first `ML_STAR` device call that appears before (or without) an Initialize step as an error.
+4. **The Hamilton Method Editor adds this automatically** when you graphically insert an "Initialize" step, but hand-written HSL must include it explicitly.
+
+### Example
+
+```hsl
+method main()
+{
+    // Initialize MUST come first
+    ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("62b7b0ef_8e71_4cd4_8763df32a80db666"); // Initialize
+
+    // Now device commands are safe
+    ML_STAR._541143FA_7FA2_11D3_AD85_0004ACB1DCB2("..."); // TipPickUp
+    ML_STAR._541143F5_7FA2_11D3_AD85_0004ACB1DCB2("..."); // Aspirate
+    ML_STAR._541143F8_7FA2_11D3_AD85_0004ACB1DCB2("..."); // Dispense
+    ML_STAR._541143FC_7FA2_11D3_AD85_0004ACB1DCB2("..."); // TipEject
+}
+```
+
+---
+
 ## Common Validation Checks
 
 When reviewing pipetting steps, check for these potential issues:
 
-1. **Volume out of range**: Aspirate/dispense volumes should be within the tip type's capacity (e.g., 0-1000 µL for 1000 µL tips, 0-5000 µL for 5 mL tips).
+1. **Missing Initialize step**: If `method main()` uses any `ML_STAR._<CLSID>(...)` call without a preceding Initialize step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2`), the program will fail at runtime. This is a critical error.
+2. **Volume out of range**: Aspirate/dispense volumes should be within the tip type's capacity (e.g., 0-1000 µL for 1000 µL tips, 0-5000 µL for 5 mL tips).
 2. **Mix volume vs aspirate volume**: Mix volume should generally be ≤ the tip capacity and appropriate for the vessel.
 3. **Mix cycles = 0 with non-zero mix volume**: Likely an error — mix won't execute without cycles.
 4. **LLD off with submerge depth**: If LLD is off, the submerge depth is relative to container bottom, not liquid surface. Verify this is intentional.
