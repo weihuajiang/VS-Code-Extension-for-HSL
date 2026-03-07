@@ -153,7 +153,10 @@ class HslArray:
         return len(self.data)
 
     def add_as_last(self, value):
-        self.data.append(HslValue(value) if not isinstance(value, HslValue) else value)
+        if isinstance(value, HslValue):
+            self.data.append(HslValue(value._value))  # Copy to avoid shared refs
+        else:
+            self.data.append(HslValue(value))
 
     def get_at(self, index: int) -> HslValue:
         if 0 <= index < len(self.data):
@@ -162,7 +165,10 @@ class HslArray:
 
     def set_at(self, index: int, value):
         if 0 <= index < len(self.data):
-            self.data[index] = HslValue(value) if not isinstance(value, HslValue) else value
+            if isinstance(value, HslValue):
+                self.data[index] = HslValue(value._value)  # Copy to avoid shared refs
+            else:
+                self.data[index] = HslValue(value)
 
     def element_at(self, index: int) -> HslValue:
         return self.get_at(index)
@@ -716,7 +722,10 @@ class Interpreter:
             # variable
             if decl.initializer is not None:
                 val = self._eval_expr(decl.initializer)
-                if not isinstance(val, HslValue):
+                if isinstance(val, HslValue):
+                    # Always copy to avoid shared references with builtins
+                    val = HslValue(val._value)
+                else:
                     val = HslValue(val)
             else:
                 val = HslValue(0)
@@ -732,12 +741,6 @@ class Interpreter:
         """Assign a value to a target (identifier, array access, member access)."""
         if isinstance(target, Identifier):
             existing = self.current_scope.get(target.name)
-            # DEBUG: trace _blnInitialized assignment
-            if target.name == '_blnInitialized':
-                py_val = self._to_python(value) if isinstance(value, HslValue) else value
-                print(f"[DEBUG _assign_to] _blnInitialized = {py_val}, existing={existing}, "
-                      f"type(existing)={type(existing).__name__}, "
-                      f"call_stack={self.call_stack[-1] if self.call_stack else 'EMPTY'}")
             # If not found in current scope, try namespace-qualified name
             if existing is None and '::' not in target.name and self.call_stack:
                 caller = self.call_stack[-1]
@@ -915,9 +918,6 @@ class Interpreter:
         """Resolve a variable name to its value."""
         val = self.current_scope.get(name)
         if val is not None:
-            # DEBUG: trace _blnInitialized reads
-            if name == '_blnInitialized':
-                print(f"[DEBUG _resolve] _blnInitialized found in current_scope = {val.value if isinstance(val, HslValue) else val}")
             return val
 
         # Try resolving relative to the current namespace context
@@ -934,9 +934,6 @@ class Interpreter:
                     # Also check global scope directly
                     val = self.global_scope.get(qualified)
                     if val is not None:
-                        # DEBUG: trace _blnInitialized namespace reads
-                        if name == '_blnInitialized':
-                            print(f"[DEBUG _resolve] _blnInitialized found via namespace in global = {val.value if isinstance(val, HslValue) else val} (qualified={qualified})")
                         return val
 
         # Check namespaces
@@ -1767,20 +1764,22 @@ class Interpreter:
 
         # Try calling the method on the real COM implementation
         py_args = [self._to_python(a) for a in args]
-        try:
-            result = obj.call_method(method, py_args)
-            if result is not None:
-                self.trace.trace(f"[COM] {obj.prog_id}.{method}({', '.join(str(a) for a in py_args)})")
-                if isinstance(result, str):
-                    return HslValue(result)
-                elif isinstance(result, (int, float)):
-                    return HslValue(result)
-                elif result is None:
+        if obj._com_impl is not None:
+            func = getattr(obj._com_impl, method, None)
+            if func and callable(func):
+                try:
+                    result = func(*py_args)
+                    self.trace.trace(f"[COM] {obj.prog_id}.{method}({', '.join(str(a) for a in py_args)})")
+                    if result is None:
+                        return HslValue(0)
+                    elif isinstance(result, str):
+                        return HslValue(result)
+                    elif isinstance(result, (int, float)):
+                        return HslValue(result)
+                    return HslValue(str(result))
+                except Exception as e:
+                    self.trace.error(f"[COM] {obj.prog_id}.{method}() failed: {e}")
                     return HslValue(0)
-                return HslValue(str(result))
-        except Exception as e:
-            self.trace.error(f"[COM] {obj.prog_id}.{method}() failed: {e}")
-            return HslValue(0)
 
         self.trace.trace(f"[SIM] Object.{method}({', '.join(str(a) for a in py_args)})")
         return HslValue(0)
