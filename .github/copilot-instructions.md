@@ -14,6 +14,10 @@ This VS Code extension supports Hamilton Standard Language (HSL) files for Hamil
 
 HSL and the VENUS toolchain do **not** handle Unicode dashes correctly. Inserting an em dash or en dash into any file can cause silent corruption, compile failures, or runtime errors. **There is no valid use case for these characters in this workspace.**
 
+More broadly, **all non-ASCII characters** (smart quotes, arrows, non-breaking spaces, accented letters, etc.) should be avoided in `.hsl`, `.sub`, and related files. The VENUS compiler is a Win32 application that reads source files as ANSI/Windows-1252. UTF-8 multi-byte sequences (e.g., em dash U+2014 = bytes `E2 80 94`) are misinterpreted: byte `0x94` becomes a right double quotation mark in Windows-1252, corrupting the parser state and producing cascading syntax errors far from the actual offending character.
+
+The VS Code extension enforces this rule with diagnostic code `non-ascii-character`. Any character outside printable ASCII (`0x20`-`0x7E`), tab, carriage return, or line feed is flagged as an error -- even inside comments and strings, because VENUS processes the raw bytes before parsing.
+
 ---
 
 ## How Pipetting Steps Appear in HSL Code
@@ -154,7 +158,8 @@ method main()
 
 When reviewing pipetting steps, check for these potential issues:
 
-1. **Missing Initialize step**: If `method main()` uses any `ML_STAR._<CLSID>(...)` call without a preceding Initialize step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2`), the program will fail at runtime. This is a critical error.
+1. **Non-ASCII characters in source files**: Any character outside printable ASCII (em dashes, en dashes, smart quotes, arrows, non-breaking spaces, etc.) will cause the VENUS compiler to misinterpret the file. The extension flags these with diagnostic code `non-ascii-character`. Replace em dashes with `--`, en dashes with `-`, smart quotes with straight quotes, and remove or replace any other non-ASCII characters.
+2. **Missing Initialize step**: If `method main()` uses any `ML_STAR._<CLSID>(...)` call without a preceding Initialize step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2`), the program will fail at runtime. This is a critical error.
 2. **Volume out of range**: Aspirate/dispense volumes should be within the tip type's capacity (e.g., 0-1000 µL for 1000 µL tips, 0-5000 µL for 5 mL tips).
 2. **Mix volume vs aspirate volume**: Mix volume should generally be ≤ the tip capacity and appropriate for the vessel.
 3. **Mix cycles = 0 with non-zero mix volume**: Likely an error -- mix won't execute without cycles.

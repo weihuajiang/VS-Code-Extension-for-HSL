@@ -45,6 +45,7 @@ const fs = __importStar(require("fs"));
  * Currently checks for:
  *   - `=+` which should be `= +` (assign positive) or `= ++` (assign pre-increment)
  *   - `=-` which should be `= -` (assign negative) or `= --` (assign pre-decrement)
+ *   - Non-ASCII characters (em dashes, en dashes, smart quotes, etc.)
  *   - Variable declarations that are not at the top of their code block
  *   - `continue` keyword usage (not supported in HSL)
  */
@@ -132,6 +133,8 @@ async function refreshDiagnostics(document, collection) {
             diagnostics.push(diag);
         }
     }
+    // Check for non-ASCII characters (em dashes, en dashes, smart quotes, etc.)
+    checkNonAsciiCharacters(document, diagnostics);
     // Check for unsupported 'continue' keyword
     checkContinueKeyword(document, ignoredRanges, diagnostics);
     // Check that all variable declarations are at the top of their scope
@@ -678,6 +681,57 @@ const PREPROCESSOR_LINE = /^\s*#/;
  * e.g. `namespace _Method { #include "Lib\\File.hsl" }`.
  */
 const INLINE_INCLUDE_NAMESPACE = /^\s*(?:(?:private|static|const|global|synchronized)\s+)*namespace\b[^{}]*\{\s*#\s*include\b[^{}]*\}\s*;?\s*$/i;
+// ── Non-ASCII character detection ────────────────────────────────────────
+/**
+ * Flags non-ASCII characters (em dashes, en dashes, smart quotes, etc.)
+ * that cause silent corruption or compile failures in the VENUS toolchain.
+ * The VENUS compiler reads files as ANSI/Windows-1252, so UTF-8 multi-byte
+ * sequences (e.g. em dash U+2014 = 0xE2 0x80 0x94) are misinterpreted --
+ * 0x94 in Windows-1252 is a right double quotation mark, which can corrupt
+ * the parser state and cause cascading syntax errors.
+ *
+ * Unlike other checks, this flags characters even inside comments and
+ * strings, because the VENUS toolchain processes raw bytes before parsing.
+ */
+function checkNonAsciiCharacters(document, diagnostics) {
+    // Match any character outside printable ASCII (0x20-0x7E), tab (0x09), CR, LF
+    const nonAsciiPattern = /[^\x09\x0A\x0D\x20-\x7E]/g;
+    // Map common offenders to friendly names
+    const CHAR_NAMES = {
+        "\u2014": "em dash",
+        "\u2013": "en dash",
+        "\u2018": "left single quote",
+        "\u2019": "right single quote",
+        "\u201C": "left double quote",
+        "\u201D": "right double quote",
+        "\u00A0": "non-breaking space",
+        "\u2192": "right arrow",
+    };
+    for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+        const lineText = document.lineAt(lineIndex).text;
+        // Skip the checksum trailer line (contains $$ delimited metadata)
+        if (/^\s*\/\/\s*\$\$author=/.test(lineText)) {
+            continue;
+        }
+        nonAsciiPattern.lastIndex = 0;
+        let match;
+        while ((match = nonAsciiPattern.exec(lineText)) !== null) {
+            const char = match[0];
+            const codePoint = char.codePointAt(0) ?? 0;
+            const hex = `U+${codePoint.toString(16).toUpperCase().padStart(4, "0")}`;
+            const friendlyName = CHAR_NAMES[char];
+            const nameStr = friendlyName ? ` (${friendlyName})` : "";
+            const range = new vscode.Range(lineIndex, match.index, lineIndex, match.index + char.length);
+            const diag = new vscode.Diagnostic(range, `Non-ASCII character ${hex}${nameStr} will corrupt VENUS compilation. ` +
+                `The VENUS toolchain reads files as ANSI/Windows-1252 and cannot ` +
+                `handle UTF-8 multi-byte characters. Replace with an ASCII equivalent ` +
+                `(e.g. use '--' instead of em dash, '-' instead of en dash).`, vscode.DiagnosticSeverity.Error);
+            diag.source = "hsl";
+            diag.code = "non-ascii-character";
+            diagnostics.push(diag);
+        }
+    }
+}
 /**
  * Flags any use of the `continue` keyword as a syntax error.
  * HSL does not support `continue` in loops or conditionals.
