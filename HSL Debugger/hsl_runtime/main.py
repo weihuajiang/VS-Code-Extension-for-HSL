@@ -22,6 +22,13 @@ import uuid
 import winreg
 from datetime import datetime
 
+# Force unbuffered stdout/stderr so output streams in real time
+# when spawned as a child process (e.g. from VS Code debug adapter).
+# Without this, PyInstaller exe output is fully buffered and nothing
+# appears until the process exits.
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
+
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

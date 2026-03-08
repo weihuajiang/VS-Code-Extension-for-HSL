@@ -452,17 +452,17 @@ class TraceOutput:
         msg = " ".join(str(a) for a in args)
         self.messages.append(msg)
         if self.verbose:
-            print(f"[HSL TRACE] {msg}")
+            print(f"[HSL TRACE] {msg}", flush=True)
 
     def warn(self, msg: str):
         self.messages.append(f"WARNING: {msg}")
         if self.verbose:
-            print(f"[HSL WARN] {msg}")
+            print(f"[HSL WARN] {msg}", flush=True)
 
     def error(self, msg: str):
         self.messages.append(f"ERROR: {msg}")
         if self.verbose:
-            print(f"[HSL ERROR] {msg}")
+            print(f"[HSL ERROR] {msg}", flush=True)
 
 
 # ============================================================================
