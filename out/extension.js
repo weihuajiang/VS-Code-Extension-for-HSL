@@ -77,7 +77,7 @@ function activate(context) {
             return;
         }
         const filePath = editor.document.fileName;
-        const validExtensions = [".hsl", ".hs_", ".sub"];
+        const validExtensions = [".hsl", ".hs_", ".sub", ".med"];
         const ext = path.extname(filePath).toLowerCase();
         if (!validExtensions.includes(ext)) {
             vscode.window.showErrorMessage(`Cannot run file with extension '${ext}'. Valid HSL extensions: ${validExtensions.join(", ")}`);

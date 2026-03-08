@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext): void {
       }
 
       const filePath = editor.document.fileName;
-      const validExtensions = [".hsl", ".hs_", ".sub"];
+      const validExtensions = [".hsl", ".hs_", ".sub", ".med"];
       const ext = path.extname(filePath).toLowerCase();
 
       if (!validExtensions.includes(ext)) {
