@@ -13,6 +13,7 @@ import * as fs from "fs";
  *   - Variable declarations that are not at the top of their code block
  *   - `continue` keyword usage (not supported in HSL)
  *   - Array element access used directly in `+` expressions (must assign to temp variable first)
+ *   - Namespace-qualified variable access via `::` (only functions support `::`)
  */
 export function createHslDiagnostics(
   context: vscode.ExtensionContext
@@ -207,6 +208,9 @@ async function refreshDiagnostics(
 
   // Check that ML_STAR is initialized before use
   checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics);
+
+  // Check for namespace-qualified variable access (only functions support ::)
+  checkNamespaceQualifiedVariableAccess(document, ignoredRanges, diagnostics);
 
   collection.set(document.uri, diagnostics);
 }
@@ -2358,5 +2362,120 @@ function checkStringConcatenation(
       diag.code = "string-concat-with-plus";
       diagnostics.push(diag);
     }
+  }
+}
+
+// ── Namespace-qualified variable access ─────────────────────────────────
+
+/**
+ * HSL only supports the `::` scope-resolution operator for function calls,
+ * not for accessing global variables.  `Namespace::Function()` is valid,
+ * but `Namespace::variable` (without a trailing `(`) is a compile error.
+ *
+ * This check flags every occurrence of `Identifier::Identifier` that is
+ * NOT immediately followed by `(`, indicating a variable access attempt.
+ */
+function checkNamespaceQualifiedVariableAccess(
+  document: vscode.TextDocument,
+  ignoredRanges: OffsetRange[],
+  diagnostics: vscode.Diagnostic[]
+): void {
+  const fullText = document.getText();
+  const cleanText = buildMaskedText(fullText, ignoredRanges);
+
+  // Match a qualified name (A::B or A::B::C etc.) that is NOT followed by
+  // `(` (which would make it a function call) or `::` (which would make
+  // this just a prefix of a longer qualified name).
+  //
+  // The negative lookbehind avoids matching inside namespace declarations
+  // (e.g., `namespace Foo`) and the negative lookahead after the last
+  // identifier avoids matching function calls.
+  const pattern = /\b([A-Za-z_]\w*(?:::[A-Za-z_]\w*)+)\b/g;
+  let m: RegExpExecArray | null;
+
+  while ((m = pattern.exec(cleanText)) !== null) {
+    const qualifiedName = m[1];
+    const matchStart = m.index;
+    const matchEnd = matchStart + qualifiedName.length;
+
+    if (isInsideIgnoredRange(matchStart, ignoredRanges)) {
+      continue;
+    }
+
+    // Skip if followed by `(` -- that is a valid namespace-qualified function call
+    const afterMatch = cleanText.slice(matchEnd);
+    if (/^\s*\(/.test(afterMatch)) {
+      continue;
+    }
+
+    // Skip if preceded by `namespace` keyword -- this is a namespace declaration
+    const beforeMatch = cleanText.slice(
+      Math.max(0, matchStart - 200),
+      matchStart
+    );
+    if (/\bnamespace\s+$/.test(beforeMatch)) {
+      continue;
+    }
+
+    // Skip if preceded by `function` or `method` keyword -- this is a definition
+    if (/\b(?:function|method)\s+$/.test(beforeMatch)) {
+      continue;
+    }
+
+    // Skip if this looks like a function declaration/definition context
+    // (return type position, parameter list, etc.)
+    if (isLikelyDeclarationContext(cleanText, matchStart)) {
+      continue;
+    }
+
+    // Skip if the line is a forward declaration (prototype ending with ;)
+    // e.g.: function Namespace::MyFunc(variable x) void;
+    const lineStart = cleanText.lastIndexOf("\n", matchStart - 1) + 1;
+    const lineEnd = cleanText.indexOf("\n", matchStart);
+    const lineText = cleanText.slice(
+      lineStart,
+      lineEnd === -1 ? undefined : lineEnd
+    );
+    if (
+      /^\s*(?:(?:private|static|const|global|synchronized)\s+)*(?:function|method)\b/.test(
+        lineText
+      )
+    ) {
+      continue;
+    }
+
+    // Skip device object patterns like ML_STAR._CLSID -- these use `.` not `::`
+    // but just in case, skip if the prefix before `::` looks like a device call
+    // (starts with an underscore-GUID pattern)
+    const parts = qualifiedName.split("::");
+    const lastPart = parts[parts.length - 1];
+    if (/^_[0-9A-Fa-f]{8}_/.test(lastPart)) {
+      continue;
+    }
+
+    // Skip if the entire line is a #include or #define directive
+    if (/^\s*#/.test(lineText)) {
+      continue;
+    }
+
+    const linePos = document.positionAt(matchStart);
+    const range = new vscode.Range(
+      linePos.line,
+      linePos.character,
+      linePos.line,
+      linePos.character + qualifiedName.length
+    );
+
+    const namespacePart = parts.slice(0, -1).join("::");
+    const diag = new vscode.Diagnostic(
+      range,
+      `Namespace-qualified variable access '${qualifiedName}' is not supported in HSL. ` +
+        `The '::' operator can only be used for function calls (e.g., '${namespacePart}::SomeFunction()'). ` +
+        `To use a namespace variable, access it from within the same namespace or pass it as a function argument.`,
+      vscode.DiagnosticSeverity.Error
+    );
+    diag.source = "hsl";
+    diag.code = "namespace-qualified-variable";
+    diagnostics.push(diag);
   }
 }

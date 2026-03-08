@@ -935,6 +935,29 @@ class Interpreter:
         """Resolve a scoped name like NS::SubNS::Name."""
         # Try full qualified name
         full_name = "::".join(parts)
+
+        # Check if it's a function name (valid use of ::)
+        if full_name in self.functions:
+            return full_name  # Return the name for function call resolution
+
+        # Global scope (::name) -- leading :: is valid for both variables and functions
+        if parts and parts[0] == "":
+            name = parts[1] if len(parts) > 1 else ""
+            val = self.global_scope.get(name)
+            if val is not None:
+                return val
+
+        # HSL does not support namespace-qualified variable access via ::
+        # Only function calls can use Namespace::Function().
+        # Warn but still resolve for simulation continuity.
+        is_namespace_var = len(parts) >= 2 and parts[0] != ""
+        if is_namespace_var:
+            self.trace.warn(
+                f"Namespace-qualified variable access '{full_name}' is not "
+                f"supported in HSL. The '::' operator can only be used for "
+                f"function calls. This will cause a compile error in VENUS."
+            )
+
         val = self.current_scope.get(full_name)
         if val is not None:
             return val
@@ -945,17 +968,6 @@ class Interpreter:
             member = parts[-1]
             if ns in self.namespaces and member in self.namespaces[ns]:
                 return self.namespaces[ns][member]
-
-        # Global scope (::name)
-        if parts and parts[0] == "":
-            name = parts[1] if len(parts) > 1 else ""
-            val = self.global_scope.get(name)
-            if val is not None:
-                return val
-
-        # Check if it's a function name
-        if full_name in self.functions:
-            return full_name  # Return the name for function call resolution
 
         # Default - return value of 0 in sim
         return HslValue(0)

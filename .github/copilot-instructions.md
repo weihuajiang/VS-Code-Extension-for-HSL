@@ -272,6 +272,38 @@ LibA::SharedHelper();      // OK
 
 Use the underscore prefix (`_FunctionName`) as a naming convention for internal functions, but only mark them `private` if they are truly file-local.
 
+### Namespace `::` Operator -- Functions Only, Not Variables
+
+The `::` scope-resolution operator can **only** be used to call functions across namespaces. It **cannot** be used to access global variables defined in another namespace. Attempting to read or write a variable through `Namespace::variableName` causes a compile error in VENUS.
+
+The VS Code extension flags this with diagnostic code `namespace-qualified-variable`.
+
+```hsl
+namespace MyLib
+{
+   variable g_counter;
+
+   function GetCounter() variable
+   {
+      return(g_counter);    // OK -- direct access within the same namespace
+   }
+
+   function SetCounter(variable val) void
+   {
+      g_counter = val;      // OK -- direct access within the same namespace
+   }
+}
+
+// In another file or outside the namespace:
+MyLib::GetCounter();          // OK -- function call via ::
+MyLib::SetCounter(5);         // OK -- function call via ::
+variable x;
+x = MyLib::g_counter;         // ERROR -- cannot access variable via ::
+MyLib::g_counter = 10;        // ERROR -- cannot access variable via ::
+```
+
+To access a namespace's internal state, expose getter/setter functions.
+
 ### Variable Declarations Must Be at Top of Scope
 
 All type declarations (`variable`, `string`, `sequence`, `object`, etc.) must appear at the **beginning** of their enclosing scope (function, method, or namespace), before any executable statements. Both interleaving declarations with code and using C-style anonymous blocks (`{ ... }`) with local declarations are syntax errors.
