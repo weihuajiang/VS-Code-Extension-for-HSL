@@ -55,6 +55,8 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
   private _traceWatcher: fs.FSWatcher | undefined;
   private _traceStream: fs.ReadStream | undefined;
   private _traceInterval: ReturnType<typeof setInterval> | undefined;
+  private _pendingLaunchRequest: DapRequest | undefined;
+  private _pendingLaunchArgs: LaunchArguments | undefined;
   private readonly _onDidSendMessage = new vscode.EventEmitter<DapResponse | DapEvent>();
   readonly onDidSendMessage: vscode.Event<DapResponse | DapEvent> = this._onDidSendMessage.event;
 
@@ -62,7 +64,7 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
     switch (message.command) {
       case "initialize":
         this._sendResponse(message, {
-          supportsConfigurationDoneRequest: false,
+          supportsConfigurationDoneRequest: true,
         });
         this._sendEvent("initialized");
         break;
@@ -71,12 +73,26 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
         this._handleLaunch(message);
         break;
 
-      case "disconnect":
-        this._handleDisconnect(message);
-        break;
-
       case "configurationDone":
         this._sendResponse(message, {});
+        // VS Code is now fully ready -- start the actual execution
+        if (this._pendingLaunchRequest && this._pendingLaunchArgs) {
+          const req = this._pendingLaunchRequest;
+          const args = this._pendingLaunchArgs;
+          this._pendingLaunchRequest = undefined;
+          this._pendingLaunchArgs = undefined;
+
+          const program = args.program!;
+          if (args.noDebug) {
+            this._handleRunWithoutDebugging(req, program, args);
+          } else {
+            this._handleDebugWithPython(req, program, args);
+          }
+        }
+        break;
+
+      case "disconnect":
+        this._handleDisconnect(message);
         break;
 
       case "threads":
@@ -109,25 +125,23 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
       return;
     }
 
-    if (args?.noDebug) {
-      this._handleRunWithoutDebugging(request, program, args);
-    } else {
-      this._handleDebugWithPython(request, program, args);
-    }
+    // Store the launch request -- actual execution is deferred until
+    // configurationDone so VS Code's Debug Console is fully ready.
+    this._pendingLaunchRequest = request;
+    this._pendingLaunchArgs = args;
+    this._sendResponse(request, {});
   }
 
   // ─── Run Without Debugging (Ctrl+F5): HxRun.exe + trace tailing ───
 
   private _handleRunWithoutDebugging(
-    request: DapRequest,
+    _request: DapRequest,
     program: string,
-    args: LaunchArguments
+    _args: LaunchArguments
   ): void {
     if (!fs.existsSync(HXRUN_PATH)) {
-      this._sendErrorResponse(
-        request,
-        `HxRun.exe not found at: ${HXRUN_PATH}\nMake sure Hamilton VENUS is installed.`
-      );
+      this._outputLine(`HxRun.exe not found at: ${HXRUN_PATH}`, "stderr");
+      this._outputLine("Make sure Hamilton VENUS is installed.", "stderr");
       this._sendEvent("terminated");
       return;
     }
@@ -144,9 +158,6 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
 
     // Record the timestamp just before launch so we can find only newer trace files
     const launchTime = Date.now();
-
-    // Acknowledge the launch request before spawning
-    this._sendResponse(request, {});
 
     // Spawn HxRun.exe with -t (run & terminate) and -minimized
     try {
@@ -397,7 +408,7 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
   // ─── Start Debugging (F5): Python HSL simulation debugger ───
 
   private _handleDebugWithPython(
-    request: DapRequest,
+    _request: DapRequest,
     program: string,
     args: LaunchArguments
   ): void {
@@ -409,9 +420,9 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
     const verbose = args?.verbose !== false;
 
     if (!fs.existsSync(bundledExe)) {
-      this._sendErrorResponse(
-        request,
-        `HSL debugger executable not found at:\n${bundledExe}\n\nPlease reinstall the extension or rebuild the debugger.`
+      this._outputLine(
+        `HSL debugger executable not found at:\n${bundledExe}\n\nPlease reinstall the extension or rebuild the debugger.`,
+        "stderr"
       );
       this._sendEvent("terminated");
       return;
@@ -432,15 +443,17 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
     this._outputLine(`  Hamilton dir: ${hamiltonDir}`);
     this._outputLine("");
 
-    this._sendResponse(request, {});
-
     try {
+      // Force unbuffered Python output and explicit piped stdio
+      const env = { ...process.env, PYTHONUNBUFFERED: "1" };
       this._process = cp.spawn(executable, spawnArgs, {
         cwd: debuggerDir,
         shell: false,
+        stdio: ["pipe", "pipe", "pipe"],
+        env,
       });
 
-      this._process.stdout?.on("data", (data: Buffer) => {
+      this._process.stdout!.on("data", (data: Buffer) => {
         const text = data.toString();
         for (const line of text.split(/\r?\n/)) {
           if (line.length > 0) {
@@ -449,7 +462,7 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
         }
       });
 
-      this._process.stderr?.on("data", (data: Buffer) => {
+      this._process.stderr!.on("data", (data: Buffer) => {
         const text = data.toString();
         for (const line of text.split(/\r?\n/)) {
           if (line.length > 0) {
@@ -465,12 +478,17 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
         } else {
           this._outputLine(`HSL method exited with code ${code}.`, "stderr");
         }
-        this._sendEvent("terminated");
+        // Delay terminated event to allow VS Code to render buffered output
+        setTimeout(() => {
+          this._sendEvent("terminated");
+        }, 300);
       });
 
       this._process.on("error", (err) => {
         this._outputLine(`Failed to start HSL debugger: ${err.message}`, "stderr");
-        this._sendEvent("terminated");
+        setTimeout(() => {
+          this._sendEvent("terminated");
+        }, 300);
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);

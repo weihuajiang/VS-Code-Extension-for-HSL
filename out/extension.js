@@ -100,6 +100,7 @@ function activate(context) {
                 request: "launch",
                 program: filePath,
                 noDebug,
+                internalConsoleOptions: "openOnSessionStart",
             });
         });
     }

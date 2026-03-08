@@ -74,6 +74,12 @@
                 "type": "boolean",
                 "description": "Show detailed trace output.",
                 "default": true
+              },
+              "internalConsoleOptions": {
+                "type": "string",
+                "enum": ["neverOpen", "openOnFirstSessionStart", "openOnSessionStart"],
+                "description": "Controls when the Debug Console panel is opened.",
+                "default": "openOnSessionStart"
               }
             }
           }
@@ -83,7 +89,8 @@
             "type": "hsl",
             "request": "launch",
             "name": "Run HSL Method",
-            "program": "${file}"
+            "program": "${file}",
+            "internalConsoleOptions": "openOnSessionStart"
           }
         ],
         "configurationSnippets": [

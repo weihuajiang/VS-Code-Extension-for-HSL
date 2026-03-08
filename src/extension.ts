@@ -92,6 +92,7 @@ export function activate(context: vscode.ExtensionContext): void {
         request: "launch",
         program: filePath,
         noDebug,
+        internalConsoleOptions: "openOnSessionStart",
       });
     });
   }
