@@ -496,9 +496,20 @@ python -m hsl_runtime.main "TestMyLib.hsl"
 
 ## LLM Execution Workflow -- Running and Validating HSL Code
 
-When you write, modify, or troubleshoot HSL code, you **must** run it through the debugger to verify correctness rather than assuming it works. This section tells you exactly how.
+The VS Code extension provides **two execution modes** for HSL files. You must understand both and use them in the correct order.
 
-### When to Run the Debugger
+| Mode | Shortcut | Engine | Safety | What It Does |
+|------|----------|--------|--------|--------------|
+| **Start Debugging** (safe run) | F5 | Python simulation runtime | Completely safe -- no hardware interaction | Preprocesses, tokenizes, parses, and executes the HSL method in a pure-Python interpreter. All device calls return simulated success. Validates syntax, control flow, variable logic, string/array/sequence operations. |
+| **Run Without Debugging** (real run) | Ctrl+F5 | Hamilton `HxRun.exe` | **Moves real hardware** if a robot is connected | Launches the method through Hamilton's native runtime. If a physical instrument is connected, the robot **will move**. If no instrument is attached, HxRun runs in its own simulation mode. Produces a `.trc` trace file in `C:\Program Files (x86)\Hamilton\Logfiles`. |
+
+### Mandatory Execution Order
+
+**Always run Start Debugging (Python simulation) first**, then Run Without Debugging (HxRun) second. This is the default workflow for every execution request. The only exception is when the user **explicitly** says to skip the safe run (e.g., "just run it on the robot", "skip simulation", "run without debugging only").
+
+The rationale: the Python simulation catches syntax errors, parse errors, runtime logic errors, and type mismatches **without** any risk of moving hardware. Running HxRun with broken code on a connected robot can cause partial execution, tip crashes, or reagent waste.
+
+### When to Run
 
 Run the debugger whenever you:
 
@@ -508,13 +519,13 @@ Run the debugger whenever you:
 - Want to inspect `Trace()` output to confirm program behavior
 - Are asked to test, validate, or execute an HSL file
 
-### Step-by-Step Execution
+### Step 1: Start Debugging (Python Simulation -- Safe Run)
 
 **1. Locate the file.** Determine the absolute path of the `.hsl` or `.sub` file. If the file is a `.med` file, it cannot be run directly -- `.med` files are binary method containers and must be converted to `.hsl` first.
 
 **2. Verify it has `method main()`.** Only files with a `method main()` entry point can be executed. If the target is a library (`.hsl`/`.sub` without `method main()`), create a temporary test harness method that `#include`s the library and calls its functions.
 
-**3. Run the debugger from the terminal.** Execute:
+**3. Run the Python simulation from the terminal.** Execute:
 
 ```powershell
 cd "c:\Users\admin\Documents\GitHub\VS-Code-Extension-for-HSL\HSL Debugger"
@@ -537,7 +548,44 @@ Use `--quiet` to suppress verbose trace output if you only need pass/fail. Use `
 - **Exit code 1** = a failure occurred. The terminal output will identify which phase failed and the error message.
 - **`[HSL TRACE]` lines** show output from `Trace()` and `FormatTrace()` calls -- use these to verify logic.
 
-### Interpreting Common Results
+**6. Fix and re-run if needed.** If the simulation fails, read the error output, fix the HSL source, and re-run. Repeat until exit code 0. Do **not** proceed to HxRun until the Python simulation passes.
+
+### Step 2: Run Without Debugging (HxRun -- Real/Hardware Run)
+
+Only proceed to this step after the Python simulation passes (exit code 0), **or** if the user explicitly requests it.
+
+**Prerequisites:**
+- Hamilton VENUS must be installed on the machine
+- `HxRun.exe` must exist at `C:\Program Files (x86)\Hamilton\Bin\HxRun.exe`
+- If a physical instrument is connected, the robot **will execute real movements** -- tips will be picked up, liquids will be aspirated/dispensed, carriers will move
+
+**1. Run via HxRun.exe from the terminal:**
+
+```powershell
+& "C:\Program Files (x86)\Hamilton\Bin\HxRun.exe" "<absolute-path-to-file.hsl>" -t -minimized
+```
+
+The `-t` flag tells HxRun to terminate after the method completes. The `-minimized` flag runs the HxRun window minimized.
+
+**2. Monitor the trace file.** HxRun writes a trace log to `C:\Program Files (x86)\Hamilton\Logfiles\` with the naming pattern `<MethodName>_<GUID>_Trace.trc`. To find and read the latest trace file:
+
+```powershell
+$methodName = "YourMethodName"
+$latest = Get-ChildItem "C:\Program Files (x86)\Hamilton\Logfiles" -Filter "${methodName}_*_Trace.trc" |
+    Sort-Object LastWriteTime -Descending | Select-Object -First 1
+if ($latest) { Get-Content $latest.FullName -Tail 50 }
+```
+
+**3. Check the exit code.** Exit code 0 = success. Non-zero = the method encountered an error during execution.
+
+**4. Report results.** If HxRun fails, read the trace file for error details. Common HxRun-specific failures (not caught by Python simulation) include:
+- Labware not found on deck (deck layout mismatch)
+- Tip pickup failures (no tips at expected position)
+- Liquid level detection failures (empty wells, foam)
+- Hardware communication errors (instrument not connected/powered)
+- Sequence position errors (sequence exhausted)
+
+### Interpreting Common Results (Python Simulation)
 
 **Parser warnings are expected.** The Python parser emits warnings for Hamilton library constructs it does not fully support (e.g., the `^` operator, struct types). Seeing 50-120 parser warnings is normal and does not indicate a problem with the user's code. Focus on errors, not warnings.
 
@@ -554,23 +602,24 @@ Use `--quiet` to suppress verbose trace output if you only need pass/fail. Use `
 - Calling a function with wrong argument count
 - Missing `method main()`
 
-**Device calls always succeed.** All `ML_STAR._<CLSID>(...)` calls return simulated success. The debugger validates control flow, variable logic, string operations, and sequence operations -- but not physical pipetting behavior.
+**Device calls always succeed in simulation.** All `ML_STAR._<CLSID>(...)` calls return simulated success. The Python debugger validates control flow, variable logic, string operations, and sequence operations -- but not physical pipetting behavior. Hardware-specific failures only surface in the HxRun step.
 
 ### Validating Code Changes
 
 After modifying HSL code, always follow this cycle:
 
 1. Make the edit
-2. Run the debugger
+2. Run the Python simulation (Step 1)
 3. Check for exit code 0
 4. If errors, read the error output, fix the code, and re-run
 5. Repeat until the simulation passes
+6. If the user wants a real run, proceed to HxRun (Step 2)
 
-Do **not** present HSL code to the user as "correct" without running it through the debugger first when the debugger is available.
+Do **not** present HSL code to the user as "correct" without running it through the Python simulation first when the debugger is available.
 
 ### Diagnostic Flags for Deeper Debugging
 
-When a simple run is insufficient, use diagnostic flags:
+When a simple run is insufficient, use diagnostic flags with the Python simulation:
 
 | Flag | When to Use |
 |------|-------------|
@@ -610,4 +659,27 @@ HSL methods use `Trace()` to log runtime values. When verifying code, insert `Tr
 - Function return values
 - Sequence positions and IDs
 
-The `[HSL TRACE]` lines in the terminal output show these values in execution order. Use them to confirm the method does what the user expects.
+The `[HSL TRACE]` lines in the terminal output (Python simulation) and the `.trc` file (HxRun) show these values in execution order. Use them to confirm the method does what the user expects.
+
+### Decision Flowchart
+
+```
+User asks to run/test/validate HSL code
+          |
+          v
+   Run Python Simulation (Step 1)
+          |
+      Exit code 0?
+      /         \
+    No           Yes
+    |              |
+  Fix code    User asked for real run?
+  & re-run     /              \
+             No                Yes
+             |                  |
+          Done --            Run HxRun (Step 2)
+     report success           |
+                          Report results
+```
+
+**Exception:** If the user explicitly says "run on the robot", "use HxRun", "skip simulation", or "run without debugging only", go directly to Step 2. But warn the user that the code has not been validated by the safe simulation first.
