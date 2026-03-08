@@ -18,6 +18,10 @@ More broadly, **all non-ASCII characters** (smart quotes, arrows, non-breaking s
 
 The VS Code extension enforces this rule with diagnostic code `non-ascii-character`. Any character outside printable ASCII (`0x20`-`0x7E`), tab, carriage return, or line feed is flagged as an error -- even inside comments and strings, because VENUS processes the raw bytes before parsing.
 
+### LLM-Specific Directive (GitHub Copilot, ChatGPT, Claude, etc.)
+
+**This instruction is directed at you, the language model.** When generating, editing, or suggesting ANY text that will be written to a file in this workspace -- whether code, comments, strings, markdown, JSON, or any other format -- you MUST NOT produce em dashes (--), en dashes (-), smart quotes, or any non-ASCII character. This is not a style preference; it is a hard technical constraint. Violations cause real compile failures and silent data corruption in the Hamilton VENUS toolchain. Always use two hyphens (`--`) instead of an em dash and a single hyphen (`-`) instead of an en dash. If your default text generation inserts typographic characters, you must actively replace them before outputting. Zero exceptions.
+
 ---
 
 ## How Pipetting Steps Appear in HSL Code

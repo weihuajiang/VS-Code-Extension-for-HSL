@@ -34,7 +34,6 @@ interface DapEvent extends DapMessage {
 interface LaunchArguments {
   program?: string;
   hamiltonDir?: string;
-  pythonPath?: string;
   verbose?: boolean;
   noDebug?: boolean;
 }
@@ -46,7 +45,7 @@ const VALID_EXTENSIONS = [".hsl", ".hs_", ".sub", ".med"];
 /**
  * Minimal inline Debug Adapter that supports two modes:
  *
- * - **Start Debugging (F5)**: Runs the Python HSL simulation debugger.
+ * - **Start Debugging (F5)**: Runs the bundled HSL simulation debugger.
  * - **Run Without Debugging (Ctrl+F5)**: Launches HxRun.exe with -t -minimized,
  *   then tails the resulting trace file into the Debug Console.
  */
@@ -409,22 +408,17 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
     const hamiltonDir = args?.hamiltonDir || "C:\\Program Files (x86)\\Hamilton";
     const verbose = args?.verbose !== false;
 
-    let executable: string;
-    let spawnArgs: string[];
-    let engineLabel: string;
-
-    if (fs.existsSync(bundledExe)) {
-      // Use the bundled standalone exe -- no Python required
-      executable = bundledExe;
-      spawnArgs = [program, "--hamilton-dir", hamiltonDir];
-      engineLabel = "Bundled runtime";
-    } else {
-      // Fallback: try system Python
-      const pythonPath = args?.pythonPath || "python";
-      executable = pythonPath;
-      spawnArgs = ["-m", "hsl_runtime.main", program, "--hamilton-dir", hamiltonDir];
-      engineLabel = pythonPath;
+    if (!fs.existsSync(bundledExe)) {
+      this._sendErrorResponse(
+        request,
+        `HSL debugger executable not found at:\n${bundledExe}\n\nPlease reinstall the extension or rebuild the debugger.`
+      );
+      this._sendEvent("terminated");
+      return;
     }
+
+    const executable = bundledExe;
+    const spawnArgs: string[] = [program, "--hamilton-dir", hamiltonDir];
 
     if (!verbose) {
       spawnArgs.push("--quiet");
@@ -434,7 +428,7 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
     this._outputLine("  HSL Debugger -- Python Simulation");
     this._outputLine("=".repeat(60));
     this._outputLine(`  Method:  ${path.basename(program)}`);
-    this._outputLine(`  Engine:  ${engineLabel}`);
+    this._outputLine("  Engine:  Bundled runtime");
     this._outputLine(`  Hamilton dir: ${hamiltonDir}`);
     this._outputLine("");
 
@@ -476,9 +470,6 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
 
       this._process.on("error", (err) => {
         this._outputLine(`Failed to start HSL debugger: ${err.message}`, "stderr");
-        if (!fs.existsSync(bundledExe)) {
-          this._outputLine("Bundled runtime not found. Make sure Python is installed and on your PATH.", "stderr");
-        }
         this._sendEvent("terminated");
       });
     } catch (err: unknown) {

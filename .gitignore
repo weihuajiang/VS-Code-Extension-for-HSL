@@ -3,5 +3,4 @@ out/
 bin/
 obj/
 HSL Debugger/build/
-HSL Debugger/dist/
 HSL Debugger/*.spec
