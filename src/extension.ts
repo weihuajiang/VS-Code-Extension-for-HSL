@@ -6,6 +6,10 @@ import { buildCompletionItems } from "./builtins";
 import { createHslDiagnostics } from "./diagnostics";
 import { registerHslIntelliSense } from "./hslIntellisense";
 import { registerStpHoverProvider } from "./stpHoverProvider";
+import {
+  HslDebugAdapterFactory,
+  HslDebugConfigurationProvider,
+} from "./hslDebugAdapter";
 
 const HAMILTON_EDITOR_PATH = "C:\\Program Files (x86)\\Hamilton\\Bin\\HxHSLMetEd.exe";
 
@@ -42,7 +46,18 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register STP hover provider (pipetting step tooltips)
   registerStpHoverProvider(context);
 
-  // Register the Run HSL Method command
+  // Register the HSL debug adapter so Run/Debug (F5) works from the Run menu
+  const debugAdapterFactory = new HslDebugAdapterFactory();
+  context.subscriptions.push(
+    vscode.debug.registerDebugAdapterDescriptorFactory("hsl", debugAdapterFactory)
+  );
+
+  const debugConfigProvider = new HslDebugConfigurationProvider();
+  context.subscriptions.push(
+    vscode.debug.registerDebugConfigurationProvider("hsl", debugConfigProvider)
+  );
+
+  // Register the Run HSL Method command (play button / context menu)
   const runMethodCommand = vscode.commands.registerCommand(
     "hsl.runMethod",
     () => {
@@ -63,13 +78,15 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
 
-      // Save the file before running
+      // Save and launch via the debug adapter (same as F5)
       editor.document.save().then(() => {
-        const terminal = vscode.window.createTerminal("HxRun");
-        terminal.show();
-        terminal.sendText(
-          `& "HxRun.exe" "${filePath}" -t -c`
-        );
+        vscode.debug.startDebugging(undefined, {
+          type: "hsl",
+          name: "Run HSL Method",
+          request: "launch",
+          program: filePath,
+          noDebug: true,
+        });
       });
     }
   );

@@ -43,6 +43,7 @@ const builtins_1 = require("./builtins");
 const diagnostics_1 = require("./diagnostics");
 const hslIntellisense_1 = require("./hslIntellisense");
 const stpHoverProvider_1 = require("./stpHoverProvider");
+const hslDebugAdapter_1 = require("./hslDebugAdapter");
 const HAMILTON_EDITOR_PATH = "C:\\Program Files (x86)\\Hamilton\\Bin\\HxHSLMetEd.exe";
 /**
  * Called once when the extension is activated.
@@ -63,7 +64,12 @@ function activate(context) {
     (0, diagnostics_1.createHslDiagnostics)(context);
     // Register STP hover provider (pipetting step tooltips)
     (0, stpHoverProvider_1.registerStpHoverProvider)(context);
-    // Register the Run HSL Method command
+    // Register the HSL debug adapter so Run/Debug (F5) works from the Run menu
+    const debugAdapterFactory = new hslDebugAdapter_1.HslDebugAdapterFactory();
+    context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory("hsl", debugAdapterFactory));
+    const debugConfigProvider = new hslDebugAdapter_1.HslDebugConfigurationProvider();
+    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("hsl", debugConfigProvider));
+    // Register the Run HSL Method command (play button / context menu)
     const runMethodCommand = vscode.commands.registerCommand("hsl.runMethod", () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -77,11 +83,15 @@ function activate(context) {
             vscode.window.showErrorMessage(`Cannot run file with extension '${ext}'. Valid HSL extensions: ${validExtensions.join(", ")}`);
             return;
         }
-        // Save the file before running
+        // Save and launch via the debug adapter (same as F5)
         editor.document.save().then(() => {
-            const terminal = vscode.window.createTerminal("HxRun");
-            terminal.show();
-            terminal.sendText(`& "HxRun.exe" "${filePath}" -t -c`);
+            vscode.debug.startDebugging(undefined, {
+                type: "hsl",
+                name: "Run HSL Method",
+                request: "launch",
+                program: filePath,
+                noDebug: true,
+            });
         });
     });
     context.subscriptions.push(runMethodCommand);

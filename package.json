@@ -51,6 +51,60 @@
         "path": "./snippets/hsl.code-snippets"
       }
     ],
+    "debuggers": [
+      {
+        "type": "hsl",
+        "label": "HSL Debugger",
+        "languages": ["hsl"],
+        "configurationAttributes": {
+          "launch": {
+            "required": [],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Absolute path to the HSL method file to run.",
+                "default": "${file}"
+              },
+              "hamiltonDir": {
+                "type": "string",
+                "description": "Path to the Hamilton installation directory.",
+                "default": "C:\\Program Files (x86)\\Hamilton"
+              },
+              "pythonPath": {
+                "type": "string",
+                "description": "Path to the Python executable.",
+                "default": "python"
+              },
+              "verbose": {
+                "type": "boolean",
+                "description": "Show detailed trace output.",
+                "default": true
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "hsl",
+            "request": "launch",
+            "name": "Run HSL Method",
+            "program": "${file}"
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "HSL: Run Method",
+            "description": "Run an HSL method file using the Python HSL simulation debugger.",
+            "body": {
+              "type": "hsl",
+              "request": "launch",
+              "name": "Run HSL Method",
+              "program": "^\"\\${file}\""
+            }
+          }
+        ]
+      }
+    ],
     "commands": [
       {
         "command": "hsl.runMethod",
@@ -92,13 +146,7 @@
         }
       ]
     },
-    "keybindings": [
-      {
-        "command": "hsl.runMethod",
-        "key": "f5",
-        "when": "resourceLangId == hsl"
-      }
-    ],
+    "keybindings": [],
     "configurationDefaults": {
       "[hsl]": {
         "github.copilot.chat.codeGeneration.instructions": [
