@@ -404,16 +404,28 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
   ): void {
     const extensionRoot = this._findExtensionRoot();
     const debuggerDir = path.join(extensionRoot, "HSL Debugger");
+    const bundledExe = path.join(debuggerDir, "dist", "hsl_debugger", "hsl_debugger.exe");
 
-    const pythonPath = args?.pythonPath || "python";
     const hamiltonDir = args?.hamiltonDir || "C:\\Program Files (x86)\\Hamilton";
     const verbose = args?.verbose !== false;
 
-    const spawnArgs = [
-      "-m", "hsl_runtime.main",
-      program,
-      "--hamilton-dir", hamiltonDir,
-    ];
+    let executable: string;
+    let spawnArgs: string[];
+    let engineLabel: string;
+
+    if (fs.existsSync(bundledExe)) {
+      // Use the bundled standalone exe -- no Python required
+      executable = bundledExe;
+      spawnArgs = [program, "--hamilton-dir", hamiltonDir];
+      engineLabel = "Bundled runtime";
+    } else {
+      // Fallback: try system Python
+      const pythonPath = args?.pythonPath || "python";
+      executable = pythonPath;
+      spawnArgs = ["-m", "hsl_runtime.main", program, "--hamilton-dir", hamiltonDir];
+      engineLabel = pythonPath;
+    }
+
     if (!verbose) {
       spawnArgs.push("--quiet");
     }
@@ -422,16 +434,16 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
     this._outputLine("  HSL Debugger -- Python Simulation");
     this._outputLine("=".repeat(60));
     this._outputLine(`  Method:  ${path.basename(program)}`);
-    this._outputLine(`  Python:  ${pythonPath}`);
+    this._outputLine(`  Engine:  ${engineLabel}`);
     this._outputLine(`  Hamilton dir: ${hamiltonDir}`);
     this._outputLine("");
 
     this._sendResponse(request, {});
 
     try {
-      this._process = cp.spawn(pythonPath, spawnArgs, {
+      this._process = cp.spawn(executable, spawnArgs, {
         cwd: debuggerDir,
-        shell: true,
+        shell: false,
       });
 
       this._process.stdout?.on("data", (data: Buffer) => {
@@ -463,8 +475,10 @@ export class HslInlineDebugAdapter implements vscode.DebugAdapter {
       });
 
       this._process.on("error", (err) => {
-        this._outputLine(`Failed to start Python: ${err.message}`, "stderr");
-        this._outputLine("Make sure Python is installed and on your PATH.", "stderr");
+        this._outputLine(`Failed to start HSL debugger: ${err.message}`, "stderr");
+        if (!fs.existsSync(bundledExe)) {
+          this._outputLine("Bundled runtime not found. Make sure Python is installed and on your PATH.", "stderr");
+        }
         this._sendEvent("terminated");
       });
     } catch (err: unknown) {

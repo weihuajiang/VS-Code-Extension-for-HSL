@@ -69,32 +69,58 @@ function activate(context) {
     context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory("hsl", debugAdapterFactory));
     const debugConfigProvider = new hslDebugAdapter_1.HslDebugConfigurationProvider();
     context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider("hsl", debugConfigProvider));
-    // Register the Run HSL Method command (play button / context menu)
-    const runMethodCommand = vscode.commands.registerCommand("hsl.runMethod", () => {
+    // Helper to resolve the target file from either a URI arg or the active editor
+    function resolveHslFile(uri) {
+        if (uri) {
+            return uri.fsPath;
+        }
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             vscode.window.showErrorMessage("No active file to run.");
-            return;
+            return undefined;
         }
-        const filePath = editor.document.fileName;
+        return editor.document.fileName;
+    }
+    function validateHslExtension(filePath) {
         const validExtensions = [".hsl", ".hs_", ".sub", ".med"];
         const ext = path.extname(filePath).toLowerCase();
         if (!validExtensions.includes(ext)) {
             vscode.window.showErrorMessage(`Cannot run file with extension '${ext}'. Valid HSL extensions: ${validExtensions.join(", ")}`);
-            return;
+            return false;
         }
-        // Save and launch via the debug adapter (same as F5)
-        editor.document.save().then(() => {
+        return true;
+    }
+    function saveAndLaunch(filePath, noDebug) {
+        const doc = vscode.workspace.textDocuments.find(d => d.fileName === filePath);
+        const savePromise = doc?.isDirty ? doc.save() : Promise.resolve(true);
+        savePromise.then(() => {
             vscode.debug.startDebugging(undefined, {
                 type: "hsl",
-                name: "Run HSL Method",
+                name: noDebug ? "Run HSL Method" : "Debug HSL Method",
                 request: "launch",
                 program: filePath,
-                noDebug: true,
+                noDebug,
             });
         });
+    }
+    // Run Without Debugging (Ctrl+F5 equivalent -- launches HxRun.exe)
+    const runMethodCommand = vscode.commands.registerCommand("hsl.runMethod", (uri) => {
+        const filePath = resolveHslFile(uri);
+        if (!filePath || !validateHslExtension(filePath)) {
+            return;
+        }
+        saveAndLaunch(filePath, true);
     });
     context.subscriptions.push(runMethodCommand);
+    // Start Debugging (F5 equivalent -- launches Python simulation)
+    const debugMethodCommand = vscode.commands.registerCommand("hsl.debugMethod", (uri) => {
+        const filePath = resolveHslFile(uri);
+        if (!filePath || !validateHslExtension(filePath)) {
+            return;
+        }
+        saveAndLaunch(filePath, false);
+    });
+    context.subscriptions.push(debugMethodCommand);
     // Register the Open in Hamilton HSL Editor command (only if editor executable exists)
     const hamiltonEditorAvailable = fs.existsSync(HAMILTON_EDITOR_PATH);
     vscode.commands.executeCommand("setContext", "hsl.hamiltonEditorAvailable", hamiltonEditorAvailable);

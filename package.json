@@ -108,9 +108,15 @@
     "commands": [
       {
         "command": "hsl.runMethod",
-        "title": "Run HSL Method",
+        "title": "Run HSL Method (HxRun)",
         "category": "HSL",
         "icon": "$(play)"
+      },
+      {
+        "command": "hsl.debugMethod",
+        "title": "Debug HSL Method (Simulation)",
+        "category": "HSL",
+        "icon": "$(debug-alt)"
       },
       {
         "command": "hsl.openInHamiltonEditor",
@@ -122,27 +128,47 @@
       "editor/title/run": [
         {
           "command": "hsl.runMethod",
-          "when": "resourceLangId == hsl",
-          "group": "navigation"
+          "when": "resourceLangId == hsl || resourceExtname == .med",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hsl.debugMethod",
+          "when": "resourceLangId == hsl || resourceExtname == .med",
+          "group": "navigation@2"
         }
       ],
       "editor/context": [
         {
           "command": "hsl.runMethod",
-          "when": "resourceLangId == hsl",
-          "group": "navigation"
+          "when": "resourceLangId == hsl || resourceExtname == .med",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hsl.debugMethod",
+          "when": "resourceLangId == hsl || resourceExtname == .med",
+          "group": "navigation@2"
         },
         {
           "command": "hsl.openInHamiltonEditor",
-          "when": "resourceLangId == hsl && hsl.hamiltonEditorAvailable",
-          "group": "navigation"
+          "when": "(resourceLangId == hsl || resourceExtname == .med) && hsl.hamiltonEditorAvailable",
+          "group": "navigation@3"
         }
       ],
       "explorer/context": [
         {
+          "command": "hsl.runMethod",
+          "when": "resourceLangId == hsl || resourceExtname == .med",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hsl.debugMethod",
+          "when": "resourceLangId == hsl || resourceExtname == .med",
+          "group": "navigation@2"
+        },
+        {
           "command": "hsl.openInHamiltonEditor",
-          "when": "resourceLangId == hsl && hsl.hamiltonEditorAvailable",
-          "group": "navigation"
+          "when": "(resourceLangId == hsl || resourceExtname == .med) && hsl.hamiltonEditorAvailable",
+          "group": "navigation@3"
         }
       ]
     },
