@@ -491,3 +491,123 @@ Then run:
 ```powershell
 python -m hsl_runtime.main "TestMyLib.hsl"
 ```
+
+---
+
+## LLM Execution Workflow -- Running and Validating HSL Code
+
+When you write, modify, or troubleshoot HSL code, you **must** run it through the debugger to verify correctness rather than assuming it works. This section tells you exactly how.
+
+### When to Run the Debugger
+
+Run the debugger whenever you:
+
+- Write or modify a `.hsl` method file
+- Need to verify that generated HSL code compiles and executes correctly
+- Debug a user-reported runtime error or logic bug
+- Want to inspect `Trace()` output to confirm program behavior
+- Are asked to test, validate, or execute an HSL file
+
+### Step-by-Step Execution
+
+**1. Locate the file.** Determine the absolute path of the `.hsl` or `.sub` file. If the file is a `.med` file, it cannot be run directly -- `.med` files are binary method containers and must be converted to `.hsl` first.
+
+**2. Verify it has `method main()`.** Only files with a `method main()` entry point can be executed. If the target is a library (`.hsl`/`.sub` without `method main()`), create a temporary test harness method that `#include`s the library and calls its functions.
+
+**3. Run the debugger from the terminal.** Execute:
+
+```powershell
+cd "c:\Users\admin\Documents\GitHub\VS-Code-Extension-for-HSL\HSL Debugger"
+python -m hsl_runtime.main "<absolute-path-to-file.hsl>" --hamilton-dir "C:\Program Files (x86)\Hamilton"
+```
+
+Use `--quiet` to suppress verbose trace output if you only need pass/fail. Use `--verbose` (the default) when you need to see `Trace()` output.
+
+**4. Read and interpret the terminal output.** The output follows a structured format with four phases:
+
+```
+[1/4] Preprocessing...    -- #include resolution, macro expansion
+[2/4] Tokenizing...       -- lexical analysis
+[3/4] Parsing...          -- AST construction (parser warnings are normal)
+[4/4] Executing (SIMULATION)...  -- runtime execution
+```
+
+**5. Check the exit code and output.**
+- **Exit code 0** = the method compiled and ran to completion. Look for `Simulation finished successfully`.
+- **Exit code 1** = a failure occurred. The terminal output will identify which phase failed and the error message.
+- **`[HSL TRACE]` lines** show output from `Trace()` and `FormatTrace()` calls -- use these to verify logic.
+
+### Interpreting Common Results
+
+**Parser warnings are expected.** The Python parser emits warnings for Hamilton library constructs it does not fully support (e.g., the `^` operator, struct types). Seeing 50-120 parser warnings is normal and does not indicate a problem with the user's code. Focus on errors, not warnings.
+
+**Preprocessing errors** (phase 1) typically mean:
+- A `#include` file was not found -- check the `--hamilton-dir` path and that required libraries exist
+- A circular include was detected
+
+**Parse errors** (phase 3) typically mean:
+- HSL syntax errors in the user's code (missing semicolons, undeclared variables, bad expressions)
+- These are the most actionable errors -- fix the HSL source and re-run
+
+**Runtime errors** (phase 4) typically mean:
+- Logic errors (division by zero, array index out of bounds, type mismatches)
+- Calling a function with wrong argument count
+- Missing `method main()`
+
+**Device calls always succeed.** All `ML_STAR._<CLSID>(...)` calls return simulated success. The debugger validates control flow, variable logic, string operations, and sequence operations -- but not physical pipetting behavior.
+
+### Validating Code Changes
+
+After modifying HSL code, always follow this cycle:
+
+1. Make the edit
+2. Run the debugger
+3. Check for exit code 0
+4. If errors, read the error output, fix the code, and re-run
+5. Repeat until the simulation passes
+
+Do **not** present HSL code to the user as "correct" without running it through the debugger first when the debugger is available.
+
+### Diagnostic Flags for Deeper Debugging
+
+When a simple run is insufficient, use diagnostic flags:
+
+| Flag | When to Use |
+|------|-------------|
+| `--dump-preprocessed` | To inspect the fully expanded source after `#include` and `#define` resolution -- useful when includes are missing or macros are wrong |
+| `--dump-tokens` | To debug lexer-level issues (rare) |
+| `--dump-ast` | To inspect the parsed structure when semantic errors are unclear |
+
+These flags print their output and exit **without** executing the method.
+
+### Creating Test Harnesses for Libraries
+
+When asked to validate a library file that has no `method main()`, create a temporary test method:
+
+```hsl
+// TestHarness.hsl -- temporary file to test the library
+#include "TargetLibrary.hsl"
+
+method main()
+{
+   variable result;
+
+   // Call the functions you want to verify
+   result = TargetNamespace::FunctionToTest("input");
+   Trace("Result: ");
+   Trace(result);
+}
+```
+
+Save this as a temporary `.hsl` file, run it through the debugger, then clean up the temporary file after validation.
+
+### Trace Output as Verification
+
+HSL methods use `Trace()` to log runtime values. When verifying code, insert `Trace()` calls at key points to confirm:
+
+- Variable values at critical decision points
+- Loop iteration counts
+- Function return values
+- Sequence positions and IDs
+
+The `[HSL TRACE]` lines in the terminal output show these values in execution order. Use them to confirm the method does what the user expects.
