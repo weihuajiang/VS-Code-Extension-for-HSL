@@ -660,26 +660,3 @@ HSL methods use `Trace()` to log runtime values. When verifying code, insert `Tr
 - Sequence positions and IDs
 
 The `[HSL TRACE]` lines in the terminal output (Python simulation) and the `.trc` file (HxRun) show these values in execution order. Use them to confirm the method does what the user expects.
-
-### Decision Flowchart
-
-```
-User asks to run/test/validate HSL code
-          |
-          v
-   Run Python Simulation (Step 1)
-          |
-      Exit code 0?
-      /         \
-    No           Yes
-    |              |
-  Fix code    User asked for real run?
-  & re-run     /              \
-             No                Yes
-             |                  |
-          Done --            Run HxRun (Step 2)
-     report success           |
-                          Report results
-```
-
-**Exception:** If the user explicitly says "run on the robot", "use HxRun", "skip simulation", or "run without debugging only", go directly to Step 2. But warn the user that the code has not been validated by the safe simulation first.
