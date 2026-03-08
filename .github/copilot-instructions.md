@@ -400,6 +400,48 @@ This workspace includes a **Python-based HSL simulation runtime** at `HSL Debugg
 
 The debugger **requires `method main()`** in the target file. Library files without `method main()` will emit `"No main() method found"` and not execute. To test a library, create a test harness (see "Creating Test Harnesses" below).
 
+### CRITICAL: PyInstaller Build Requirement (Read Before Modifying Python Code)
+
+The Python runtime is **compiled into a standalone executable** using PyInstaller so that end users do **not** need Python installed. The VS Code extension ships and runs `HSL Debugger/dist/hsl_debugger/hsl_debugger.exe` -- it does **not** invoke `python` directly.
+
+**If you modify ANY Python file under `HSL Debugger/hsl_runtime/`**, you **MUST** rebuild the executable afterward. The extension will not pick up your changes until you do.
+
+#### How to rebuild
+
+```powershell
+cd "<workspace-root>/HSL Debugger"
+pyinstaller --onedir --name hsl_debugger --console --noconfirm hsl_runtime/main.py
+```
+
+This produces `HSL Debugger/dist/hsl_debugger/hsl_debugger.exe` (plus supporting DLLs in the same folder). The `--onedir` flag creates a folder distribution (faster startup than `--onefile`). The `--console` flag is **required** so that stdout/stderr are piped to the VS Code debug adapter.
+
+#### Build requirements
+
+- Python 3.10+ with `pyinstaller` installed (`pip install pyinstaller`)
+- The runtime uses **only Python standard library modules** (no pip packages) -- `os`, `re`, `sys`, `argparse`, `time`, `uuid`, `winreg`, `datetime`, `pathlib`, `typing`, `traceback`, `ctypes`
+
+#### How the extension finds the exe
+
+In `src/hslDebugAdapter.ts`, the `_handleDebugWithPython()` method checks for the bundled exe at:
+
+```
+<extension-root>/HSL Debugger/dist/hsl_debugger/hsl_debugger.exe
+```
+
+If found, it spawns that exe directly (no Python needed). If **not** found, it falls back to `python -m hsl_runtime.main` as a developer convenience -- but this fallback will fail for end users without Python.
+
+#### Important: `shell: false`
+
+The spawn call uses `shell: false` to avoid the Windows `cmd.exe` argument-splitting bug where paths containing spaces (e.g., `C:\Program Files (x86)\...`) are broken into multiple tokens. Do **not** change this to `shell: true`.
+
+#### Files that should NOT be committed to git
+
+- `HSL Debugger/build/` -- PyInstaller intermediate files
+- `HSL Debugger/dist/` -- the built executable and supporting files
+- `HSL Debugger/*.spec` -- PyInstaller spec files
+
+These are listed in `.gitignore`. The `dist/` folder **is** included in the packaged `.vsix` extension (see `.vscodeignore`).
+
 ### What the Debugger Does
 
 - Resolves `#include`, `#define`, and `#ifdef`/`#ifndef` directives
@@ -447,10 +489,18 @@ Run the debugger whenever you:
 
 **2. Verify it has `method main()`.** If the target is a library without `method main()`, create a test harness (see below).
 
-**3. Run the Python simulation from the terminal:**
+**3. Run the simulation from the terminal:**
+
+Preferred (bundled exe -- works without Python installed):
 
 ```powershell
-cd "c:\Users\admin\Documents\GitHub\VS-Code-Extension-for-HSL\HSL Debugger"
+& "<workspace-root>\HSL Debugger\dist\hsl_debugger\hsl_debugger.exe" "<absolute-path-to-file.hsl>" --hamilton-dir "C:\Program Files (x86)\Hamilton"
+```
+
+Fallback (developer mode -- requires Python on PATH):
+
+```powershell
+cd "<workspace-root>\HSL Debugger"
 python -m hsl_runtime.main "<absolute-path-to-file.hsl>" --hamilton-dir "C:\Program Files (x86)\Hamilton"
 ```
 

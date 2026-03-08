@@ -19,15 +19,29 @@ The HSL Debugger is a complete **simulation-only** runtime for [Hamilton Standar
 
 ## Quick Start
 
-### Prerequisites
+### Prerequisites (for end users)
+
+- **No Python required.** The runtime is compiled into a standalone executable via PyInstaller.
+- Hamilton software installed at `C:\Program Files (x86)\Hamilton` (for library includes)
+
+### Prerequisites (for developers modifying the Python code)
 
 - Python 3.10+ (tested on 3.13)
-- Hamilton software installed at `C:\Program Files (x86)\Hamilton` (for library includes)
+- PyInstaller (`pip install pyinstaller`)
+- After modifying any `.py` file under `hsl_runtime/`, you **must** rebuild the exe (see "Building the Executable" below)
 
 ### Run a Method
 
+Using the bundled executable (no Python needed):
+
 ```powershell
-cd "c:\Users\admin\Desktop\HSL Debugger"
+& "dist\hsl_debugger\hsl_debugger.exe" "C:\Program Files (x86)\Hamilton\Methods\MyMethod.hsl"
+```
+
+Using Python directly (developer mode):
+
+```powershell
+cd "HSL Debugger"
 python -m hsl_runtime.main "C:\Program Files (x86)\Hamilton\Methods\MyMethod.hsl"
 ```
 
@@ -111,6 +125,23 @@ For detailed architecture documentation, see [Compiler Architecture](docs/COMPIL
 
 ---
 
+## Building the Executable
+
+**IMPORTANT:** After modifying any `.py` file under `hsl_runtime/`, you must rebuild the standalone exe. The VS Code extension runs `dist/hsl_debugger/hsl_debugger.exe` -- it does **not** invoke Python directly. Changes to the Python source will have **no effect** until the exe is rebuilt.
+
+```powershell
+cd "HSL Debugger"
+pyinstaller --onedir --name hsl_debugger --console --noconfirm hsl_runtime/main.py
+```
+
+This produces `dist/hsl_debugger/hsl_debugger.exe` plus supporting DLLs. The `--console` flag is required so stdout/stderr are piped to the VS Code debug adapter. The `--onedir` flag is preferred over `--onefile` for faster startup.
+
+The runtime uses **only Python standard library modules** (no pip packages), so the build is straightforward with no hidden imports needed.
+
+**Do not commit `build/`, `dist/`, or `*.spec` to git** -- they are in `.gitignore`. The `dist/` folder is included in the packaged `.vsix` extension via `.vscodeignore`.
+
+---
+
 ## Project Structure
 
 ```
@@ -125,14 +156,18 @@ HSL Debugger/
 │   ├── PARSER.md
 │   ├── INTERPRETER.md
 │   └── MAIN.md
-└── hsl_runtime/
-    ├── __init__.py              # Package init (v0.1.0)
-    ├── preprocessor.py          # Phase 1: Include/define/ifdef resolution
-    ├── lexer.py                 # Phase 2: Tokenization
-    ├── ast_nodes.py             # AST node type definitions
-    ├── parser.py                # Phase 3: Recursive-descent parser
-    ├── interpreter.py           # Phase 4: Simulation interpreter
-    └── main.py                  # CLI entry point
+├── hsl_runtime/
+│   ├── __init__.py              # Package init (v0.1.0)
+│   ├── preprocessor.py          # Phase 1: Include/define/ifdef resolution
+│   ├── lexer.py                 # Phase 2: Tokenization
+│   ├── ast_nodes.py             # AST node type definitions
+│   ├── parser.py                # Phase 3: Recursive-descent parser
+│   ├── interpreter.py           # Phase 4: Simulation interpreter
+│   └── main.py                  # CLI entry point
+├── dist/                        # PyInstaller output (NOT in git)
+│   └── hsl_debugger/
+│       └── hsl_debugger.exe     # Standalone exe shipped with extension
+└── build/                       # PyInstaller intermediates (NOT in git)
 ```
 
 ---
