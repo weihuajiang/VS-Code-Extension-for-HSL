@@ -158,9 +158,7 @@ method main()
 
 When reviewing pipetting steps, check for these potential issues:
 
-1. **Non-ASCII characters in source files**: Any character outside printable ASCII (em dashes, en dashes, smart quotes, arrows, non-breaking spaces, etc.) will cause the VENUS compiler to misinterpret the file. The extension flags these with diagnostic code `non-ascii-character`. Replace em dashes with `--`, en dashes with `-`, smart quotes with straight quotes, and remove or replace any other non-ASCII characters.
-2. **Missing Initialize step**: If `method main()` uses any `ML_STAR._<CLSID>(...)` call without a preceding Initialize step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2`), the program will fail at runtime. This is a critical error.
-2. **Volume out of range**: Aspirate/dispense volumes should be within the tip type's capacity (e.g., 0-1000 µL for 1000 µL tips, 0-5000 µL for 5 mL tips).
+1. **Volume out of range**: Aspirate/dispense volumes should be within the tip type's capacity (e.g., 0-1000 µL for 1000 µL tips, 0-5000 µL for 5 mL tips).
 2. **Mix volume vs aspirate volume**: Mix volume should generally be ≤ the tip capacity and appropriate for the vessel.
 3. **Mix cycles = 0 with non-zero mix volume**: Likely an error -- mix won't execute without cycles.
 4. **LLD off with submerge depth**: If LLD is off, the submerge depth is relative to container bottom, not liquid surface. Verify this is intentional.
@@ -270,11 +268,20 @@ LibA::SharedHelper();      // OK
 
 Use the underscore prefix (`_FunctionName`) as a naming convention for internal functions, but only mark them `private` if they are truly file-local.
 
-### No Anonymous Blocks Inside Functions
+### Variable Declarations Must Be at Top of Scope
 
-HSL does **not** support C-style anonymous blocks (`{ ... }`) with local variable declarations inside functions. All variable declarations must be at the **top** of the function/method body, before any executable code.
+All type declarations (`variable`, `string`, `sequence`, `object`, etc.) must appear at the **beginning** of their enclosing scope (function, method, or namespace), before any executable statements. Both interleaving declarations with code and using C-style anonymous blocks (`{ ... }`) with local declarations are syntax errors.
 
 ```hsl
+// WRONG -- declaration after executable code
+function Example() void
+{
+   variable x;
+   x = 5;
+   variable y;          // ERROR -- declaration after executable statement
+   y = 10;
+}
+
 // WRONG -- anonymous block with local declarations
 method main()
 {
@@ -287,38 +294,13 @@ method main()
 }
 
 // CORRECT -- all declarations at the top
-method main()
+function Example() void
 {
    variable x;
    variable y;
 
    x = 5;
    y = x + 1;
-}
-```
-
-### Variable Declarations Must Be at Top of Scope
-
-All `variable`, `string`, `sequence`, `object`, and other type declarations must appear at the **beginning** of their enclosing scope (function, method, or namespace), before any executable statements. Interleaving declarations with code is a syntax error.
-
-```hsl
-// WRONG -- declaration after executable code
-function Example() void
-{
-   variable x;
-   x = 5;
-   variable y;          // ERROR -- declaration after executable statement
-   y = 10;
-}
-
-// CORRECT
-function Example() void
-{
-   variable x;
-   variable y;
-
-   x = 5;
-   y = 10;
 }
 ```
 
@@ -414,100 +396,40 @@ function MyFunc(variable i_param) variable
 
 ## HSL Debugger -- Simulation Runtime
 
-This workspace includes a **Python-based HSL simulation runtime** at `HSL Debugger/hsl_runtime/`. It preprocesses, tokenizes, parses, and interprets HSL source code entirely in Python -- no Hamilton hardware or VENUS installation is required at runtime (only the Hamilton library `.hsl`/`.sub` files are needed for `#include` resolution).
+This workspace includes a **Python-based HSL simulation runtime** at `HSL Debugger/hsl_runtime/`. It preprocesses, tokenizes, parses, and interprets HSL source code entirely in Python -- no Hamilton hardware or VENUS installation is required (only the Hamilton library `.hsl`/`.sub` files are needed for `#include` resolution).
 
-**Use this debugger to run, test, and validate HSL method files.** When you write or modify HSL code and need to verify it works, run it through this debugger rather than guessing.
-
-### Purpose and Scope
-
-The HSL Debugger is **exclusively for executing and testing HSL method files** -- files that contain a `method main()` entry point. It is not a general HSL compiler or library validator.
-
-**Critical limitation:** The debugger **will fail** if you try to run a library file (`.hsl` or `.sub`) that does not contain a `method main()`. Library files define functions and namespaces but have no entry point. The interpreter will emit `"No main() method found"` and only process top-level declarations without executing any logic. To test a library, you must create or use a method file that `#include`s the library and calls its functions from `method main()`.
-
-### How to Run
-
-```powershell
-cd "HSL Debugger"
-python -m hsl_runtime.main "<path-to-method.hsl>" --hamilton-dir "C:\Program Files (x86)\Hamilton"
-```
-
-### Command-Line Options
-
-| Flag | Description |
-|------|-------------|
-| `--verbose` | Show detailed trace output (default) |
-| `--quiet` | Suppress trace output |
-| `--dump-tokens` | Print token stream and exit |
-| `--dump-ast` | Print abstract syntax tree and exit |
-| `--dump-preprocessed` | Print preprocessed source and exit |
-| `--max-iterations N` | Safety limit for loops (default: 100,000) |
-| `--hamilton-dir PATH` | Hamilton installation directory (default: `C:\Program Files (x86)\Hamilton`) |
-| `--log-dir PATH` | Directory for `.trc` trace log output (default: `<hamilton-dir>/Logfiles/vscode`) |
+The debugger **requires `method main()`** in the target file. Library files without `method main()` will emit `"No main() method found"` and not execute. To test a library, create a test harness (see "Creating Test Harnesses" below).
 
 ### What the Debugger Does
 
-1. **Preprocesses** the HSL file -- resolves `#include` directives, `#define` macros, and conditional compilation (`#ifdef`/`#ifndef`).
-2. **Tokenizes** the preprocessed source into an HSL token stream.
-3. **Parses** tokens into an abstract syntax tree (AST).
-4. **Executes** the AST in simulation mode:
-   - All HSL control flow (if/else, while, for, return, abort) executes for real.
-   - All variable assignments, string operations, array operations, and sequence operations execute for real.
-   - Device steps (`ML_STAR._<CLSID>(...)`) are recognized but return simulated success -- no firmware commands are generated. This is the same approach Hamilton's own `HxRun.exe` uses in simulation mode: a virtual device that always returns OK.
-   - COM objects (e.g., `BarcodedTipTracking.Engine`) are simulated with pure-Python implementations.
-   - `Trace()` and `FormatTrace()` output is captured and written to a `.trc` file in Hamilton's trace log format.
+- Resolves `#include`, `#define`, and `#ifdef`/`#ifndef` directives
+- Executes all HSL control flow, variable assignments, string/array/sequence operations
+- Device steps (`ML_STAR._<CLSID>(...)`) return simulated success -- no firmware commands
+- COM objects (e.g., `BarcodedTipTracking.Engine`) are simulated in Python
+- `Trace()` / `FormatTrace()` output is captured and written to a `.trc` log file
 
 ### What the Debugger Does NOT Do
 
-- **No deck layout loading** -- `.lay` files are not parsed; labware positions are not validated.
-- **No `.stp` file reading** -- pipetting parameters (volumes, LLD, liquid classes) are not decoded.
-- **No firmware emulation** -- device steps are stubs that return success, not a physics simulation.
-- **No library-only execution** -- the file **must** have `method main()` or execution will not occur.
-
-### Interpreting Output
-
-- **Exit code 0** = success. The method's `main()` ran to completion.
-- **Exit code 1** = failure. Check the terminal output for the phase that failed (Preprocessor, Lexer, Parser, or Runtime).
-- **Trace log** = written to `<hamilton-dir>/Logfiles/vscode/<MethodName>_<RunId>_Trace.trc` in standard Hamilton `.trc` format.
-- **`[HSL TRACE]` lines** in terminal output show every `Trace()` call from the method.
-
-### Example: Testing a Library
-
-If you have a library `MyLib.hsl` with helper functions, you cannot run it directly. Create a test method:
-
-```hsl
-#include "MyLib.hsl"
-
-method main()
-{
-   variable result;
-   // Call library functions and verify results
-   result = MyLib::SomeFunction("test input");
-   Trace("Result: ");
-   Trace(result);
-}
-```
-
-Then run:
-```powershell
-python -m hsl_runtime.main "TestMyLib.hsl"
-```
+- No deck layout loading (`.lay` files not parsed)
+- No `.stp` file reading (pipetting parameters not decoded)
+- No firmware emulation (device steps are stubs returning success)
 
 ---
 
 ## LLM Execution Workflow -- Running and Validating HSL Code
 
-The VS Code extension provides **two execution modes** for HSL files. You must understand both and use them in the correct order.
+The VS Code extension provides **two execution modes** for HSL files.
 
-| Mode | Shortcut | Engine | Safety | What It Does |
-|------|----------|--------|--------|--------------|
-| **Start Debugging** (safe run) | F5 | Python simulation runtime | Completely safe -- no hardware interaction | Preprocesses, tokenizes, parses, and executes the HSL method in a pure-Python interpreter. All device calls return simulated success. Validates syntax, control flow, variable logic, string/array/sequence operations. |
-| **Run Without Debugging** (real run) | Ctrl+F5 | Hamilton `HxRun.exe` | **Moves real hardware** if a robot is connected | Launches the method through Hamilton's native runtime. If a physical instrument is connected, the robot **will move**. If no instrument is attached, HxRun runs in its own simulation mode. Produces a `.trc` trace file in `C:\Program Files (x86)\Hamilton\Logfiles`. |
+| Mode | Shortcut | Engine | Safety |
+|------|----------|--------|--------|
+| **Start Debugging** (safe run) | F5 | Python simulation runtime | Completely safe -- no hardware interaction |
+| **Run Without Debugging** (real run) | Ctrl+F5 | Hamilton `HxRun.exe` | **Moves real hardware** if a robot is connected |
 
 ### Mandatory Execution Order
 
-**Always run Start Debugging (Python simulation) first**, then Run Without Debugging (HxRun) second. This is the default workflow for every execution request. The only exception is when the user **explicitly** says to skip the safe run (e.g., "just run it on the robot", "skip simulation", "run without debugging only").
+**Always run Start Debugging (Python simulation) first**, then Run Without Debugging (HxRun) second. The only exception is when the user **explicitly** says to skip the safe run (e.g., "just run it on the robot", "skip simulation", "run without debugging only").
 
-The rationale: the Python simulation catches syntax errors, parse errors, runtime logic errors, and type mismatches **without** any risk of moving hardware. Running HxRun with broken code on a connected robot can cause partial execution, tip crashes, or reagent waste.
+The Python simulation catches syntax errors, parse errors, runtime logic errors, and type mismatches **without** any risk of moving hardware. Running HxRun with broken code on a connected robot can cause partial execution, tip crashes, or reagent waste.
 
 ### When to Run
 
@@ -521,53 +443,66 @@ Run the debugger whenever you:
 
 ### Step 1: Start Debugging (Python Simulation -- Safe Run)
 
-**1. Locate the file.** Determine the absolute path of the `.hsl` or `.sub` file. If the file is a `.med` file, it cannot be run directly -- `.med` files are binary method containers and must be converted to `.hsl` first.
+**1. Locate the file.** Determine the absolute path of the `.hsl` or `.sub` file. `.med` files cannot be run directly -- they are binary method containers.
 
-**2. Verify it has `method main()`.** Only files with a `method main()` entry point can be executed. If the target is a library (`.hsl`/`.sub` without `method main()`), create a temporary test harness method that `#include`s the library and calls its functions.
+**2. Verify it has `method main()`.** If the target is a library without `method main()`, create a test harness (see below).
 
-**3. Run the Python simulation from the terminal.** Execute:
+**3. Run the Python simulation from the terminal:**
 
 ```powershell
 cd "c:\Users\admin\Documents\GitHub\VS-Code-Extension-for-HSL\HSL Debugger"
 python -m hsl_runtime.main "<absolute-path-to-file.hsl>" --hamilton-dir "C:\Program Files (x86)\Hamilton"
 ```
 
-Use `--quiet` to suppress verbose trace output if you only need pass/fail. Use `--verbose` (the default) when you need to see `Trace()` output.
+**Command-line options:**
 
-**4. Read and interpret the terminal output.** The output follows a structured format with four phases:
+| Flag | Description |
+|------|-------------|
+| `--verbose` | Show detailed trace output (default) |
+| `--quiet` | Suppress trace output |
+| `--dump-tokens` | Print token stream and exit (no execution) |
+| `--dump-ast` | Print AST and exit (no execution) |
+| `--dump-preprocessed` | Print preprocessed source and exit (no execution) |
+| `--max-iterations N` | Loop safety limit (default: 100,000) |
+| `--hamilton-dir PATH` | Hamilton installation directory (default: `C:\Program Files (x86)\Hamilton`) |
+| `--log-dir PATH` | `.trc` trace log output directory (default: `<hamilton-dir>/Logfiles/vscode`) |
 
-```
-[1/4] Preprocessing...    -- #include resolution, macro expansion
-[2/4] Tokenizing...       -- lexical analysis
-[3/4] Parsing...          -- AST construction (parser warnings are normal)
-[4/4] Executing (SIMULATION)...  -- runtime execution
-```
+**4. Check the exit code and output.**
+- **Exit code 0** = success. Look for `Simulation finished successfully`.
+- **Exit code 1** = failure. The terminal output identifies which phase failed.
+- **`[HSL TRACE]` lines** show `Trace()` / `FormatTrace()` output.
 
-**5. Check the exit code and output.**
-- **Exit code 0** = the method compiled and ran to completion. Look for `Simulation finished successfully`.
-- **Exit code 1** = a failure occurred. The terminal output will identify which phase failed and the error message.
-- **`[HSL TRACE]` lines** show output from `Trace()` and `FormatTrace()` calls -- use these to verify logic.
+**5. Fix and re-run if needed.** Repeat until exit code 0. Do **not** proceed to HxRun until the simulation passes.
 
-**6. Fix and re-run if needed.** If the simulation fails, read the error output, fix the HSL source, and re-run. Repeat until exit code 0. Do **not** proceed to HxRun until the Python simulation passes.
+### Interpreting Python Simulation Results
+
+**Parser warnings are expected.** 50-120 parser warnings for Hamilton library constructs (e.g., `^` operator, struct types) are normal. Focus on errors.
+
+**Preprocessing errors** (phase 1): `#include` file not found or circular include. Check `--hamilton-dir` path.
+
+**Parse errors** (phase 3): HSL syntax errors (missing semicolons, undeclared variables, bad expressions). Most actionable -- fix and re-run.
+
+**Runtime errors** (phase 4): Logic errors (division by zero, array index out of bounds), wrong argument count, missing `method main()`.
+
+**Device calls always succeed in simulation.** Hardware-specific failures only surface in HxRun (Step 2).
 
 ### Step 2: Run Without Debugging (HxRun -- Real/Hardware Run)
 
-Only proceed to this step after the Python simulation passes (exit code 0), **or** if the user explicitly requests it.
+Only proceed after the Python simulation passes (exit code 0), **or** if the user explicitly requests it.
 
 **Prerequisites:**
-- Hamilton VENUS must be installed on the machine
-- `HxRun.exe` must exist at `C:\Program Files (x86)\Hamilton\Bin\HxRun.exe`
-- If a physical instrument is connected, the robot **will execute real movements** -- tips will be picked up, liquids will be aspirated/dispensed, carriers will move
+- Hamilton VENUS installed; `HxRun.exe` at `C:\Program Files (x86)\Hamilton\Bin\HxRun.exe`
+- If a physical instrument is connected, the robot **will execute real movements**
 
-**1. Run via HxRun.exe from the terminal:**
+**1. Run via HxRun.exe:**
 
 ```powershell
 & "C:\Program Files (x86)\Hamilton\Bin\HxRun.exe" "<absolute-path-to-file.hsl>" -t -minimized
 ```
 
-The `-t` flag tells HxRun to terminate after the method completes. The `-minimized` flag runs the HxRun window minimized.
+`-t` = terminate after completion. `-minimized` = minimize HxRun window.
 
-**2. Monitor the trace file.** HxRun writes a trace log to `C:\Program Files (x86)\Hamilton\Logfiles\` with the naming pattern `<MethodName>_<GUID>_Trace.trc`. To find and read the latest trace file:
+**2. Monitor the trace file:**
 
 ```powershell
 $methodName = "YourMethodName"
@@ -576,87 +511,43 @@ $latest = Get-ChildItem "C:\Program Files (x86)\Hamilton\Logfiles" -Filter "${me
 if ($latest) { Get-Content $latest.FullName -Tail 50 }
 ```
 
-**3. Check the exit code.** Exit code 0 = success. Non-zero = the method encountered an error during execution.
-
-**4. Report results.** If HxRun fails, read the trace file for error details. Common HxRun-specific failures (not caught by Python simulation) include:
-- Labware not found on deck (deck layout mismatch)
+**3. Check exit code.** 0 = success. Non-zero = error. Common HxRun-specific failures:
+- Labware not found on deck (layout mismatch)
 - Tip pickup failures (no tips at expected position)
 - Liquid level detection failures (empty wells, foam)
-- Hardware communication errors (instrument not connected/powered)
+- Hardware communication errors (instrument not connected)
 - Sequence position errors (sequence exhausted)
-
-### Interpreting Common Results (Python Simulation)
-
-**Parser warnings are expected.** The Python parser emits warnings for Hamilton library constructs it does not fully support (e.g., the `^` operator, struct types). Seeing 50-120 parser warnings is normal and does not indicate a problem with the user's code. Focus on errors, not warnings.
-
-**Preprocessing errors** (phase 1) typically mean:
-- A `#include` file was not found -- check the `--hamilton-dir` path and that required libraries exist
-- A circular include was detected
-
-**Parse errors** (phase 3) typically mean:
-- HSL syntax errors in the user's code (missing semicolons, undeclared variables, bad expressions)
-- These are the most actionable errors -- fix the HSL source and re-run
-
-**Runtime errors** (phase 4) typically mean:
-- Logic errors (division by zero, array index out of bounds, type mismatches)
-- Calling a function with wrong argument count
-- Missing `method main()`
-
-**Device calls always succeed in simulation.** All `ML_STAR._<CLSID>(...)` calls return simulated success. The Python debugger validates control flow, variable logic, string operations, and sequence operations -- but not physical pipetting behavior. Hardware-specific failures only surface in the HxRun step.
 
 ### Validating Code Changes
 
-After modifying HSL code, always follow this cycle:
+After modifying HSL code, always:
 
 1. Make the edit
-2. Run the Python simulation (Step 1)
-3. Check for exit code 0
-4. If errors, read the error output, fix the code, and re-run
-5. Repeat until the simulation passes
-6. If the user wants a real run, proceed to HxRun (Step 2)
+2. Run Python simulation (Step 1)
+3. Fix and re-run until exit code 0
+4. If the user wants a real run, proceed to HxRun (Step 2)
 
-Do **not** present HSL code to the user as "correct" without running it through the Python simulation first when the debugger is available.
-
-### Diagnostic Flags for Deeper Debugging
-
-When a simple run is insufficient, use diagnostic flags with the Python simulation:
-
-| Flag | When to Use |
-|------|-------------|
-| `--dump-preprocessed` | To inspect the fully expanded source after `#include` and `#define` resolution -- useful when includes are missing or macros are wrong |
-| `--dump-tokens` | To debug lexer-level issues (rare) |
-| `--dump-ast` | To inspect the parsed structure when semantic errors are unclear |
-
-These flags print their output and exit **without** executing the method.
+Do **not** present HSL code as "correct" without running the Python simulation first.
 
 ### Creating Test Harnesses for Libraries
 
-When asked to validate a library file that has no `method main()`, create a temporary test method:
+Files without `method main()` cannot be executed. Create a temporary test method:
 
 ```hsl
-// TestHarness.hsl -- temporary file to test the library
+// TestHarness.hsl
 #include "TargetLibrary.hsl"
 
 method main()
 {
    variable result;
-
-   // Call the functions you want to verify
    result = TargetNamespace::FunctionToTest("input");
    Trace("Result: ");
    Trace(result);
 }
 ```
 
-Save this as a temporary `.hsl` file, run it through the debugger, then clean up the temporary file after validation.
+Run it through the debugger, then clean up the temporary file.
 
 ### Trace Output as Verification
 
-HSL methods use `Trace()` to log runtime values. When verifying code, insert `Trace()` calls at key points to confirm:
-
-- Variable values at critical decision points
-- Loop iteration counts
-- Function return values
-- Sequence positions and IDs
-
-The `[HSL TRACE]` lines in the terminal output (Python simulation) and the `.trc` file (HxRun) show these values in execution order. Use them to confirm the method does what the user expects.
+Insert `Trace()` calls at key points to confirm variable values, loop counts, return values, and sequence positions. The `[HSL TRACE]` lines in terminal output (Python simulation) and `.trc` files (HxRun) show values in execution order.
