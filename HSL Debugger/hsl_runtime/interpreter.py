@@ -17,6 +17,7 @@ from typing import Any, Optional, Callable
 from dataclasses import dataclass, field
 from .ast_nodes import *
 from .com_objects import create_com_object, GenericComObject
+from .firmware import DeviceSimulator, CLSID_MAP
 
 
 # ============================================================================
@@ -484,6 +485,9 @@ class Interpreter:
         self._iteration_count = 0
         self._step_callback: Optional[Callable] = None  # For debugger breakpoints
 
+        # Firmware-aware device simulator
+        self.device_sim = DeviceSimulator(trace_fn=self.trace.trace)
+
         # Initialize built-in constants
         self._init_builtins()
 
@@ -562,6 +566,14 @@ class Interpreter:
                     break
 
         self.trace.trace("=== Simulation complete ===")
+
+        # Dump firmware simulation summary
+        self.trace.trace(self.device_sim.get_state_summary())
+        cmd_log = self.device_sim.get_command_log()
+        if cmd_log:
+            self.trace.trace("=== Firmware Command Log ===")
+            for entry in cmd_log:
+                self.trace.trace(entry)
 
     def _collect_declarations(self, declarations: list):
         """First pass: collect all function and namespace declarations."""
@@ -1154,10 +1166,17 @@ class Interpreter:
         if isinstance(obj, HslTimer):
             return self._call_timer_method(obj, method, args)
 
-        # Device methods - treat as simulation stubs
+        # Device methods - firmware-aware simulation
         if isinstance(obj, HslDevice):
-            self.trace.trace(f"[SIM] Device method: {node.method}({', '.join(str(a) for a in args)})")
-            return HslValue(1)
+            method_name = node.method
+            step_guid = str(self._to_python(args[0])) if args else ""
+            result = self.device_sim.execute_step(method_name, step_guid)
+            if not result.success:
+                self.trace.trace(
+                    f"[SIM] Device step FAILED: {result.description}")
+                for w in result.warnings:
+                    self.trace.trace(f"[SIM] WARNING: {w}")
+            return HslValue(1 if result.success else 0)
 
         # Generic: try calling as regular function
         self.trace.trace(f"[SIM] Unknown method: {method} on {type(obj).__name__}")
