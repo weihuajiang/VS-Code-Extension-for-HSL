@@ -79,6 +79,73 @@ If your default text generation inserts typographic characters (smart quotes, em
 
 ---
 
+## ABSOLUTE RULE: x86 (32-bit) Architecture Only (Zero Tolerance)
+
+Hamilton VENUS, the HSL compiler, the HSL runtime (`HxRun.exe`), and **all** Hamilton COM objects are **32-bit (x86) applications**. They are installed under `C:\Program Files (x86)\Hamilton`. There is no 64-bit version. There never has been. Every tool, script, build command, COM registration, and PowerShell invocation in this workspace **MUST** target x86. Using x64 (64-bit) for any of these operations will cause silent failures, COM class-not-found errors, `RegAsm` registration that VENUS cannot see, or runtime crashes. **There is no valid use case for x64 in the Hamilton toolchain.**
+
+### Why This Matters
+
+On a 64-bit Windows system, 32-bit and 64-bit COM registrations are stored in **separate registry hives**. A COM DLL registered with the 64-bit `RegAsm.exe` (under `Framework64`) is invisible to any 32-bit process -- including VENUS. The DLL will appear registered (PowerShell's 64-bit `New-Object -ComObject` will find it), but VENUS and HSL will fail at runtime with "Class not registered" or similar errors. This is one of the most common and hardest-to-diagnose failures in Hamilton integrations.
+
+Similarly, PowerShell on a 64-bit system defaults to the 64-bit host. COM objects instantiated in a 64-bit PowerShell session load from the 64-bit registry hive. If the COM server is 32-bit only (as all Hamilton COM servers are), the call will fail. You **must** use the 32-bit PowerShell host or ensure the COM object is registered for 32-bit consumption.
+
+### Rules
+
+1. **C# projects MUST target `x86`.** Set `<PlatformTarget>x86</PlatformTarget>` and `<Prefer32Bit>true</Prefer32Bit>` in every `.csproj` file. Never use `AnyCPU` without `Prefer32Bit` -- on a 64-bit OS, `AnyCPU` defaults to 64-bit, and the resulting assembly cannot interop with Hamilton's 32-bit COM objects. Never use `x64`.
+
+2. **COM registration MUST use the 32-bit `RegAsm.exe`.** The correct path is:
+   ```
+   %SystemRoot%\Microsoft.NET\Framework\v4.0.30319\regasm.exe
+   ```
+   **NOT** `Framework64`. Using `Framework64\regasm.exe` registers the COM class in the 64-bit hive where VENUS cannot find it.
+
+3. **`dotnet build` MUST specify the x86 platform.** When building .NET Framework projects:
+   ```powershell
+   dotnet build /p:Platform=x86
+   ```
+   or via MSBuild:
+   ```powershell
+   & "${env:SystemRoot}\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe" /p:Platform=x86
+   ```
+   Never use the 64-bit MSBuild from `Framework64` for Hamilton-related projects.
+
+4. **PowerShell COM interop MUST use a 32-bit process.** When instantiating Hamilton COM objects (or any COM object registered only in the 32-bit hive), launch the 32-bit PowerShell:
+   ```powershell
+   & "${env:SystemRoot}\SysWOW64\WindowsPowerShell\v1.0\powershell.exe" -Command {
+       $obj = New-Object -ComObject HxCfgFilConverter.HxCfgFileConverterCOM
+       # ... use the object ...
+   }
+   ```
+   The default `powershell.exe` on a 64-bit system is the 64-bit host and **will not** find 32-bit-only COM classes.
+
+5. **All Hamilton paths use `Program Files (x86)`.** VENUS installs to `C:\Program Files (x86)\Hamilton`. Never reference `C:\Program Files\Hamilton` -- that path does not exist.
+
+6. **PyInstaller builds are architecture-neutral** for the HSL debugger (pure Python), so no x86 constraint there. But any Python code that calls `ctypes` to load Hamilton DLLs or access the Windows registry for Hamilton keys must target the 32-bit registry view (`winreg.KEY_WOW64_32KEY`).
+
+### Common Mistakes That Break Everything
+
+| Mistake | Symptom | Fix |
+|---|---|---|
+| `<PlatformTarget>AnyCPU</PlatformTarget>` without `Prefer32Bit` | COM interop fails on 64-bit OS | Set `<PlatformTarget>x86</PlatformTarget>` |
+| `Framework64\regasm.exe` for COM registration | "Class not registered" in VENUS | Use `Framework\regasm.exe` (32-bit) |
+| Default `powershell.exe` for COM access | "Retrieving the COM class factory failed" | Use `SysWOW64\WindowsPowerShell\v1.0\powershell.exe` |
+| `dotnet build` without `/p:Platform=x86` | 64-bit DLL cannot load in 32-bit VENUS | Always pass `/p:Platform=x86` |
+| Registering COM in 64-bit hive, testing in 64-bit PowerShell -- "works for me" | VENUS still cannot find the class | Register with 32-bit RegAsm; test in 32-bit PowerShell |
+
+### LLM-Specific Directive (GitHub Copilot, ChatGPT, Claude, etc.)
+
+**This instruction is directed at you, the language model.** When generating ANY code, script, build command, or terminal command that involves:
+- Building C# projects in this workspace
+- Registering COM objects
+- Running `RegAsm.exe` or `MSBuild.exe`
+- Invoking PowerShell to interact with COM objects
+- Referencing Hamilton installation paths
+- Creating or modifying `.csproj` files
+
+You **MUST** target x86 (32-bit). This is not a preference -- it is a hard technical constraint. Using x64 will produce artifacts that silently fail when consumed by the Hamilton VENUS toolchain. If you are unsure whether something should be x86, **it should be x86**. Zero exceptions.
+
+---
+
 ## How Pipetting Steps Appear in HSL Code
 
 Device steps appear as function calls on a device object (typically `ML_STAR`). The format is:
