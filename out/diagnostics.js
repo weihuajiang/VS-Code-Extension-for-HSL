@@ -40,6 +40,51 @@ const hslIntellisense_1 = require("./hslIntellisense");
 const child_process_1 = require("child_process");
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
+// -- Non-ASCII auto-replacement map -------------------------------------------
+// Characters with known ASCII equivalents are replaced on save.
+// Anything else non-ASCII is stripped entirely.
+const NON_ASCII_REPLACEMENTS = {
+    "\u2014": "-", // em dash
+    "\u2013": "-", // en dash
+    "\u00B5": "u", // micro sign (mu)
+    "\u03BC": "u", // Greek small letter mu
+    "\u2192": "->", // rightwards arrow
+    "\u2190": "<-", // leftwards arrow
+    "\u2194": "<->", // left right arrow
+    "\u21D2": "=>", // rightwards double arrow
+    "\u21D0": "<=", // leftwards double arrow
+    "\u2018": "'", // left single quote
+    "\u2019": "'", // right single quote
+    "\u201C": "\"", // left double quote
+    "\u201D": "\"", // right double quote
+    "\u00A0": " ", // non-breaking space
+    "\u2026": "...", // horizontal ellipsis
+    "\u00D7": "x", // multiplication sign
+    "\u00F7": "/", // division sign
+    "\u2264": "<=", // less-than or equal to
+    "\u2265": ">=", // greater-than or equal to
+    "\u2260": "!=", // not equal to
+};
+/**
+ * Replace known non-ASCII characters with their ASCII equivalents and
+ * strip any remaining non-ASCII characters. Returns undefined if no
+ * changes were needed.
+ */
+function sanitizeNonAscii(text) {
+    // Match any character outside printable ASCII (0x20-0x7E), tab, CR, LF
+    const nonAsciiPattern = /[^\x09\x0A\x0D\x20-\x7E]/g;
+    if (!nonAsciiPattern.test(text)) {
+        return undefined; // nothing to do
+    }
+    // Replace all mapped characters, then strip anything else non-ASCII.
+    let result = text;
+    for (const [char, replacement] of Object.entries(NON_ASCII_REPLACEMENTS)) {
+        result = result.split(char).join(replacement);
+    }
+    // Strip any remaining non-ASCII characters
+    result = result.replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "");
+    return result;
+}
 /**
  * Creates and returns a DiagnosticCollection that validates HSL syntax.
  * Currently checks for:
@@ -60,6 +105,23 @@ function createHslDiagnostics(context) {
     // Re-run when a document is opened or its content changes
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((doc) => {
         if (doc.languageId === "hsl") {
+            // -- Auto-replace non-ASCII characters ---------------------------
+            // Replace known non-ASCII characters (em/en dashes, mu, arrows,
+            // smart quotes, etc.) with ASCII equivalents and strip the rest.
+            // This runs before the checksum so the checksum covers the
+            // cleaned file.
+            const filePath = doc.fileName;
+            try {
+                const raw = fs.readFileSync(filePath, "utf-8");
+                const cleaned = sanitizeNonAscii(raw);
+                if (cleaned !== undefined) {
+                    fs.writeFileSync(filePath, cleaned, "utf-8");
+                }
+            }
+            catch (sanitizeErr) {
+                const msg = sanitizeErr instanceof Error ? sanitizeErr.message : String(sanitizeErr);
+                vscode.window.showWarningMessage(`HSL non-ASCII cleanup failed: ${msg}`);
+            }
             // Use the compiled AddCheckSum.exe (.NET wrapper around
             // IHxSecurityFileCom2::SetFileValidation).  The exe ships in
             // the extension's out/ directory and targets x86/.NET 4.8 so
@@ -69,7 +131,7 @@ function createHslDiagnostics(context) {
                 vscode.window.showWarningMessage(`HSL Checksum update skipped: AddCheckSum.exe not found at ${addCheckSumExe}`);
                 return;
             }
-            (0, child_process_1.execFile)(addCheckSumExe, [doc.fileName], (err) => {
+            (0, child_process_1.execFile)(addCheckSumExe, [filePath], (err) => {
                 if (err) {
                     vscode.window.showWarningMessage(`HSL Checksum update failed: ${err.message}`);
                 }
