@@ -18,9 +18,64 @@ More broadly, **all non-ASCII characters** (smart quotes, arrows, non-breaking s
 
 The VS Code extension enforces this rule with diagnostic code `non-ascii-character`. Any character outside printable ASCII (`0x20`-`0x7E`), tab, carriage return, or line feed is flagged as an error -- even inside comments and strings, because VENUS processes the raw bytes before parsing.
 
+### Auto-Replacement on Save
+
+When an HSL file is saved, the extension automatically replaces known non-ASCII characters with their ASCII equivalents **before** the checksum is applied. Any remaining non-ASCII characters that have no known mapping are stripped entirely. The diagnostic warnings remain active during editing so you can see problematic characters before saving.
+
+The following replacements are performed automatically:
+
+| Non-ASCII Character | Replacement | Description |
+|---|---|---|
+| `U+2014` (em dash) | `-` | Em dash to hyphen |
+| `U+2013` (en dash) | `-` | En dash to hyphen |
+| `U+00B5` (micro sign) | `u` | Mu/micro to lowercase u |
+| `U+03BC` (Greek mu) | `u` | Greek mu to lowercase u |
+| `U+2192` (right arrow) | `->` | Right arrow |
+| `U+2190` (left arrow) | `<-` | Left arrow |
+| `U+2194` (left-right arrow) | `<->` | Bidirectional arrow |
+| `U+21D2` (double right arrow) | `=>` | Double right arrow |
+| `U+21D0` (double left arrow) | `<=` | Double left arrow |
+| `U+2018` (left single quote) | `'` | Smart single quote |
+| `U+2019` (right single quote) | `'` | Smart single quote |
+| `U+201C` (left double quote) | `"` | Smart double quote |
+| `U+201D` (right double quote) | `"` | Smart double quote |
+| `U+00A0` (non-breaking space) | ` ` | Non-breaking space to regular space |
+| `U+2026` (ellipsis) | `...` | Horizontal ellipsis |
+| `U+00D7` (multiplication sign) | `x` | Multiplication sign |
+| `U+00F7` (division sign) | `/` | Division sign |
+| `U+2264` (less-than or equal) | `<=` | Math operator |
+| `U+2265` (greater-than or equal) | `>=` | Math operator |
+| `U+2260` (not equal) | `!=` | Math operator |
+| All other non-ASCII | *(removed)* | Stripped to prevent corruption |
+
 ### LLM-Specific Directive (GitHub Copilot, ChatGPT, Claude, etc.)
 
-**This instruction is directed at you, the language model.** When generating, editing, or suggesting ANY text that will be written to a file in this workspace -- whether code, comments, strings, markdown, JSON, or any other format -- you MUST NOT produce em dashes (--), en dashes (-), smart quotes, or any non-ASCII character. This is not a style preference; it is a hard technical constraint. Violations cause real compile failures and silent data corruption in the Hamilton VENUS toolchain. Always use two hyphens (`--`) instead of an em dash and a single hyphen (`-`) instead of an en dash. If your default text generation inserts typographic characters, you must actively replace them before outputting. Zero exceptions.
+**This instruction is directed at you, the language model.** When generating, editing, or suggesting ANY text that will be written to a file in this workspace -- whether code, comments, strings, markdown, JSON, or any other format -- you MUST NOT produce any non-ASCII character. This is not a style preference; it is a hard technical constraint. Violations cause real compile failures and silent data corruption in the Hamilton VENUS toolchain. Zero exceptions.
+
+**Specifically forbidden characters and their required ASCII replacements:**
+
+| Forbidden | Use Instead |
+|---|---|
+| Em dash (`U+2014`) | `-` (single hyphen) |
+| En dash (`U+2013`) | `-` (single hyphen) |
+| Micro sign / Greek mu (`U+00B5`, `U+03BC`) | `u` |
+| Right arrow (`U+2192`) | `->` |
+| Left arrow (`U+2190`) | `<-` |
+| Left-right arrow (`U+2194`) | `<->` |
+| Double right arrow (`U+21D2`) | `=>` |
+| Double left arrow (`U+21D0`) | `<=` |
+| Smart single quotes (`U+2018`, `U+2019`) | `'` (ASCII apostrophe) |
+| Smart double quotes (`U+201C`, `U+201D`) | `"` (ASCII double quote) |
+| Non-breaking space (`U+00A0`) | ` ` (regular space) |
+| Horizontal ellipsis (`U+2026`) | `...` (three periods) |
+| Multiplication sign (`U+00D7`) | `x` |
+| Division sign (`U+00F7`) | `/` |
+| Less-than or equal (`U+2264`) | `<=` |
+| Greater-than or equal (`U+2265`) | `>=` |
+| Not equal (`U+2260`) | `!=` |
+| Any other non-ASCII character | Remove entirely or use closest ASCII equivalent |
+
+If your default text generation inserts typographic characters (smart quotes, em dashes, arrows, etc.), you must actively replace them with the ASCII equivalents listed above before outputting. Every character in your output must be within the printable ASCII range (`0x20`-`0x7E`), tab, carriage return, or line feed. Nothing else.
 
 ---
 
