@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Pure-Python HxCfgFile v3 Codec for Hamilton .med and .stp Files
-================================================================
+Pure-Python HxCfgFile v3 Codec for Hamilton .med, .stp, and .lay Files
+======================================================================
 
 This module provides a fully self-contained, zero-dependency codec for reading
 and writing the HxCfgFile version 3 binary container format used by Hamilton
@@ -10,8 +10,8 @@ STAR / STARlet / Vantage liquid-handling robots.
 Binary Format Overview
 ----------------------
 
-The HxCfgFile v3 binary container stores instrument method (.med) and step
-(.stp) files.  The on-disk layout is:
+The HxCfgFile v3 binary container stores instrument method (.med), step
+(.stp), and layout (.lay) files.  The on-disk layout is:
 
     ┌──────────────────────────────────────────────────────────────┐
     │  File Header (4 bytes)                                       │
@@ -19,28 +19,26 @@ The HxCfgFile v3 binary container stores instrument method (.med) and step
     │    [u16-LE]  type_marker      -- always 1                     │
     ├──────────────────────────────────────────────────────────────┤
     │  Named-Section Count (4 bytes)                               │
-    │    [u32-LE]  count            -- 0 or 1                       │
+    │    [u32-LE]  count            -- 0, 1, or N                   │
     ├──────────────────────────────────────────────────────────────┤
-    │  Named Section (optional -- present when count == 1)          │
+    │  Named Section(s) (repeated count times)                      │
     │    [short-string]  section_name                              │
     │        .med → "ActivityData,ActivityData"                    │
     │        .stp → "Method,Properties"                            │
-    │    [u16-LE]  field_type       -- always 1                     │
-    │    [u32-LE]  field_count      -- always 1                     │
-    │    [short-string]  field_key                                 │
-    │        .med → "ActivityDocument"                             │
-    │        .stp → "ReadOnly"                                     │
-    │    [var-string]  field_value                                  │
-    │        .med → base-64-encoded activity flowchart blob        │
-    │        .stp → "0"                                            │
+    │        .lay → "DECKLAY,ML_STAR", "DEVICE,...", etc.           │
+    │    [u16-LE]  field_type       -- 1, 2, or 5                   │
+    │    [u32-LE]  field_count      -- 1 or more                    │
+    │    Repeated field_count times:                                │
+    │      [short-string]  field_key                               │
+    │      [var-string]  field_value                                │
     ├──────────────────────────────────────────────────────────────┤
     │  HxPars Count (1 byte) + 3-byte zero pad                    │
     │    [u8]     hxpars_count                                     │
     │    [3×0x00] padding                                          │
     ├──────────────────────────────────────────────────────────────┤
     │  HxPars Sections (repeated hxpars_count times)               │
-    │    [short-string]  section_header  -- "HxPars,<key>"          │
-    │    [u16-LE]  pars_version     -- always 3                     │
+    │    [short-string]  section_header  -- "<prefix>,<key>"        │
+    │    [u16-LE]  pars_version     -- typically 3, may vary        │
     │    [u32-LE]  token_count                                     │
     │    [var-string × token_count]  tokens                        │
     ├──────────────────────────────────────────────────────────────┤
@@ -81,6 +79,8 @@ CLI Usage
     python hxcfgfile_codec.py roundtrip input.med  [output.med]
     python hxcfgfile_codec.py dump      input.med
 
+All commands work with .med, .stp, and .lay files interchangeably.
+
 Subcommands:
 
 * ``to-text``   -- convert a binary .med/.stp to its text representation.
@@ -110,13 +110,13 @@ HXCFG_TYPE_MARKER: int = 1
 """Type marker that immediately follows the version word.  Always 1."""
 
 HXPARS_VERSION: int = 3
-"""Version marker inside each HxPars section.  Always 3."""
+"""Default version marker inside each HxPars section (may vary in .lay files)."""
 
 NAMED_FIELD_TYPE: int = 1
-"""Field type inside a named section.  Always 1."""
+"""Default field type inside a named section (1 for .med/.stp; varies in .lay)."""
 
 NAMED_FIELD_COUNT: int = 1
-"""Field count inside a named section.  Always 1."""
+"""Default field count inside a named section (1 for .med/.stp; varies in .lay)."""
 
 HXPARS_PAD_BYTES: bytes = b"\x00\x00\x00"
 """Three-byte zero pad observed between the HxPars count byte and the first
@@ -158,62 +158,100 @@ FOOTER_PATTERN: re.Pattern[str] = re.compile(r"\* \$\$author=.*\$\$")
 
 @dataclass
 class NamedSection:
-    """Represents the optional leading section in an HxCfgFile v3 container.
+    """A named section in an HxCfgFile v3 container.
 
     For **.med** files this section carries the base-64-encoded flowchart
     blob (``ActivityDocument``).  For **.stp** files it carries a simple
-    property (``ReadOnly``).
+    property (``ReadOnly``).  For **.lay** files there are multiple sections
+    (DECKLAY, DEVICE, RESOURCES, SYSTEM) with varying field types and counts.
+
+    The ``key`` and ``value`` attributes hold the first field for backward
+    compatibility.  Additional fields are stored in ``extra_fields``.
+    Use ``all_fields`` to iterate over every (key, value) pair.
 
     Attributes:
-        name:  The compound section name, e.g. ``"ActivityData,ActivityData"``.
-        key:   The field key, e.g. ``"ActivityDocument"`` or ``"ReadOnly"``.
-        value: The field value -- for .med files a large base-64 string;
-               for .stp files typically ``"0"``.
+        name:         The compound section name, e.g. ``"ActivityData,ActivityData"``.
+        key:          The first field key, e.g. ``"ActivityDocument"`` or ``"ReadOnly"``.
+        value:        The first field value.
+        field_type:   The binary field type (1 for .med/.stp, varies in .lay).
+        extra_fields: Additional (key, value) pairs beyond the first.
     """
 
     name: str
     key: str
     value: str
+    field_type: int = 1
+    extra_fields: List[Tuple[str, str]] = field(default_factory=list)
+
+    @property
+    def all_fields(self) -> List[Tuple[str, str]]:
+        """Return all (key, value) pairs -- the primary field plus extras."""
+        result = [(self.key, self.value)]
+        result.extend(self.extra_fields)
+        return result
 
 
 @dataclass
 class HxParsSection:
-    """One HxPars parameter section.
+    """One HxPars-like parameter section.
 
-    Each section has a *key* (the part after ``"HxPars,"`` in the binary
+    Each section has a *key* (the part after the prefix comma in the binary
     header) and an ordered list of *tokens* (free-form Latin-1 strings).
 
     Attributes:
-        key:    Section key, e.g. ``"Method"``,  ``"Instrument"``, etc.
-        tokens: Ordered list of parameter tokens.
+        key:     Section key, e.g. ``"Method"``, ``"Instrument"``, etc.
+        tokens:  Ordered list of parameter tokens.
+        prefix:  Header prefix (``"HxPars"`` for .med/.stp; may vary in .lay).
+        version: Section version (3 for .med/.stp; may vary in .lay).
     """
 
     key: str
     tokens: List[str]
+    prefix: str = "HxPars"
+    version: int = 3
 
 
-@dataclass
 class HxCfgTextModel:
     """In-memory representation of the full HxCfgFile content.
 
     This model is the intermediate form used by both the binary parser and
     the text parser / emitter.  It captures:
 
-    * An optional :class:`NamedSection` (present in most .med and .stp files;
-      absent in some minimal .stp files).
+    * Zero or more :class:`NamedSection` entries (one for .med/.stp files;
+      multiple for .lay files).
     * Zero or more :class:`HxParsSection` entries with their tokens.
-    * The footer metadata line (``* $$author=… $$``).
+    * The footer metadata line (``* $$author=... $$``).
+
+    Accepts either ``named_section`` (singular, for backward compat) or
+    ``named_sections`` (plural, for .lay files with multiple sections).
 
     Attributes:
-        named_section:   The optional leading named section (``None`` when
-                         absent, e.g. in some minimal .stp files).
+        named_sections:  Ordered list of named sections.
         hxpars_sections: Ordered list of HxPars parameter sections.
         footer_line:     The metadata footer string (without trailing newline).
     """
 
-    named_section: NamedSection | None
-    hxpars_sections: List[HxParsSection]
-    footer_line: str
+    def __init__(
+        self,
+        *,
+        named_sections: List[NamedSection] | None = None,
+        named_section: NamedSection | None = None,
+        hxpars_sections: List[HxParsSection],
+        footer_line: str,
+    ):
+        if named_sections is not None:
+            self.named_sections: List[NamedSection] = named_sections
+        elif named_section is not None:
+            self.named_sections = [named_section]
+        else:
+            self.named_sections = []
+        self.hxpars_sections = hxpars_sections
+        self.footer_line = footer_line
+
+    @property
+    def named_section(self) -> NamedSection | None:
+        """Backward-compat: return the first named section, or None."""
+        return self.named_sections[0] if self.named_sections else None
 
     @property
     def activity_document_b64(self) -> str:
@@ -223,8 +261,9 @@ class HxCfgTextModel:
         does not exist, or is not an ActivityData section, an empty string is
         returned.
         """
-        if self.named_section and self.named_section.name == ACTIVITY_SECTION_NAME:
-            return self.named_section.value
+        ns = self.named_section
+        if ns and ns.name == ACTIVITY_SECTION_NAME:
+            return ns.value
         return ""
 
 
