@@ -1,0 +1,13 @@
+{
+  "comments": {},
+  "brackets": [],
+  "autoClosingPairs": [],
+  "surroundingPairs": [],
+  "folding": {
+    "markers": {
+      "start": "^.*\\b(start|Execute method - start)\\b",
+      "end": "^.*\\b(complete|Execute method - complete)\\b"
+    }
+  },
+  "wordPattern": "[A-Za-z_][A-Za-z0-9_./\\\\:]*"
+}

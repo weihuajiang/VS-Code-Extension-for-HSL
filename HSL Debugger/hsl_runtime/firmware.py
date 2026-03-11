@@ -20,6 +20,8 @@ which maps HSL step CLSIDs to firmware command sequences.
 """
 
 from __future__ import annotations
+import json
+import os
 import re
 from dataclasses import dataclass, field
 from enum import Enum, auto
@@ -65,11 +67,82 @@ class FirmwareCommand:
 
 
 class FirmwareCommandRegistry:
-    """Registry of all known firmware commands."""
+    """Registry of all known firmware commands.
+
+    Loads definitions from firmware_commands.json (single source of truth
+    shared with the VS Code extension). Falls back to hardcoded definitions
+    if the JSON file is not found.
+    """
+
+    # Path resolution: walk up from this file to the workspace root
+    _JSON_FILENAME = "firmware_commands.json"
 
     def __init__(self):
         self.commands: dict[str, FirmwareCommand] = {}
-        self._register_autoload_commands()
+        self.error_codes: dict[str, str] = {}
+        if not self._try_load_from_json():
+            self._register_autoload_commands()
+
+    def _try_load_from_json(self) -> bool:
+        """Attempt to load command definitions from firmware_commands.json.
+
+        Searches upward from this module's directory to find the JSON file.
+        Returns True if the file was found and loaded successfully.
+        """
+        search_dir = os.path.dirname(os.path.abspath(__file__))
+        for _ in range(5):  # walk up at most 5 levels
+            candidate = os.path.join(search_dir, self._JSON_FILENAME)
+            if os.path.isfile(candidate):
+                return self._load_json(candidate)
+            parent = os.path.dirname(search_dir)
+            if parent == search_dir:
+                break
+            search_dir = parent
+        return False
+
+    def _load_json(self, json_path: str) -> bool:
+        """Parse firmware_commands.json and populate the registry."""
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            return False
+
+        self.error_codes = data.get("errorCodes", {})
+
+        type_map = {
+            "INT": ParamType.INT,
+            "FLOAT": ParamType.FLOAT,
+            "HEX": ParamType.HEX,
+            "BITFIELD": ParamType.BITFIELD,
+            "STRING": ParamType.STRING,
+        }
+
+        for entry in data.get("commands", []):
+            params = []
+            for p in entry.get("params", []):
+                params.append(FirmwareParam(
+                    name=p["name"],
+                    param_type=type_map.get(p.get("type", "INT"), ParamType.INT),
+                    min_val=p.get("min", 0),
+                    max_val=p.get("max", 9999),
+                    default=p.get("default", 0),
+                    description=p.get("description", ""),
+                    width=p.get("width", 4),
+                ))
+            cmd = FirmwareCommand(
+                code=entry["code"],
+                sfco_id=entry.get("sfcoId", ""),
+                category=entry.get("category", ""),
+                description=entry.get("description", ""),
+                command_point=entry.get("commandPoint", 0),
+                params=params,
+                response_fields=entry.get("responseFields", []),
+                notes=entry.get("notes", ""),
+            )
+            self.register(cmd)
+
+        return len(self.commands) > 0
 
     def register(self, cmd: FirmwareCommand) -> None:
         self.commands[cmd.code] = cmd

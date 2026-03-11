@@ -1,0 +1,704 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "Hamilton IDL firmware command definitions. Single source of truth for both the VS Code extension (IntelliSense) and the Python simulation runtime. To add new firmware commands, append entries to the 'commands' array. To add new error codes, add entries to the 'errorCodes' object.",
+
+  "errorCodes": {
+    "00": "No error",
+    "01": "Initialization error",
+    "02": "Not initialized",
+    "03": "Invalid parameter value",
+    "04": "Carrier not found",
+    "05": "Slot empty / no carrier to operate on",
+    "06": "Hardware communication timeout",
+    "07": "Movement blocked",
+    "08": "Liquid level not detected",
+    "09": "Tip already present",
+    "10": "No tip present",
+    "11": "Insufficient liquid volume",
+    "12": "Clot detected (pressure LLD)",
+    "13": "Over-aspirate detected",
+    "14": "Tip lost during operation",
+    "15": "Barcode read error",
+    "16": "Autoload carrier jam",
+    "17": "Cover open or interlock error",
+    "18": "Z-drive overload",
+    "19": "X-drive overload",
+    "20": "Y-drive overload",
+    "30": "Waste full",
+    "99": "Unknown firmware command"
+  },
+
+  "paramTypes": {
+    "INT": "Integer value",
+    "FLOAT": "Floating-point value",
+    "HEX": "Hexadecimal value",
+    "BITFIELD": "Bit field",
+    "STRING": "String value"
+  },
+
+  "commands": [
+    {
+      "code": "II",
+      "sfcoId": "SFCO.0005",
+      "category": "Autoload Initialization",
+      "specSection": "3.12.1",
+      "description": "Initialize Autoload",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": ""
+    },
+    {
+      "code": "IV",
+      "sfcoId": "SFCO.0251",
+      "category": "Autoload Initialization",
+      "specSection": "3.12.1",
+      "description": "Move Autoload to Z save position",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": ""
+    },
+    {
+      "code": "CI",
+      "sfcoId": "SFCO.0013",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Identify carrier (read barcode)",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "cp",
+          "type": "INT",
+          "min": 1,
+          "max": 54,
+          "default": 1,
+          "width": 4,
+          "description": "Carrier position (slot number)"
+        },
+        {
+          "name": "bi",
+          "type": "INT",
+          "min": 0,
+          "max": 4700,
+          "default": 43,
+          "width": 4,
+          "description": "Carrier ID barcode position [0.1 mm]"
+        },
+        {
+          "name": "bw",
+          "type": "INT",
+          "min": 1,
+          "max": 999,
+          "default": 85,
+          "width": 4,
+          "description": "Carrier ID barcode reading window width [0.1mm]"
+        },
+        {
+          "name": "cv",
+          "type": "INT",
+          "min": 15,
+          "max": 1600,
+          "default": 1281,
+          "width": 4,
+          "description": "Carrier reading speed [0.1 mm/s]"
+        }
+      ],
+      "responseFields": ["id####", "er##/##", "bb/nn'...'"],
+      "notes": "Barcode data appended on success"
+    },
+    {
+      "code": "CT",
+      "sfcoId": "SFCO.0075",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Check presence of single carrier",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "cp",
+          "type": "INT",
+          "min": 1,
+          "max": 54,
+          "default": 1,
+          "width": 4,
+          "description": "Carrier position (slot number)"
+        }
+      ],
+      "responseFields": ["id####", "er##/##", "ct#"],
+      "notes": "ct0 = not present, ct1 = present"
+    },
+    {
+      "code": "CA",
+      "sfcoId": "SFCO.0015",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Push out carrier to loading tray",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": "Must be preceded by CI (identify)"
+    },
+    {
+      "code": "CR",
+      "sfcoId": "SFCO.0016",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Unload carrier",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "cp",
+          "type": "INT",
+          "min": 1,
+          "max": 54,
+          "default": 1,
+          "width": 4,
+          "description": "Carrier position (slot number)"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": ""
+    },
+    {
+      "code": "CL",
+      "sfcoId": "SFCO.0014",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Load carrier",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "bd",
+          "type": "INT",
+          "min": 0,
+          "max": 1,
+          "default": 0,
+          "width": 4,
+          "description": "Barcode reading direction (0=vertical 1=horizontal)"
+        },
+        {
+          "name": "bp",
+          "type": "INT",
+          "min": 0,
+          "max": 4700,
+          "default": 100,
+          "width": 4,
+          "description": "Barcode reading position of first barcode [0.1mm]"
+        },
+        {
+          "name": "cn",
+          "type": "INT",
+          "min": 0,
+          "max": 32,
+          "default": 32,
+          "width": 4,
+          "description": "Number of containers in carrier"
+        },
+        {
+          "name": "co",
+          "type": "INT",
+          "min": 0,
+          "max": 4700,
+          "default": 150,
+          "width": 4,
+          "description": "Distance between containers [0.1 mm]"
+        },
+        {
+          "name": "cf",
+          "type": "INT",
+          "min": 1,
+          "max": 999,
+          "default": 100,
+          "width": 4,
+          "description": "Width of reading window [0.1 mm]"
+        },
+        {
+          "name": "ea",
+          "type": "INT",
+          "min": 0,
+          "max": 1,
+          "default": 0,
+          "width": 4,
+          "description": "Carrier read mode (0=fix grid 1=free definable)"
+        },
+        {
+          "name": "mr",
+          "type": "INT",
+          "min": 0,
+          "max": 1,
+          "default": 0,
+          "width": 4,
+          "description": "ROI Y-origin direction (0=positive 1=negative)"
+        },
+        {
+          "name": "cv",
+          "type": "INT",
+          "min": 15,
+          "max": 1600,
+          "default": 1281,
+          "width": 4,
+          "description": "Carrier reading speed [0.1 mm/s]"
+        }
+      ],
+      "responseFields": ["id####", "er##/##", "vlnnnn...", "ci********", "bb/nn'...'/nn'...'"],
+      "notes": "Complex response includes container presence bitmap and barcode data"
+    },
+    {
+      "code": "CP",
+      "sfcoId": "SFCO.0017",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Set loading indicators (LEDs)",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "cl",
+          "type": "HEX",
+          "min": 0,
+          "max": 9223372036854775807,
+          "default": 0,
+          "width": 14,
+          "description": "Bit pattern of LEDs (1=on 0=off)"
+        },
+        {
+          "name": "cb",
+          "type": "HEX",
+          "min": 0,
+          "max": 9223372036854775807,
+          "default": 0,
+          "width": 14,
+          "description": "Blink pattern of LEDs (1=blinking 0=steady)"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": ""
+    },
+    {
+      "code": "CS",
+      "sfcoId": "SFCO.0018",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Check for presence of carriers on loading tray",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##", "cd**************"],
+      "notes": "Bit pattern: bit 54 (MSB) = position 55, bit 0 (LSB) = position 1"
+    },
+    {
+      "code": "CB",
+      "sfcoId": "SFCO.0072",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Set barcode types and 2D reader features",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "bt",
+          "type": "HEX",
+          "min": 0,
+          "max": 255,
+          "default": 127,
+          "width": 2,
+          "description": "Barcode types bitmask"
+        },
+        {
+          "name": "mq",
+          "type": "HEX",
+          "min": 0,
+          "max": 255,
+          "default": 0,
+          "width": 2,
+          "description": "2D code types bitmask (2D Autoload only)"
+        },
+        {
+          "name": "mb",
+          "type": "INT",
+          "min": 1,
+          "max": 10,
+          "default": 1,
+          "width": 4,
+          "description": "Max codes per image (2D Autoload only)"
+        },
+        {
+          "name": "mo",
+          "type": "INT",
+          "min": 0,
+          "max": 999,
+          "default": 0,
+          "width": 3,
+          "description": "Illumination settings (2D Autoload only)"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": ""
+    },
+    {
+      "code": "DB",
+      "sfcoId": "",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Set code reading features for free definable carrier",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "vn",
+          "type": "INT",
+          "min": 0,
+          "max": 32,
+          "default": 1,
+          "width": 4,
+          "description": "Labware position number (code index)"
+        },
+        {
+          "name": "bp",
+          "type": "INT",
+          "min": 0,
+          "max": 4700,
+          "default": 100,
+          "width": 4,
+          "description": "Code reading position [0.1mm]"
+        },
+        {
+          "name": "mr",
+          "type": "INT",
+          "min": 0,
+          "max": 1,
+          "default": 0,
+          "width": 4,
+          "description": "ROI Y-origin direction (0=positive 1=negative)"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": ""
+    },
+    {
+      "code": "DR",
+      "sfcoId": "",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Reset free definable carrier settings",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": ""
+    },
+    {
+      "code": "CW",
+      "sfcoId": "SFCO.0140",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Unload carrier finally",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "cp",
+          "type": "INT",
+          "min": 1,
+          "max": 54,
+          "default": 1,
+          "width": 4,
+          "description": "Carrier position (slot number)"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": ""
+    },
+    {
+      "code": "CU",
+      "sfcoId": "SFCO.0146",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Set carrier monitoring",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "cu",
+          "type": "INT",
+          "min": 0,
+          "max": 1,
+          "default": 0,
+          "width": 4,
+          "description": "Monitoring (0=off 1=on)"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": ""
+    },
+    {
+      "code": "CN",
+      "sfcoId": "SFCO.0238",
+      "category": "Autoload Carrier Handling",
+      "specSection": "3.12.2",
+      "description": "Take out carrier to identification position",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "cp",
+          "type": "INT",
+          "min": 1,
+          "max": 54,
+          "default": 1,
+          "width": 4,
+          "description": "Carrier position (slot number)"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": ""
+    },
+    {
+      "code": "RC",
+      "sfcoId": "SFCO.0045",
+      "category": "Autoload Query",
+      "specSection": "3.12.3",
+      "description": "Query presence of carrier on deck",
+      "commandPoint": 0,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##", "cd**************", "ce**(26)"],
+      "notes": "cd = 14-char compat bitmap, ce = 26-char extended (104 slots)"
+    },
+    {
+      "code": "QA",
+      "sfcoId": "SFCO.0200",
+      "category": "Autoload Query",
+      "specSection": "3.12.3",
+      "description": "Request autoload slot position",
+      "commandPoint": 0,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##", "qa##"],
+      "notes": ""
+    },
+    {
+      "code": "CQ",
+      "sfcoId": "SFCO.0341",
+      "category": "Autoload Query",
+      "specSection": "3.12.3",
+      "description": "Request autoload module type",
+      "commandPoint": 0,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##", "cq#"],
+      "notes": "0=ML-Star with 1D Scanner, 1=XRP Lite, 2=ML-STAR with 2D Reader, 3..9=reserve"
+    },
+    {
+      "code": "VK",
+      "sfcoId": "",
+      "category": "Autoload Query",
+      "specSection": "3.12.3",
+      "description": "Request code data of individual labware position",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        },
+        {
+          "name": "vn",
+          "type": "INT",
+          "min": 0,
+          "max": 32,
+          "default": 1,
+          "width": 4,
+          "description": "Labware position number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##", "vn##", "vm##", "vlnnn", "vk..."],
+      "notes": "2D Autoload only"
+    },
+    {
+      "code": "VL",
+      "sfcoId": "",
+      "category": "Autoload Query",
+      "specSection": "3.12.3",
+      "description": "Request code data length of all labware positions",
+      "commandPoint": 0,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##", "vlnnn nnn ..."],
+      "notes": "2D Autoload only. Returns lengths from last CL command."
+    }
+  ]
+}

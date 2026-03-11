@@ -1651,7 +1651,13 @@ function checkAnonymousBlocks(document, ignoredRanges, diagnostics) {
     // Control-flow keywords that legitimately introduce `{` blocks.
     const controlFlowPattern = /\b(if|else|while|for|switch|case|default|do)\s*$/;
     const funcMethodPattern = /\b(?:(?:private|public|static|global|const|synchronized)\s+)*(?:function|method)\b/;
+    // Hamilton Method Editor block marker pattern in original (unmasked) text.
+    // Matches comments like: // {{ 1 1 0 "guid" "ML_STAR:{CLSID}"
+    //                    or: // {{{ 2 1 0 "guid" "{CLSID}"
+    //                    or: /* {{ 1 "" "0" */
+    const blockMarkerPattern = /(?:\/\/|\/\*)\s*\{{2,}\s+\d/;
     const lines = cleanText.split(/\r?\n/);
+    const originalLines = fullText.split(/\r?\n/);
     let pendingFuncDef = false;
     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
         const line = lines[lineIdx];
@@ -1665,11 +1671,21 @@ function checkAnonymousBlocks(document, ignoredRanges, diagnostics) {
             if (ch === "{") {
                 braceDepth++;
                 if (pendingFuncDef) {
-                    // This is the opening brace of a function/method body
-                    inFuncBody = true;
-                    funcBodyDepth = braceDepth;
-                    pendingFuncDef = false;
-                    continue;
+                    // Check if this is a namespace brace rather than the function
+                    // body opener.  Lines like `namespace _Method { method main() void {`
+                    // have two `{` -- the first is the namespace brace and must NOT
+                    // consume pendingFuncDef.
+                    const textBeforeBrace = line.slice(0, ci).trimEnd();
+                    if (/\bnamespace\s+\w+\s*$/.test(textBeforeBrace)) {
+                        // Namespace brace -- fall through without consuming pendingFuncDef
+                    }
+                    else {
+                        // This is the opening brace of a function/method body
+                        inFuncBody = true;
+                        funcBodyDepth = braceDepth;
+                        pendingFuncDef = false;
+                        continue;
+                    }
                 }
                 if (inFuncBody && braceDepth > funcBodyDepth) {
                     // Check whether this `{` is preceded by a control-flow keyword
@@ -1679,7 +1695,13 @@ function checkAnonymousBlocks(document, ignoredRanges, diagnostics) {
                     const isControlFlow = controlFlowPattern.test(textBefore) ||
                         controlFlowPattern.test(prevLine) ||
                         /\)\s*$/.test(textBefore); // e.g. `if(...)`
-                    if (!isControlFlow) {
+                    // Check whether this block is preceded by a Hamilton Method
+                    // Editor block marker comment (e.g. `// {{ 1 1 0 "guid" ...`).
+                    // These blocks wrap device step calls with local arrRetValues
+                    // declarations and are valid VENUS code.
+                    const origPrevLine = lineIdx > 0 ? originalLines[lineIdx - 1].trim() : "";
+                    const isMethodEditorBlock = blockMarkerPattern.test(origPrevLine);
+                    if (!isControlFlow && !isMethodEditorBlock) {
                         // This is an anonymous block -- check if it contains declarations
                         const blockStart = lineIdx;
                         const blockStartCol = ci;

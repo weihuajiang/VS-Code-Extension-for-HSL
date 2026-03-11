@@ -43,6 +43,7 @@ const builtins_1 = require("./builtins");
 const diagnostics_1 = require("./diagnostics");
 const hslIntellisense_1 = require("./hslIntellisense");
 const stpHoverProvider_1 = require("./stpHoverProvider");
+const traceLanguageSupport_1 = require("./traceLanguageSupport");
 const hslDebugAdapter_1 = require("./hslDebugAdapter");
 const HAMILTON_EDITOR_PATH = "C:\\Program Files (x86)\\Hamilton\\Bin\\HxHSLMetEd.exe";
 /**
@@ -64,6 +65,8 @@ function activate(context) {
     (0, diagnostics_1.createHslDiagnostics)(context);
     // Register STP hover provider (pipetting step tooltips)
     (0, stpHoverProvider_1.registerStpHoverProvider)(context);
+    // Register trace log language support (syntax highlighting + firmware IntelliSense)
+    (0, traceLanguageSupport_1.registerTraceLanguageSupport)(context);
     // Register the HSL debug adapter so Run/Debug (F5) works from the Run menu
     const debugAdapterFactory = new hslDebugAdapter_1.HslDebugAdapterFactory();
     context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory("hsl", debugAdapterFactory));
@@ -82,7 +85,7 @@ function activate(context) {
         return editor.document.fileName;
     }
     function validateHslExtension(filePath) {
-        const validExtensions = [".hsl", ".hs_", ".sub", ".med"];
+        const validExtensions = [".hsl", ".hs_", ".hsi", ".sub", ".med"];
         const ext = path.extname(filePath).toLowerCase();
         if (!validExtensions.includes(ext)) {
             vscode.window.showErrorMessage(`Cannot run file with extension '${ext}'. Valid HSL extensions: ${validExtensions.join(", ")}`);

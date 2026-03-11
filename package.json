@@ -18,7 +18,7 @@
   "categories": ["Programming Languages", "Linters", "Other"],
   "icon": "HSL.png",
   "main": "./out/extension.js",
-  "activationEvents": ["onLanguage:hsl"],
+  "activationEvents": ["onLanguage:hsl", "onLanguage:hsl-trace"],
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
@@ -36,6 +36,12 @@
         "aliases": ["HSL", "Hamilton Standard Language"],
         "extensions": [".hsl", ".hs_", ".hsi", ".sub"],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "hsl-trace",
+        "aliases": ["HSL Trace Log", "Hamilton Trace"],
+        "extensions": [".trc"],
+        "configuration": "./language-configuration-trace.json"
       }
     ],
     "grammars": [
@@ -43,6 +49,11 @@
         "language": "hsl",
         "scopeName": "source.hsl",
         "path": "./syntaxes/hsl.tmLanguage.json"
+      },
+      {
+        "language": "hsl-trace",
+        "scopeName": "source.hsl-trace",
+        "path": "./syntaxes/hsl-trace.tmLanguage.json"
       }
     ],
     "snippets": [
