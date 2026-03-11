@@ -2,5 +2,6 @@ out/
 .vs/
 bin/
 obj/
+*.vsix
 HSL Debugger/build/
 HSL Debugger/*.spec

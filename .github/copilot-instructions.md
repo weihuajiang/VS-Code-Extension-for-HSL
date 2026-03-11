@@ -18,9 +18,131 @@ More broadly, **all non-ASCII characters** (smart quotes, arrows, non-breaking s
 
 The VS Code extension enforces this rule with diagnostic code `non-ascii-character`. Any character outside printable ASCII (`0x20`-`0x7E`), tab, carriage return, or line feed is flagged as an error -- even inside comments and strings, because VENUS processes the raw bytes before parsing.
 
+### Auto-Replacement on Save
+
+When an HSL file is saved, the extension automatically replaces known non-ASCII characters with their ASCII equivalents **before** the checksum is applied. Any remaining non-ASCII characters that have no known mapping are stripped entirely. The diagnostic warnings remain active during editing so you can see problematic characters before saving.
+
+The following replacements are performed automatically:
+
+| Non-ASCII Character | Replacement | Description |
+|---|---|---|
+| `U+2014` (em dash) | `-` | Em dash to hyphen |
+| `U+2013` (en dash) | `-` | En dash to hyphen |
+| `U+00B5` (micro sign) | `u` | Mu/micro to lowercase u |
+| `U+03BC` (Greek mu) | `u` | Greek mu to lowercase u |
+| `U+2192` (right arrow) | `->` | Right arrow |
+| `U+2190` (left arrow) | `<-` | Left arrow |
+| `U+2194` (left-right arrow) | `<->` | Bidirectional arrow |
+| `U+21D2` (double right arrow) | `=>` | Double right arrow |
+| `U+21D0` (double left arrow) | `<=` | Double left arrow |
+| `U+2018` (left single quote) | `'` | Smart single quote |
+| `U+2019` (right single quote) | `'` | Smart single quote |
+| `U+201C` (left double quote) | `"` | Smart double quote |
+| `U+201D` (right double quote) | `"` | Smart double quote |
+| `U+00A0` (non-breaking space) | ` ` | Non-breaking space to regular space |
+| `U+2026` (ellipsis) | `...` | Horizontal ellipsis |
+| `U+00D7` (multiplication sign) | `x` | Multiplication sign |
+| `U+00F7` (division sign) | `/` | Division sign |
+| `U+2264` (less-than or equal) | `<=` | Math operator |
+| `U+2265` (greater-than or equal) | `>=` | Math operator |
+| `U+2260` (not equal) | `!=` | Math operator |
+| All other non-ASCII | *(removed)* | Stripped to prevent corruption |
+
 ### LLM-Specific Directive (GitHub Copilot, ChatGPT, Claude, etc.)
 
-**This instruction is directed at you, the language model.** When generating, editing, or suggesting ANY text that will be written to a file in this workspace -- whether code, comments, strings, markdown, JSON, or any other format -- you MUST NOT produce em dashes (--), en dashes (-), smart quotes, or any non-ASCII character. This is not a style preference; it is a hard technical constraint. Violations cause real compile failures and silent data corruption in the Hamilton VENUS toolchain. Always use two hyphens (`--`) instead of an em dash and a single hyphen (`-`) instead of an en dash. If your default text generation inserts typographic characters, you must actively replace them before outputting. Zero exceptions.
+**This instruction is directed at you, the language model.** When generating, editing, or suggesting ANY text that will be written to a file in this workspace -- whether code, comments, strings, markdown, JSON, or any other format -- you MUST NOT produce any non-ASCII character. This is not a style preference; it is a hard technical constraint. Violations cause real compile failures and silent data corruption in the Hamilton VENUS toolchain. Zero exceptions.
+
+**Specifically forbidden characters and their required ASCII replacements:**
+
+| Forbidden | Use Instead |
+|---|---|
+| Em dash (`U+2014`) | `-` (single hyphen) |
+| En dash (`U+2013`) | `-` (single hyphen) |
+| Micro sign / Greek mu (`U+00B5`, `U+03BC`) | `u` |
+| Right arrow (`U+2192`) | `->` |
+| Left arrow (`U+2190`) | `<-` |
+| Left-right arrow (`U+2194`) | `<->` |
+| Double right arrow (`U+21D2`) | `=>` |
+| Double left arrow (`U+21D0`) | `<=` |
+| Smart single quotes (`U+2018`, `U+2019`) | `'` (ASCII apostrophe) |
+| Smart double quotes (`U+201C`, `U+201D`) | `"` (ASCII double quote) |
+| Non-breaking space (`U+00A0`) | ` ` (regular space) |
+| Horizontal ellipsis (`U+2026`) | `...` (three periods) |
+| Multiplication sign (`U+00D7`) | `x` |
+| Division sign (`U+00F7`) | `/` |
+| Less-than or equal (`U+2264`) | `<=` |
+| Greater-than or equal (`U+2265`) | `>=` |
+| Not equal (`U+2260`) | `!=` |
+| Any other non-ASCII character | Remove entirely or use closest ASCII equivalent |
+
+If your default text generation inserts typographic characters (smart quotes, em dashes, arrows, etc.), you must actively replace them with the ASCII equivalents listed above before outputting. Every character in your output must be within the printable ASCII range (`0x20`-`0x7E`), tab, carriage return, or line feed. Nothing else.
+
+---
+
+## ABSOLUTE RULE: x86 (32-bit) Architecture Only (Zero Tolerance)
+
+Hamilton VENUS, the HSL compiler, the HSL runtime (`HxRun.exe`), and **all** Hamilton COM objects are **32-bit (x86) applications**. They are installed under `C:\Program Files (x86)\Hamilton`. There is no 64-bit version. There never has been. Every tool, script, build command, COM registration, and PowerShell invocation in this workspace **MUST** target x86. Using x64 (64-bit) for any of these operations will cause silent failures, COM class-not-found errors, `RegAsm` registration that VENUS cannot see, or runtime crashes. **There is no valid use case for x64 in the Hamilton toolchain.**
+
+### Why This Matters
+
+On a 64-bit Windows system, 32-bit and 64-bit COM registrations are stored in **separate registry hives**. A COM DLL registered with the 64-bit `RegAsm.exe` (under `Framework64`) is invisible to any 32-bit process -- including VENUS. The DLL will appear registered (PowerShell's 64-bit `New-Object -ComObject` will find it), but VENUS and HSL will fail at runtime with "Class not registered" or similar errors. This is one of the most common and hardest-to-diagnose failures in Hamilton integrations.
+
+Similarly, PowerShell on a 64-bit system defaults to the 64-bit host. COM objects instantiated in a 64-bit PowerShell session load from the 64-bit registry hive. If the COM server is 32-bit only (as all Hamilton COM servers are), the call will fail. You **must** use the 32-bit PowerShell host or ensure the COM object is registered for 32-bit consumption.
+
+### Rules
+
+1. **C# projects MUST target `x86`.** Set `<PlatformTarget>x86</PlatformTarget>` and `<Prefer32Bit>true</Prefer32Bit>` in every `.csproj` file. Never use `AnyCPU` without `Prefer32Bit` -- on a 64-bit OS, `AnyCPU` defaults to 64-bit, and the resulting assembly cannot interop with Hamilton's 32-bit COM objects. Never use `x64`.
+
+2. **COM registration MUST use the 32-bit `RegAsm.exe`.** The correct path is:
+   ```
+   %SystemRoot%\Microsoft.NET\Framework\v4.0.30319\regasm.exe
+   ```
+   **NOT** `Framework64`. Using `Framework64\regasm.exe` registers the COM class in the 64-bit hive where VENUS cannot find it.
+
+3. **`dotnet build` MUST specify the x86 platform.** When building .NET Framework projects:
+   ```powershell
+   dotnet build /p:Platform=x86
+   ```
+   or via MSBuild:
+   ```powershell
+   & "${env:SystemRoot}\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe" /p:Platform=x86
+   ```
+   Never use the 64-bit MSBuild from `Framework64` for Hamilton-related projects.
+
+4. **PowerShell COM interop MUST use a 32-bit process.** When instantiating Hamilton COM objects (or any COM object registered only in the 32-bit hive), launch the 32-bit PowerShell:
+   ```powershell
+   & "${env:SystemRoot}\SysWOW64\WindowsPowerShell\v1.0\powershell.exe" -Command {
+       $obj = New-Object -ComObject HxCfgFilConverter.HxCfgFileConverterCOM
+       # ... use the object ...
+   }
+   ```
+   The default `powershell.exe` on a 64-bit system is the 64-bit host and **will not** find 32-bit-only COM classes.
+
+5. **All Hamilton paths use `Program Files (x86)`.** VENUS installs to `C:\Program Files (x86)\Hamilton`. Never reference `C:\Program Files\Hamilton` -- that path does not exist.
+
+6. **PyInstaller builds are architecture-neutral** for the HSL debugger (pure Python), so no x86 constraint there. But any Python code that calls `ctypes` to load Hamilton DLLs or access the Windows registry for Hamilton keys must target the 32-bit registry view (`winreg.KEY_WOW64_32KEY`).
+
+### Common Mistakes That Break Everything
+
+| Mistake | Symptom | Fix |
+|---|---|---|
+| `<PlatformTarget>AnyCPU</PlatformTarget>` without `Prefer32Bit` | COM interop fails on 64-bit OS | Set `<PlatformTarget>x86</PlatformTarget>` |
+| `Framework64\regasm.exe` for COM registration | "Class not registered" in VENUS | Use `Framework\regasm.exe` (32-bit) |
+| Default `powershell.exe` for COM access | "Retrieving the COM class factory failed" | Use `SysWOW64\WindowsPowerShell\v1.0\powershell.exe` |
+| `dotnet build` without `/p:Platform=x86` | 64-bit DLL cannot load in 32-bit VENUS | Always pass `/p:Platform=x86` |
+| Registering COM in 64-bit hive, testing in 64-bit PowerShell -- "works for me" | VENUS still cannot find the class | Register with 32-bit RegAsm; test in 32-bit PowerShell |
+
+### LLM-Specific Directive (GitHub Copilot, ChatGPT, Claude, etc.)
+
+**This instruction is directed at you, the language model.** When generating ANY code, script, build command, or terminal command that involves:
+- Building C# projects in this workspace
+- Registering COM objects
+- Running `RegAsm.exe` or `MSBuild.exe`
+- Invoking PowerShell to interact with COM objects
+- Referencing Hamilton installation paths
+- Creating or modifying `.csproj` files
+
+You **MUST** target x86 (32-bit). This is not a preference -- it is a hard technical constraint. Using x64 will produce artifacts that silently fail when consumed by the Hamilton VENUS toolchain. If you are unsure whether something should be x86, **it should be x86**. Zero exceptions.
 
 ---
 
