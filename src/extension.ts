@@ -71,7 +71,7 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 
   function validateHslExtension(filePath: string): boolean {
-    const validExtensions = [".hsl", ".hs_", ".sub", ".med"];
+    const validExtensions = [".hsl", ".hs_", ".hsi", ".sub", ".med"];
     const ext = path.extname(filePath).toLowerCase();
     if (!validExtensions.includes(ext)) {
       vscode.window.showErrorMessage(

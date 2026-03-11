@@ -34,7 +34,7 @@
       {
         "id": "hsl",
         "aliases": ["HSL", "Hamilton Standard Language"],
-        "extensions": [".hsl", ".hs_", ".sub"],
+        "extensions": [".hsl", ".hs_", ".hsi", ".sub"],
         "configuration": "./language-configuration.json"
       }
     ],
