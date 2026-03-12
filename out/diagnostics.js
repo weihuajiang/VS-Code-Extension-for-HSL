@@ -212,8 +212,11 @@ async function refreshDiagnostics(document, collection) {
     checkFunctionDeclarationDefinitionPairing(document, ignoredRanges, diagnostics, hslRuntimeGuardedLines);
     // Check for string-only member functions called on non-string types
     checkStringMemberOnWrongType(document, ignoredRanges, diagnostics);
-    // Check for anonymous blocks with variable declarations inside functions
-    checkAnonymousBlocks(document, ignoredRanges, diagnostics);
+    // NOTE: Anonymous blocks with declarations at the top are valid VENUS code.
+    // The Hamilton Method Editor generates `{ variable arrRetValues[]; ... }`
+    // blocks for every device step.  The real constraint -- declarations must
+    // precede executable code in any scope -- is enforced by
+    // checkVariableDeclarationPlacement, which already tracks per-block scope.
     // Check for array element access used directly in + expressions
     checkArrayElementInExpression(document, ignoredRanges, diagnostics);
     // Check that ML_STAR is initialized before use
@@ -1416,22 +1419,37 @@ function splitArgsForSignature(paramList) {
 /** The Initialize CLSID (underscore format) used in ML_STAR._<CLSID>() calls. */
 const INITIALIZE_CLSID = "1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2";
 /**
- * Detects when ML_STAR (or any device object) is used in a `method main()`
- * body without a preceding Initialize step.  The Initialize step
- * (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2(...)`) must be called
- * before any other device commands can execute.
+ * Enforces device initialisation rules differently for methods and libraries:
  *
- * Reports an error on the first device usage line that appears before
- * (or without) the Initialize call.
+ * **Methods** (files with `method main()`):
+ *   The Initialize step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2(...)`)
+ *   must be called inside `method main()` before any other device commands.
+ *   Reports an error on the first device usage that appears before (or without)
+ *   the Initialize call.
+ *
+ * **Libraries** (files without `method main()`):
+ *   Libraries must receive the device as a `device &` function parameter from
+ *   the calling method -- they must NOT call Initialize themselves.  This
+ *   function flags two library-specific issues:
+ *   1. Initialize calls found in a library file (error) -- Initialize belongs
+ *      in `method main()` only.
+ *   2. `global device` declarations in a library file (warning) -- the library
+ *      should receive the device via a `device &` parameter instead of
+ *      declaring its own global device.
  */
 function checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics) {
     const fullText = document.getText();
-    // Find `method main()` body -- we only enforce this in main since that is
-    // the entry point where Initialize must be called.  Library functions
-    // receive an already-initialised device reference.
+    // Find `method main()` body -- we enforce Initialize-before-device-use
+    // only in method main(), which is the entry point where Initialize must be
+    // called.  Library functions receive an already-initialised device via a
+    // `device &` parameter and must not call Initialize themselves (that is
+    // checked separately in checkLibraryDeviceUsage).
     const mainMethodPattern = /\bmethod\s+main\s*\(/gi;
     const mainMatch = mainMethodPattern.exec(fullText);
     if (!mainMatch) {
+        // No method main() -- this is a library file.
+        // Check for library-specific device usage issues.
+        checkLibraryDeviceUsage(document, fullText, ignoredRanges, diagnostics);
         return;
     }
     // Find the opening brace of main()
@@ -1511,17 +1529,69 @@ function checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics) {
             const endPos = document.positionAt(absoluteOffset + stepMatch[0].length - 1);
             const range = new vscode.Range(pos, endPos);
             const deviceName = stepMatch[1];
-            const diag = new vscode.Diagnostic(range, `Device '${deviceName}' is used before the Initialize step. ` +
+            const diag = new vscode.Diagnostic(range, `Device '${deviceName}' is used before the Initialize step in 'method main()'. ` +
                 `The Initialize step (${deviceName}._${INITIALIZE_CLSID}(...)) ` +
-                `must be called before any other instrument commands. Without it, ` +
-                `the instrument hardware is not initialised and all subsequent ` +
-                `device commands will fail at runtime.`, vscode.DiagnosticSeverity.Error);
+                `must be called in 'method main()' before any device steps or other instrument commands. ` +
+                `Without it, the instrument hardware is not initialised and all subsequent ` +
+                `device commands will fail at runtime. Note: library functions should NOT ` +
+                `call Initialize -- they receive the device via a 'device &' parameter ` +
+                `from the calling method.`, vscode.DiagnosticSeverity.Error);
             diag.source = "hsl";
             diag.code = "missing-initialize-step";
             diagnostics.push(diag);
             // Only flag the first occurrence -- one error is enough
             return;
         }
+    }
+}
+/**
+ * Library-specific device usage checks for files without `method main()`.
+ *
+ * Libraries that interact with hardware must receive the device as a
+ * `device &` function parameter from the calling method.  They must NOT:
+ * - Call the Initialize step (that belongs in `method main()` only)
+ * - Declare a `global device` (they should receive it as a parameter)
+ */
+function checkLibraryDeviceUsage(document, fullText, ignoredRanges, diagnostics) {
+    // Check 1: Initialize calls in a library file
+    const initPattern = new RegExp(`\\b([A-Za-z_]\\w*)\\._${INITIALIZE_CLSID}\\s*\\(`, "gi");
+    let initMatch;
+    while ((initMatch = initPattern.exec(fullText)) !== null) {
+        const offset = initMatch.index;
+        if (isInsideIgnoredRange(offset, ignoredRanges)) {
+            continue;
+        }
+        const pos = document.positionAt(offset);
+        const endPos = document.positionAt(offset + initMatch[0].length - 1);
+        const range = new vscode.Range(pos, endPos);
+        const deviceName = initMatch[1];
+        const diag = new vscode.Diagnostic(range, `The Initialize step should only be called inside 'method main()' in a method file. ` +
+            `Library functions must receive an already-initialised device via a 'device &' ` +
+            `parameter -- they should not call '${deviceName}._${INITIALIZE_CLSID}(...)' themselves.`, vscode.DiagnosticSeverity.Error);
+        diag.source = "hsl";
+        diag.code = "initialize-in-library";
+        diagnostics.push(diag);
+    }
+    // Check 2: global device declarations in a library file
+    const globalDevicePattern = /\bglobal\s+device\s+([A-Za-z_]\w*)/g;
+    let devMatch;
+    while ((devMatch = globalDevicePattern.exec(fullText)) !== null) {
+        const offset = devMatch.index;
+        if (isInsideIgnoredRange(offset, ignoredRanges)) {
+            continue;
+        }
+        const pos = document.positionAt(offset);
+        const endPos = document.positionAt(offset + devMatch[0].length - 1);
+        const range = new vscode.Range(pos, endPos);
+        const deviceName = devMatch[1];
+        const diag = new vscode.Diagnostic(range, `Library file declares 'global device ${deviceName}' but has no 'method main()'. ` +
+            `Libraries that use hardware commands should receive the device as a ` +
+            `'device & ${deviceName}' function parameter from the calling method, ` +
+            `rather than declaring their own global device. Only method files ` +
+            `(with 'method main()') should declare global devices.`, vscode.DiagnosticSeverity.Warning);
+        diag.source = "hsl";
+        diag.code = "global-device-in-library";
+        diagnostics.push(diag);
     }
 }
 // ── String member function on wrong type enforcement ────────────────────
@@ -1628,131 +1698,6 @@ function checkStringMemberOnWrongType(document, ignoredRanges, diagnostics) {
         diag.source = "hsl";
         diag.code = "string-method-on-wrong-type";
         diagnostics.push(diag);
-    }
-}
-// ── Anonymous block detection ───────────────────────────────────────────
-/**
- * Detects `{ ... }` blocks inside function/method bodies that are NOT
- * preceded by a control-flow keyword (if / else / while / for / switch /
- * case / default).  HSL does not support C-style anonymous blocks.
- *
- * We specifically flag blocks that contain variable declarations, since
- * those will definitely fail -- the developer likely intended block-local
- * scoping which HSL doesn't have.
- */
-function checkAnonymousBlocks(document, ignoredRanges, diagnostics) {
-    const fullText = document.getText();
-    const cleanText = buildMaskedText(fullText, ignoredRanges);
-    // Walk through the file tracking brace depth and context.
-    // We only check inside function/method bodies.
-    let inFuncBody = false;
-    let funcBodyDepth = -1;
-    let braceDepth = 0;
-    // Control-flow keywords that legitimately introduce `{` blocks.
-    const controlFlowPattern = /\b(if|else|while|for|switch|case|default|do)\s*$/;
-    const funcMethodPattern = /\b(?:(?:private|public|static|global|const|synchronized)\s+)*(?:function|method)\b/;
-    // Hamilton Method Editor block marker pattern in original (unmasked) text.
-    // Matches comments like: // {{ 1 1 0 "guid" "ML_STAR:{CLSID}"
-    //                    or: // {{{ 2 1 0 "guid" "{CLSID}"
-    //                    or: /* {{ 1 "" "0" */
-    const blockMarkerPattern = /(?:\/\/|\/\*)\s*\{{2,}\s+\d/;
-    const lines = cleanText.split(/\r?\n/);
-    const originalLines = fullText.split(/\r?\n/);
-    let pendingFuncDef = false;
-    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-        const line = lines[lineIdx];
-        const trimmed = line.trim();
-        // Detect function/method header
-        if (funcMethodPattern.test(trimmed) && !trimmed.endsWith(";")) {
-            pendingFuncDef = true;
-        }
-        for (let ci = 0; ci < line.length; ci++) {
-            const ch = line[ci];
-            if (ch === "{") {
-                braceDepth++;
-                if (pendingFuncDef) {
-                    // Check if this is a namespace brace rather than the function
-                    // body opener.  Lines like `namespace _Method { method main() void {`
-                    // have two `{` -- the first is the namespace brace and must NOT
-                    // consume pendingFuncDef.
-                    const textBeforeBrace = line.slice(0, ci).trimEnd();
-                    if (/\bnamespace\s+\w+\s*$/.test(textBeforeBrace)) {
-                        // Namespace brace -- fall through without consuming pendingFuncDef
-                    }
-                    else {
-                        // This is the opening brace of a function/method body
-                        inFuncBody = true;
-                        funcBodyDepth = braceDepth;
-                        pendingFuncDef = false;
-                        continue;
-                    }
-                }
-                if (inFuncBody && braceDepth > funcBodyDepth) {
-                    // Check whether this `{` is preceded by a control-flow keyword
-                    // on this line or the immediately preceding non-blank lines.
-                    const textBefore = line.slice(0, ci).trimEnd();
-                    const prevLine = lineIdx > 0 ? lines[lineIdx - 1].trim() : "";
-                    const isControlFlow = controlFlowPattern.test(textBefore) ||
-                        controlFlowPattern.test(prevLine) ||
-                        /\)\s*$/.test(textBefore); // e.g. `if(...)`
-                    // Check whether this block is preceded by a Hamilton Method
-                    // Editor block marker comment (e.g. `// {{ 1 1 0 "guid" ...`).
-                    // These blocks wrap device step calls with local arrRetValues
-                    // declarations and are valid VENUS code.
-                    const origPrevLine = lineIdx > 0 ? originalLines[lineIdx - 1].trim() : "";
-                    const isMethodEditorBlock = blockMarkerPattern.test(origPrevLine);
-                    if (!isControlFlow && !isMethodEditorBlock) {
-                        // This is an anonymous block -- check if it contains declarations
-                        const blockStart = lineIdx;
-                        const blockStartCol = ci;
-                        let localDepth = 1;
-                        let hasDeclarations = false;
-                        let scanLine = lineIdx;
-                        let scanCol = ci + 1;
-                        outerScan: while (scanLine < lines.length && localDepth > 0) {
-                            const scanText = lines[scanLine];
-                            const startCol = scanLine === lineIdx ? scanCol : 0;
-                            for (let si = startCol; si < scanText.length; si++) {
-                                if (scanText[si] === "{") {
-                                    localDepth++;
-                                }
-                                else if (scanText[si] === "}") {
-                                    localDepth--;
-                                    if (localDepth === 0) {
-                                        break outerScan;
-                                    }
-                                }
-                            }
-                            // Check if this line inside the block has a declaration
-                            if (scanLine > lineIdx || scanCol > 0) {
-                                const innerTrimmed = scanText.trim();
-                                if (DECL_PATTERN.test(innerTrimmed)) {
-                                    hasDeclarations = true;
-                                }
-                            }
-                            scanLine++;
-                            scanCol = 0;
-                        }
-                        if (hasDeclarations) {
-                            const range = new vscode.Range(blockStart, blockStartCol, blockStart, blockStartCol + 1);
-                            const diag = new vscode.Diagnostic(range, "HSL does not support anonymous '{ }' blocks with variable declarations " +
-                                "inside functions. Move all declarations to the top of the enclosing " +
-                                "function or method body.", vscode.DiagnosticSeverity.Error);
-                            diag.source = "hsl";
-                            diag.code = "anonymous-block-with-declarations";
-                            diagnostics.push(diag);
-                        }
-                    }
-                }
-            }
-            else if (ch === "}") {
-                if (inFuncBody && braceDepth === funcBodyDepth) {
-                    inFuncBody = false;
-                    funcBodyDepth = -1;
-                }
-                braceDepth = Math.max(0, braceDepth - 1);
-            }
-        }
     }
 }
 // ── String concatenation with '+' on string-typed variables ─────────────
