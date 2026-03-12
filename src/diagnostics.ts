@@ -249,9 +249,6 @@ async function refreshDiagnostics(
   // Check that ML_STAR is initialized before use
   checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics);
 
-  // Check that library functions issuing hardware commands accept a device parameter
-  checkLibraryHardwareFunctionsRequireDeviceParam(document, ignoredRanges, diagnostics);
-
   // Check for namespace-qualified variable access (only functions support ::)
   checkNamespaceQualifiedVariableAccess(document, ignoredRanges, diagnostics);
 
@@ -1851,13 +1848,23 @@ function splitArgsForSignature(paramList: string): string[] {
 const INITIALIZE_CLSID = "1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2";
 
 /**
- * Detects when ML_STAR (or any device object) is used in a `method main()`
- * body without a preceding Initialize step.  The Initialize step
- * (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2(...)`) must be called
- * before any other device commands can execute.
+ * Enforces device initialisation rules differently for methods and libraries:
  *
- * Reports an error on the first device usage line that appears before
- * (or without) the Initialize call.
+ * **Methods** (files with `method main()`):
+ *   The Initialize step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2(...)`)
+ *   must be called inside `method main()` before any other device commands.
+ *   Reports an error on the first device usage that appears before (or without)
+ *   the Initialize call.
+ *
+ * **Libraries** (files without `method main()`):
+ *   Libraries must receive the device as a `device &` function parameter from
+ *   the calling method -- they must NOT call Initialize themselves.  This
+ *   function flags two library-specific issues:
+ *   1. Initialize calls found in a library file (error) -- Initialize belongs
+ *      in `method main()` only.
+ *   2. `global device` declarations in a library file (warning) -- the library
+ *      should receive the device via a `device &` parameter instead of
+ *      declaring its own global device.
  */
 function checkInitializeBeforeDeviceUse(
   document: vscode.TextDocument,
@@ -1866,12 +1873,17 @@ function checkInitializeBeforeDeviceUse(
 ): void {
   const fullText = document.getText();
 
-  // Find `method main()` body -- we only enforce this in main since that is
-  // the entry point where Initialize must be called.  Library functions
-  // receive an already-initialised device reference.
+  // Find `method main()` body -- we enforce Initialize-before-device-use
+  // only in method main(), which is the entry point where Initialize must be
+  // called.  Library functions receive an already-initialised device via a
+  // `device &` parameter and must not call Initialize themselves (that is
+  // checked separately in checkLibraryDeviceUsage).
   const mainMethodPattern = /\bmethod\s+main\s*\(/gi;
   const mainMatch = mainMethodPattern.exec(fullText);
   if (!mainMatch) {
+    // No method main() -- this is a library file.
+    // Check for library-specific device usage issues.
+    checkLibraryDeviceUsage(document, fullText, ignoredRanges, diagnostics);
     return;
   }
 
@@ -1973,11 +1985,13 @@ function checkInitializeBeforeDeviceUse(
       const deviceName = stepMatch[1];
       const diag = new vscode.Diagnostic(
         range,
-        `Device '${deviceName}' is used before the Initialize step. ` +
+        `Device '${deviceName}' is used before the Initialize step in 'method main()'. ` +
           `The Initialize step (${deviceName}._${INITIALIZE_CLSID}(...)) ` +
-          `must be called before running any device steps or other instrument commands. Without it, ` +
-          `the instrument hardware is not initialised and all subsequent ` +
-          `device commands will fail at runtime.`,
+          `must be called in 'method main()' before any device steps or other instrument commands. ` +
+          `Without it, the instrument hardware is not initialised and all subsequent ` +
+          `device commands will fail at runtime. Note: library functions should NOT ` +
+          `call Initialize -- they receive the device via a 'device &' parameter ` +
+          `from the calling method.`,
         vscode.DiagnosticSeverity.Error
       );
       diag.source = "hsl";
@@ -1991,92 +2005,69 @@ function checkInitializeBeforeDeviceUse(
 }
 
 /**
- * Detects library-style `function` definitions that issue hardware commands
- * but do not accept a `device` parameter.
+ * Library-specific device usage checks for files without `method main()`.
  *
- * Nuance:
- * - `method main()` is responsible for running the Initialize step before
- *   device commands.
- * - Library/helper `function` blocks that run hardware commands should accept
- *   a `device &` parameter passed from the caller, rather than relying on a
- *   hidden/global device context.
+ * Libraries that interact with hardware must receive the device as a
+ * `device &` function parameter from the calling method.  They must NOT:
+ * - Call the Initialize step (that belongs in `method main()` only)
+ * - Declare a `global device` (they should receive it as a parameter)
  */
-function checkLibraryHardwareFunctionsRequireDeviceParam(
+function checkLibraryDeviceUsage(
   document: vscode.TextDocument,
+  fullText: string,
   ignoredRanges: OffsetRange[],
   diagnostics: vscode.Diagnostic[]
 ): void {
-  const fullText = document.getText();
-  const cleanText = buildMaskedText(fullText, ignoredRanges);
-
-  // Matches function definitions like:
-  // function Name(type a, device & d) variable { ... }
-  // We only lint definitions with a body, not prototypes ending with ';'.
-  const functionDefPattern =
-    /\bfunction\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s+[A-Za-z_]\w*\s*\{/gi;
-
-  let fnMatch: RegExpExecArray | null;
-  while ((fnMatch = functionDefPattern.exec(cleanText)) !== null) {
-    const functionName = fnMatch[1];
-    const paramList = fnMatch[2] || "";
-
-    // Find the opening brace for this function and then its matching close.
-    const openBraceOffset = cleanText.indexOf("{", fnMatch.index);
-    if (openBraceOffset < 0) {
+  // Check 1: Initialize calls in a library file
+  const initPattern = new RegExp(
+    `\\b([A-Za-z_]\\w*)\\._${INITIALIZE_CLSID}\\s*\\(`,
+    "gi"
+  );
+  let initMatch: RegExpExecArray | null;
+  while ((initMatch = initPattern.exec(fullText)) !== null) {
+    const offset = initMatch.index;
+    if (isInsideIgnoredRange(offset, ignoredRanges)) {
       continue;
     }
-
-    let depth = 0;
-    let closeBraceOffset = -1;
-    for (let i = openBraceOffset; i < cleanText.length; i++) {
-      const ch = cleanText[i];
-      if (ch === "{") {
-        depth++;
-      } else if (ch === "}") {
-        depth--;
-        if (depth === 0) {
-          closeBraceOffset = i;
-          break;
-        }
-      }
-    }
-    if (closeBraceOffset < 0) {
-      continue;
-    }
-
-    const body = cleanText.slice(openBraceOffset + 1, closeBraceOffset);
-
-    // Hardware/device command indicators inside function bodies.
-    const usesDeviceStepPattern = /\b[A-Za-z_]\w*\._[0-9A-Fa-f_]+\s*\(/;
-    const usesGetCommandObjectPattern = /\b[A-Za-z_]\w*\.GetCommandObject\s*\(/;
-    const usesHardwareCommands =
-      usesDeviceStepPattern.test(body) || usesGetCommandObjectPattern.test(body);
-
-    if (!usesHardwareCommands) {
-      continue;
-    }
-
-    // Library hardware functions must receive a device parameter.
-    const hasDeviceParam = /\bdevice\s*&?\s+[A-Za-z_]\w*/i.test(paramList);
-    if (hasDeviceParam) {
-      continue;
-    }
-
-    const nameStart = fnMatch.index + fnMatch[0].indexOf(functionName);
-    const range = new vscode.Range(
-      document.positionAt(nameStart),
-      document.positionAt(nameStart + functionName.length)
-    );
-
+    const pos = document.positionAt(offset);
+    const endPos = document.positionAt(offset + initMatch[0].length - 1);
+    const range = new vscode.Range(pos, endPos);
+    const deviceName = initMatch[1];
     const diag = new vscode.Diagnostic(
       range,
-      `Function '${functionName}' runs device/hardware commands but does not accept a device parameter. ` +
-        `Library functions that execute hardware commands must receive a 'device &' parameter from the caller. ` +
-        `Keep Initialize enforcement in method main(), and pass the initialised device into helper functions.`,
+      `The Initialize step should only be called inside 'method main()' in a method file. ` +
+        `Library functions must receive an already-initialised device via a 'device &' ` +
+        `parameter -- they should not call '${deviceName}._${INITIALIZE_CLSID}(...)' themselves.`,
       vscode.DiagnosticSeverity.Error
     );
     diag.source = "hsl";
-    diag.code = "library-hardware-function-missing-device-param";
+    diag.code = "initialize-in-library";
+    diagnostics.push(diag);
+  }
+
+  // Check 2: global device declarations in a library file
+  const globalDevicePattern = /\bglobal\s+device\s+([A-Za-z_]\w*)/g;
+  let devMatch: RegExpExecArray | null;
+  while ((devMatch = globalDevicePattern.exec(fullText)) !== null) {
+    const offset = devMatch.index;
+    if (isInsideIgnoredRange(offset, ignoredRanges)) {
+      continue;
+    }
+    const pos = document.positionAt(offset);
+    const endPos = document.positionAt(offset + devMatch[0].length - 1);
+    const range = new vscode.Range(pos, endPos);
+    const deviceName = devMatch[1];
+    const diag = new vscode.Diagnostic(
+      range,
+      `Library file declares 'global device ${deviceName}' but has no 'method main()'. ` +
+        `Libraries that use hardware commands should receive the device as a ` +
+        `'device & ${deviceName}' function parameter from the calling method, ` +
+        `rather than declaring their own global device. Only method files ` +
+        `(with 'method main()') should declare global devices.`,
+      vscode.DiagnosticSeverity.Warning
+    );
+    diag.source = "hsl";
+    diag.code = "global-device-in-library";
     diagnostics.push(diag);
   }
 }

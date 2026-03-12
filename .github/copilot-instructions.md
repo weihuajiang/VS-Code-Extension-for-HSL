@@ -249,37 +249,84 @@ For the step above, the `.stp` file contains:
 
 ---
 
-## Initialize Step Requirement (Critical)
+## Device Initialization and Hardware Access (Critical -- Methods vs Libraries)
+
+HSL files fall into two categories with **different** device handling rules: **method files** (containing `method main()`) and **library files** (no `method main()`). The VS Code extension enforces these rules with distinct diagnostics for each category.
+
+### Method Files (files with `method main()`)
+
+Method files own the device lifecycle. They declare a `global device`, call Initialize, and then invoke device steps or call into library functions that use the device.
 
 The **Initialize** step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("guid")`) **must** be called inside `method main()` before **any** other instrument commands that use the device object (typically `ML_STAR`). This includes -- but is not limited to -- all pipetting steps (Aspirate, Dispense, TipPickUp, TipEject), carrier movements (LoadCarrier, UnloadCarrier, MoveAutoLoad), and CO-RE 96 head operations (Head96Aspirate, Head96Dispense, Head96TipPickUp, Head96TipEject).
 
 Without the Initialize step the instrument hardware is **not** initialised. Every subsequent device command will fail at runtime.
 
-This means a device initialization step is required before running any device steps.
-
-### Rules
+**Method file rules:**
 
 1. **One Initialize per `method main()`**: Place the Initialize call early in `method main()`, before running any `ML_STAR._*` device step.
-2. **Library hardware functions must take `device &`**: If a library/helper `function` runs device steps or other hardware commands, it must receive an initialised `device &` parameter from the caller.
-3. **Do not Initialize inside library functions**: Library functions and sub-methods receive an already-initialised `device &` reference; they must not call Initialize again.
-4. **Omitting Initialize in `method main()` is a critical syntax error**: The VS Code extension flags the first `ML_STAR` device call that appears before (or without) an Initialize step as an error.
-5. **The Hamilton Method Editor adds this automatically** when you graphically insert an "Initialize" step, but hand-written HSL must include it explicitly.
+2. **Declare `global device`**: Method files declare the device with a deck layout: `global device ML_STAR ("Layout.lay", "ML_STAR", hslTrue);`
+3. **Omitting Initialize is a critical error**: The VS Code extension flags the first `ML_STAR` device call that appears before (or without) an Initialize step as an error (diagnostic code `missing-initialize-step`).
+4. **The Hamilton Method Editor adds this automatically** when you graphically insert an "Initialize" step, but hand-written HSL must include it explicitly.
 
-### Example
+### Library Files (files without `method main()`)
+
+Library files provide reusable functions that interact with the device hardware. They do **not** own the device -- they **receive** it from the calling method as a `device &` parameter. The calling method is responsible for initializing the device before invoking any library function that uses it.
+
+**Library file rules:**
+
+1. **Receive device as `device &` parameter**: Every library function that needs hardware access must accept the device via a `device &` parameter (e.g., `function MyStep(device & ML_STAR, sequence & i_seq) void`).
+2. **Do NOT call Initialize**: The Initialize step belongs in `method main()` only. Calling Initialize in a library function is an error (diagnostic code `initialize-in-library`).
+3. **Do NOT declare `global device`**: Library files should not contain `global device` declarations. The device is provided by the caller. The VS Code extension flags `global device` in a library file as a warning (diagnostic code `global-device-in-library`).
+4. **Assume the device is already initialised**: Library functions can safely issue device commands because the calling method has already called Initialize.
+
+### Examples
+
+**Method file** (owns and initialises the device, calls library functions):
 
 ```hsl
+#include "MyLibrary.hsl"
+
+global device ML_STAR ("MyLayout.lay", "ML_STAR", hslTrue);
+
 method main()
 {
-    // Initialize MUST come first
-    ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("62b7b0ef_8e71_4cd4_8763df32a80db666"); // Initialize
+    variable arrRetValues[];
 
-    // Now device commands are safe
+    // Initialize MUST come first
+    arrRetValues = ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("62b7b0ef_8e71_4cd4_8763df32a80db666"); // Initialize
+
+    // Direct device commands are safe after Initialize
     ML_STAR._541143FA_7FA2_11D3_AD85_0004ACB1DCB2("..."); // TipPickUp
-    ML_STAR._541143F5_7FA2_11D3_AD85_0004ACB1DCB2("..."); // Aspirate
-    ML_STAR._541143F8_7FA2_11D3_AD85_0004ACB1DCB2("..."); // Dispense
-    ML_STAR._541143FC_7FA2_11D3_AD85_0004ACB1DCB2("..."); // TipEject
+
+    // Library calls -- device passed as parameter
+    MyLib::DoSomething(ML_STAR, mySequence);
 }
 ```
+
+**Library file** (receives device, never initialises):
+
+```hsl
+namespace MyLib
+{
+    function DoSomething(device & ML_STAR, sequence & i_seq) void;
+
+    function DoSomething(device & ML_STAR, sequence & i_seq) void
+    {
+        // Device is already initialised by the calling method.
+        // Use it directly -- no Initialize call here.
+        ML_STAR._541143F5_7FA2_11D3_AD85_0004ACB1DCB2("..."); // Aspirate
+        ML_STAR._541143F8_7FA2_11D3_AD85_0004ACB1DCB2("..."); // Dispense
+    }
+}
+```
+
+### VS Code Extension Diagnostics
+
+| Diagnostic Code | Severity | Applies To | Description |
+|---|---|---|---|
+| `missing-initialize-step` | Error | Method files | Device used before Initialize in `method main()` |
+| `initialize-in-library` | Error | Library files | Initialize called in a file with no `method main()` |
+| `global-device-in-library` | Warning | Library files | `global device` declared in a file with no `method main()` |
 
 ---
 
