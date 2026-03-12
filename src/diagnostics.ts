@@ -249,6 +249,9 @@ async function refreshDiagnostics(
   // Check that ML_STAR is initialized before use
   checkInitializeBeforeDeviceUse(document, ignoredRanges, diagnostics);
 
+  // Check that library functions issuing hardware commands accept a device parameter
+  checkLibraryHardwareFunctionsRequireDeviceParam(document, ignoredRanges, diagnostics);
+
   // Check for namespace-qualified variable access (only functions support ::)
   checkNamespaceQualifiedVariableAccess(document, ignoredRanges, diagnostics);
 
@@ -1984,6 +1987,97 @@ function checkInitializeBeforeDeviceUse(
       // Only flag the first occurrence -- one error is enough
       return;
     }
+  }
+}
+
+/**
+ * Detects library-style `function` definitions that issue hardware commands
+ * but do not accept a `device` parameter.
+ *
+ * Nuance:
+ * - `method main()` is responsible for running the Initialize step before
+ *   device commands.
+ * - Library/helper `function` blocks that run hardware commands should accept
+ *   a `device &` parameter passed from the caller, rather than relying on a
+ *   hidden/global device context.
+ */
+function checkLibraryHardwareFunctionsRequireDeviceParam(
+  document: vscode.TextDocument,
+  ignoredRanges: OffsetRange[],
+  diagnostics: vscode.Diagnostic[]
+): void {
+  const fullText = document.getText();
+  const cleanText = buildMaskedText(fullText, ignoredRanges);
+
+  // Matches function definitions like:
+  // function Name(type a, device & d) variable { ... }
+  // We only lint definitions with a body, not prototypes ending with ';'.
+  const functionDefPattern =
+    /\bfunction\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s+[A-Za-z_]\w*\s*\{/gi;
+
+  let fnMatch: RegExpExecArray | null;
+  while ((fnMatch = functionDefPattern.exec(cleanText)) !== null) {
+    const functionName = fnMatch[1];
+    const paramList = fnMatch[2] || "";
+
+    // Find the opening brace for this function and then its matching close.
+    const openBraceOffset = cleanText.indexOf("{", fnMatch.index);
+    if (openBraceOffset < 0) {
+      continue;
+    }
+
+    let depth = 0;
+    let closeBraceOffset = -1;
+    for (let i = openBraceOffset; i < cleanText.length; i++) {
+      const ch = cleanText[i];
+      if (ch === "{") {
+        depth++;
+      } else if (ch === "}") {
+        depth--;
+        if (depth === 0) {
+          closeBraceOffset = i;
+          break;
+        }
+      }
+    }
+    if (closeBraceOffset < 0) {
+      continue;
+    }
+
+    const body = cleanText.slice(openBraceOffset + 1, closeBraceOffset);
+
+    // Hardware/device command indicators inside function bodies.
+    const usesDeviceStepPattern = /\b[A-Za-z_]\w*\._[0-9A-Fa-f_]+\s*\(/;
+    const usesGetCommandObjectPattern = /\b[A-Za-z_]\w*\.GetCommandObject\s*\(/;
+    const usesHardwareCommands =
+      usesDeviceStepPattern.test(body) || usesGetCommandObjectPattern.test(body);
+
+    if (!usesHardwareCommands) {
+      continue;
+    }
+
+    // Library hardware functions must receive a device parameter.
+    const hasDeviceParam = /\bdevice\s*&?\s+[A-Za-z_]\w*/i.test(paramList);
+    if (hasDeviceParam) {
+      continue;
+    }
+
+    const nameStart = fnMatch.index + fnMatch[0].indexOf(functionName);
+    const range = new vscode.Range(
+      document.positionAt(nameStart),
+      document.positionAt(nameStart + functionName.length)
+    );
+
+    const diag = new vscode.Diagnostic(
+      range,
+      `Function '${functionName}' runs device/hardware commands but does not accept a device parameter. ` +
+        `Library functions that execute hardware commands must receive a 'device &' parameter from the caller. ` +
+        `Keep Initialize enforcement in method main(), and pass the initialised device into helper functions.`,
+      vscode.DiagnosticSeverity.Error
+    );
+    diag.source = "hsl";
+    diag.code = "library-hardware-function-missing-device-param";
+    diagnostics.push(diag);
   }
 }
 

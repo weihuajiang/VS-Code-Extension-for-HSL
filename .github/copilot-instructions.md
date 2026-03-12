@@ -260,9 +260,10 @@ This means a device initialization step is required before running any device st
 ### Rules
 
 1. **One Initialize per `method main()`**: Place the Initialize call early in `method main()`, before running any `ML_STAR._*` device step.
-2. **Not needed in library functions**: Functions and sub-methods receive an already-initialised `device &` reference; they must not call Initialize again.
-3. **Omitting Initialize is a critical syntax error**: The VS Code extension flags the first `ML_STAR` device call that appears before (or without) an Initialize step as an error.
-4. **The Hamilton Method Editor adds this automatically** when you graphically insert an "Initialize" step, but hand-written HSL must include it explicitly.
+2. **Library hardware functions must take `device &`**: If a library/helper `function` runs device steps or other hardware commands, it must receive an initialised `device &` parameter from the caller.
+3. **Do not Initialize inside library functions**: Library functions and sub-methods receive an already-initialised `device &` reference; they must not call Initialize again.
+4. **Omitting Initialize in `method main()` is a critical syntax error**: The VS Code extension flags the first `ML_STAR` device call that appears before (or without) an Initialize step as an error.
+5. **The Hamilton Method Editor adds this automatically** when you graphically insert an "Initialize" step, but hand-written HSL must include it explicitly.
 
 ### Example
 
