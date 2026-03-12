@@ -478,10 +478,25 @@ To access a namespace's internal state, expose getter/setter functions.
 
 ### Variable Declarations Must Be at Top of Scope
 
-All type declarations (`variable`, `string`, `sequence`, `object`, etc.) must appear at the **beginning** of their enclosing scope (function, method, or namespace), before any executable statements. Both interleaving declarations with code and using C-style anonymous blocks (`{ ... }`) with local declarations are syntax errors.
+All type declarations (`variable`, `string`, `sequence`, `object`, etc.) must appear at the **beginning** of their enclosing scope, before any executable statements. This applies to every scope level: function bodies, method bodies, namespace blocks, and anonymous `{ }` blocks.
+
+Anonymous blocks **are** allowed and can contain their own declarations -- as long as those declarations appear at the top of the block before any executable code. The Hamilton Method Editor generates this pattern for every device step:
 
 ```hsl
-// WRONG -- declaration after executable code
+// Hamilton Method Editor-generated pattern -- VALID
+method main()
+{
+   variable x;
+   x = 5;
+   {
+      variable arrRetValues[];                        // OK -- declaration at top of block
+      arrRetValues = ML_STAR._CLSID("guid");          // executable code follows
+   }
+}
+```
+
+```hsl
+// WRONG -- declaration after executable code in the same scope
 function Example() void
 {
    variable x;
@@ -490,18 +505,18 @@ function Example() void
    y = 10;
 }
 
-// WRONG -- anonymous block with local declarations
+// WRONG -- declaration after executable code inside an anonymous block
 method main()
 {
    variable x;
    x = 5;
    {
-      variable y;       // ERROR -- HSL does not support block-scoped declarations
-      y = x + 1;
+      doSomething();    // executable code first
+      variable y;       // ERROR -- declaration after executable code in this block
    }
 }
 
-// CORRECT -- all declarations at the top
+// CORRECT -- all declarations at the top of each scope
 function Example() void
 {
    variable x;
