@@ -1972,7 +1972,7 @@ function checkInitializeBeforeDeviceUse(
         range,
         `Device '${deviceName}' is used before the Initialize step. ` +
           `The Initialize step (${deviceName}._${INITIALIZE_CLSID}(...)) ` +
-          `must be called before any other instrument commands. Without it, ` +
+          `must be called before running any device steps or other instrument commands. Without it, ` +
           `the instrument hardware is not initialised and all subsequent ` +
           `device commands will fail at runtime.`,
         vscode.DiagnosticSeverity.Error

@@ -255,9 +255,11 @@ The **Initialize** step (`ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("guid")`
 
 Without the Initialize step the instrument hardware is **not** initialised. Every subsequent device command will fail at runtime.
 
+This means a device initialization step is required before running any device steps.
+
 ### Rules
 
-1. **One Initialize per `method main()`**: Place the Initialize call early in `method main()`, before any `ML_STAR._*` call.
+1. **One Initialize per `method main()`**: Place the Initialize call early in `method main()`, before running any `ML_STAR._*` device step.
 2. **Not needed in library functions**: Functions and sub-methods receive an already-initialised `device &` reference; they must not call Initialize again.
 3. **Omitting Initialize is a critical syntax error**: The VS Code extension flags the first `ML_STAR` device call that appears before (or without) an Initialize step as an error.
 4. **The Hamilton Method Editor adds this automatically** when you graphically insert an "Initialize" step, but hand-written HSL must include it explicitly.
