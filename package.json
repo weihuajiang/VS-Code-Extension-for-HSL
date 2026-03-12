@@ -2,7 +2,7 @@
   "name": "hsl-language-support",
   "displayName": "HSL (Hamilton) Language Support",
   "description": "Base language support for Hamilton Standard Language (HSL)",
-  "version": "2.3.6",
+  "version": "2.4.6",
   "publisher": "ZacharyMilot",
   "author": "Zachary Milot",
   "repository": {
@@ -18,7 +18,7 @@
   "categories": ["Programming Languages", "Linters", "Other"],
   "icon": "HSL.png",
   "main": "./out/extension.js",
-  "activationEvents": ["onLanguage:hsl"],
+  "activationEvents": ["onLanguage:hsl", "onLanguage:hsl-trace"],
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
@@ -34,8 +34,14 @@
       {
         "id": "hsl",
         "aliases": ["HSL", "Hamilton Standard Language"],
-        "extensions": [".hsl", ".hs_", ".sub"],
+        "extensions": [".hsl", ".hs_", ".hsi", ".sub"],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "hsl-trace",
+        "aliases": ["HSL Trace Log", "Hamilton Trace"],
+        "extensions": [".trc"],
+        "configuration": "./language-configuration-trace.json"
       }
     ],
     "grammars": [
@@ -43,6 +49,11 @@
         "language": "hsl",
         "scopeName": "source.hsl",
         "path": "./syntaxes/hsl.tmLanguage.json"
+      },
+      {
+        "language": "hsl-trace",
+        "scopeName": "source.hsl-trace",
+        "path": "./syntaxes/hsl-trace.tmLanguage.json"
       }
     ],
     "snippets": [

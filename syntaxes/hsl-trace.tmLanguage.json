@@ -1,0 +1,92 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "HSL Trace Log",
+  "scopeName": "source.hsl-trace",
+  "patterns": [
+    { "include": "#timestamp" },
+    { "include": "#system-line" },
+    { "include": "#user-trace-line" },
+    { "include": "#firmware-response" },
+    { "include": "#firmware-sim" },
+    { "include": "#error-code" },
+    { "include": "#step-types" },
+    { "include": "#firmware-commands" },
+    { "include": "#firmware-params" },
+    { "include": "#guid" },
+    { "include": "#file-path" },
+    { "include": "#numeric" }
+  ],
+  "repository": {
+    "timestamp": {
+      "match": "\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\.\\d{3}",
+      "name": "comment.timestamp.hsl-trace"
+    },
+    "system-line": {
+      "match": "(?<=\\d{3})\\s+(SYSTEM)\\s*:",
+      "captures": {
+        "1": { "name": "keyword.control.system.hsl-trace" }
+      }
+    },
+    "user-trace-line": {
+      "match": "(?<=\\d{3})\\s+(USER)\\s*:",
+      "captures": {
+        "1": { "name": "entity.name.function.user.hsl-trace" }
+      }
+    },
+    "firmware-response": {
+      "comment": "Firmware response strings like IIid0000er00/00, CLid0001er00/00ci...",
+      "match": "\\b([A-Z]{2})(id)(\\d{4})(er)(\\d{2})/(\\d{2})",
+      "captures": {
+        "1": { "name": "support.function.firmware-code.hsl-trace" },
+        "2": { "name": "variable.parameter.firmware.hsl-trace" },
+        "3": { "name": "constant.numeric.id.hsl-trace" },
+        "4": { "name": "variable.parameter.firmware.hsl-trace" },
+        "5": { "name": "constant.numeric.error.hsl-trace" },
+        "6": { "name": "constant.numeric.trace.hsl-trace" }
+      }
+    },
+    "firmware-sim": {
+      "comment": "Simulator markers like [SIM] and [FW XX]",
+      "match": "\\[(SIM|FW\\s+[A-Z]{2})\\]",
+      "name": "markup.bold.firmware-sim.hsl-trace",
+      "captures": {
+        "1": { "name": "support.function.firmware-sim.hsl-trace" }
+      }
+    },
+    "error-code": {
+      "comment": "Non-zero error codes in firmware responses",
+      "match": "\\ber(?!00/)([0-9]{2})/([0-9]{2})",
+      "name": "invalid.illegal.error-code.hsl-trace"
+    },
+    "step-types": {
+      "comment": "HSL device step type names",
+      "match": "\\b(Initialize|Aspirate|Dispense|TipPickUp|TipEject|UnloadCarrier|LoadCarrier|MoveAutoLoad|Head96Aspirate|Head96Dispense|Head96TipPickUp|Head96TipEject|EasyHead96Aspirate|EasyHead96Dispense|GetLastLiquidLevel)\\b",
+      "name": "entity.name.type.step.hsl-trace"
+    },
+    "firmware-commands": {
+      "comment": "Two-letter firmware command codes when they appear as standalone tokens",
+      "match": "(?<=\\[FW\\s)(II|IV|CI|CT|CA|CR|CL|CP|CS|CB|DB|DR|CW|CU|CN|RC|QA|CQ|VK|VL)(?=\\])",
+      "name": "support.function.firmware-code.hsl-trace"
+    },
+    "firmware-params": {
+      "comment": "Firmware parameter key-value pairs like cp01, cv1281, cn32",
+      "match": "\\b(id|cp|bi|bw|cv|bd|bp|cn|co|cf|ea|mr|cl|cb|bt|mq|mb|mo|vn|cu|ct|cd|ce|qa|cq|vl|vk|vm|bb|er)(\\d+)",
+      "captures": {
+        "1": { "name": "variable.parameter.firmware.hsl-trace" },
+        "2": { "name": "constant.numeric.param-value.hsl-trace" }
+      }
+    },
+    "guid": {
+      "match": "[0-9a-fA-F]{8}[-_][0-9a-fA-F]{4}[-_][0-9a-fA-F]{4}[-_][0-9a-fA-F]{4,}[-_]?[0-9a-fA-F]{12}",
+      "name": "string.other.guid.hsl-trace"
+    },
+    "file-path": {
+      "match": "[A-Za-z]:\\\\[^\\s;]+\\.(?:hsl|sub|hs_|hsi|med|stp|lay)",
+      "name": "string.other.filepath.hsl-trace"
+    },
+    "numeric": {
+      "match": "\\b\\d+\\.?\\d*\\b",
+      "name": "constant.numeric.hsl-trace"
+    }
+  }
+}

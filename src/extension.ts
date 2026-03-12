@@ -6,6 +6,7 @@ import { buildCompletionItems } from "./builtins";
 import { createHslDiagnostics } from "./diagnostics";
 import { registerHslIntelliSense } from "./hslIntellisense";
 import { registerStpHoverProvider } from "./stpHoverProvider";
+import { registerTraceLanguageSupport } from "./traceLanguageSupport";
 import {
   HslDebugAdapterFactory,
   HslDebugConfigurationProvider,
@@ -46,6 +47,9 @@ export function activate(context: vscode.ExtensionContext): void {
   // Register STP hover provider (pipetting step tooltips)
   registerStpHoverProvider(context);
 
+  // Register trace log language support (syntax highlighting + firmware IntelliSense)
+  registerTraceLanguageSupport(context);
+
   // Register the HSL debug adapter so Run/Debug (F5) works from the Run menu
   const debugAdapterFactory = new HslDebugAdapterFactory();
   context.subscriptions.push(
@@ -71,7 +75,7 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 
   function validateHslExtension(filePath: string): boolean {
-    const validExtensions = [".hsl", ".hs_", ".sub", ".med"];
+    const validExtensions = [".hsl", ".hs_", ".hsi", ".sub", ".med"];
     const ext = path.extname(filePath).toLowerCase();
     if (!validExtensions.includes(ext)) {
       vscode.window.showErrorMessage(

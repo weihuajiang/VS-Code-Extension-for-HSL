@@ -473,7 +473,7 @@ async function* walkHslFiles(root: string): AsyncGenerator<string> {
       continue;
     }
     const lower = full.toLowerCase();
-    if (entry.isFile() && (lower.endsWith(".hsl") || lower.endsWith(".hs_"))) {
+    if (entry.isFile() && (lower.endsWith(".hsl") || lower.endsWith(".hs_") || lower.endsWith(".hsi"))) {
       yield full;
     }
   }

@@ -40,7 +40,7 @@ interface LaunchArguments {
 
 const HXRUN_PATH = "C:\\Program Files (x86)\\Hamilton\\Bin\\HxRun.exe";
 const LOGFILE_DIR = "C:\\Program Files (x86)\\Hamilton\\Logfiles";
-const VALID_EXTENSIONS = [".hsl", ".hs_", ".sub", ".med"];
+const VALID_EXTENSIONS = [".hsl", ".hs_", ".hsi", ".sub", ".med"];
 
 /**
  * Minimal inline Debug Adapter that supports two modes:
