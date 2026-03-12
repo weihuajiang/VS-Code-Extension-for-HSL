@@ -2415,9 +2415,14 @@ export const KEYWORDS: KeywordEntry[] = [
   },
   {
     name: "goto",
-    description: "Jump to a labeled statement",
+    description: "Jump target (only valid as 'onerror goto')",
     documentation:
-      "The `goto` statement transfers execution to a labeled statement within the same scope.\n\n**Usage:** `goto <label>;`\n\nCommonly used with `onerror goto` for error handling.",
+      "HSL does **not** have a standalone `goto` statement. The `goto` keyword " +
+      "is only valid as part of `onerror goto <label>;` or `onerror goto 0;` for " +
+      "error handling. A bare `goto <label>;` causes VENUS error 1206.\n\n" +
+      "**Valid usage:**\n- `onerror goto <label>;` -- register an error handler\n" +
+      "- `onerror goto 0;` -- deregister the current error handler\n\n" +
+      "**Invalid:** `goto <label>;` (standalone)",
   },
 ];
 
