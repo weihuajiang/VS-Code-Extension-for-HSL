@@ -130,6 +130,41 @@ All commands from IDL Firmware Specification Section 3.12 (Autoload).
 | `VK` | -- | Request code data of individual labware position |
 | `VL` | -- | Request code data length of all labware positions |
 
+### 3.13 -- iSWAP Commands
+
+These commands control the iSWAP (Internal Sample Arm for Workdeck Plate handling) -- Hamilton's robotic plate-gripping arm that sits on a horizontal rail spanning the width of the instrument.
+
+The iSWAP has two defined park positions: **right** (home/default) and **left** (alternate). The parking maneuver slides the arm laterally along its traverse rail. This is NOT a re-home or calibration cycle -- it is a simple point-to-point move.
+
+These firmware mnemonics are stored in STP field `-534183816` and sent to the instrument controller via the FirmwareCommand COM interface (`{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}`).
+
+| Code | SFCO | Description |
+|------|------|-------------|
+| `PXZI` | -- | Prepare/position iSWAP traverse axis, initialize Z-axis motors |
+| `H0ZI` | -- | Home iSWAP Z-axis (retract gripper vertically) |
+| `C0FY` | -- | Coordination/synchronization (settle channel arm before iSWAP moves) |
+| `R0MO` | -- | Move iSWAP to Opposite side (right -> left park) |
+| `R0MH` | -- | Move iSWAP to Home position (left -> right park) |
+
+**Note:** SFCO IDs for iSWAP commands are not available in the IDL spec extract included in this workspace. The command codes and behaviors were reverse-engineered from the Visual NTR Library's STP binary data using the HxCfgFile codec.
+
+#### iSWAP Park-Left Sequence (6 steps)
+
+Used when CO-RE grippers need to access a rear carrier position (Y > 433.8 mm) and the iSWAP is parked on the right blocking access:
+
+1. `PXZI` -- Power up traverse motors
+2. `H0ZI` -- Retract iSWAP Z-axis (raise gripper fingers)
+3. MoveToPosition Y=770 mm -- Move all pipetting channels to far rear of deck, clearing the path
+4. `C0FY` -- Wait for channel arm to settle
+5. `R0MO` -- Slide iSWAP arm from right to left park position
+
+#### iSWAP Park-Right Sequence (2 steps)
+
+Used after transport is complete to restore iSWAP to its home (right) position:
+
+1. `C0FY` -- Wait for channel arm to settle
+2. `R0MH` -- Slide iSWAP arm from left back to right (home) park position
+
 ---
 
 ## Error Codes
@@ -294,7 +329,8 @@ These IDL spec sections have commands that are not yet in `firmware_commands.jso
 - 3.9 -- CO-RE 96 head commands
 - 3.10 -- Wash station commands
 - 3.11 -- Heater/shaker commands
-- 3.13 -- iSWAP commands
 - 3.14 -- Nano pipettor commands
+
+Section 3.13 (iSWAP commands) has been partially implemented from reverse-engineered STP data. The formal IDL spec for section 3.13 is not included in the workspace -- SFCO IDs and full parameter schemas are unavailable.
 
 To implement a new section, extract the commands from `IDL Firmware.html` and convert them to the JSON schema above.

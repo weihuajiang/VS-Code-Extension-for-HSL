@@ -175,6 +175,15 @@ The HSL code itself does **not** contain the pipetting parameters (volume, liqui
 | `BD0D210B_0816_4C86_A903_D6B2DF73F78B` | Head96TipPickUp (CO-RE 96) |
 | `2880E77A_3D6D_40FE_AF57_1BD1FE13960C` | Head96TipEject (CO-RE 96) |
 | `EA251BFB_66DE_48D1_83E5_6884B4DD8D11` | MoveAutoLoad |
+| `CC819D7A_5DD8_4d13_A921_D74A06460F9E` | GetPlate (iSWAP pickup) |
+| `E34155E5_7529_4b6b_AE3E_CDDA40789D55` | PutPlate (iSWAP placement) |
+| `86F668D0_478C_41b6_A78B_8B6B8EAA54A7` | ParkISwap (park iSWAP arm) |
+| `A108628C_BEB7_4CB6_99FD_8523302C700F` | ZSwapGetPlate (CO-RE Grip pickup) |
+| `9DF3DD4B_3B5E_4750_8989_04458D1B134B` | ZSwapPlacePlate (CO-RE Grip placement) |
+| `8A76E9A2_8053_4a32_B36F_AD9556B09C99` | EasyiSWAPTransport (composite iSWAP move) |
+| `7EF8970F_F753_4c75_AD76_0E0D9C2CC9CD` | EasyCOREGripTransport (composite CO-RE move) |
+| `1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2` | FirmwareCommand (raw firmware mnemonic) |
+| `81DA4252_3BA9_11d4_AE21_0004ACB1DCB2` | MoveToPosition (move pipetting channels) |
 
 ---
 
@@ -327,6 +336,99 @@ namespace MyLib
 | `missing-initialize-step` | Error | Method files | Device used before Initialize in `method main()` |
 | `initialize-in-library` | Error | Library files | Initialize called in a file with no `method main()` |
 | `global-device-in-library` | Warning | Library files | `global device` declared in a file with no `method main()` |
+
+---
+
+## iSWAP & Transport Step Parameters (.stp File)
+
+iSWAP and CO-RE Grip transport steps use a different set of STP parameters from pipetting steps. These are used for plate/rack pickup, placement, and iSWAP arm parking.
+
+### Step Command Type IDs (field `-534118376`)
+
+| Command ID | Step Type |
+|---|---|
+| 580 | GetPlate (iSWAP) |
+| 581 | PutPlate (iSWAP) |
+| 343 | ParkISwap |
+| 441 | ZSwapGetPlate (CO-RE Grip) |
+| 466 | ZSwapPlacePlate (CO-RE Grip) |
+| 1041 | EasyiSWAPTransport |
+| 1045 | EasyCOREGripTransport |
+| 457 | FirmwareCommand (raw) |
+
+### Named String/Integer Fields (iSWAP/Transport)
+
+| Key | Type | Description |
+|---|---|---|
+| `1StepName` | string | Step type name (e.g., "GetPlate", "PutPlate", "ParkISwap") |
+| `1PlateName` | string | Labware/sequence name for the plate or rack |
+| `1PlateObject` | string | Labware/sequence object (usually same as PlateName) |
+| `1GripperAccessHeight` | string | Variable name for grip height (e.g., "iSWAPGripHeight") |
+| `5GripperAccessHeight` | float | Direct grip access height in mm |
+| `1ToolSequenceName` | string | Gripper tool sequence name (CO-RE Grip) |
+| `1ToolSequenceObject` | string | Gripper tool sequence object |
+| `1ToolUpperChannel` | string | Upper channel number for CO-RE transport |
+| `3InversGripping` | int | 0 = normal grip, 1 = inverse grip |
+| `3GripperHotel` | int | 0 = no hotel parking |
+| `3TransportMode` | int | 0 = standard |
+| `3LabwareOrientation` | int | 0 = landscape, 1 = portrait |
+| `3GripDirectionMode` | int | Grip approach direction (0, 1, 2) |
+| `3GrippLargeSite` | int | 0 = normal site gripping |
+| `3OverwriteGripWidth` | int | 2 = override grip width with custom value |
+| `3ParkISwapAfterUse` | int | 0 = do not park, 1 = park after transport |
+| `3CheckFreePositionFirst` | int | 0 = skip target check |
+| `3SearchLabwareFirst` | int | 0 = skip labware search |
+| `3ReadPlateBarcode` | int | 0 = skip barcode read during transport |
+| `3AskForNoCollision` | int | 1 = collision avoidance prompt (ParkISwap) |
+| `3ToolEject` | int | 0 = keep grippers, 1 = eject after use |
+| `5ZSwapStrengthFactor` | float | CO-RE grip strength factor (0.5 typical) |
+| `3ZSwapPlateCheck` | int | 0 = skip plate presence check |
+
+### Numeric Field IDs (inside `-534183935` parameter group)
+
+| Field ID | Type | Parameter | Unit |
+|---|---|---|---|
+| `-534183682` | float | **Z-travel height** | mm |
+| `-534183683` | float | **Z-start / gripper access height** | mm |
+| `-534183684` | float | **Z-end / clearance height** | mm |
+| `-534183672` | float | **Z-position / plate height** | mm |
+| `-534183694` | int | **Internal flag** | -- |
+| `-534183723` | float | **Place precision / check flag** | -- |
+| `-534183743` | float | **Z offset (source)** | mm |
+| `-534183744` | float | **Z offset (target)** | mm |
+| `-534183747` | float/str | **Grip opening width** | mm |
+| `-534183773` | float | **Speed** | -- |
+| `-534183774` | float/str | **Grip width** | mm |
+| `-534183775` | int | **Grip force / tolerance** | -- |
+| `-534183645` | int | **Place mode** | enum |
+| `-534183815` | string | **Firmware command parameter string** (FirmwareCommand steps) | -- |
+| `-534183816` | string | **Firmware command mnemonic** (e.g., "PXZI", "R0MO") | -- |
+
+### iSWAP Firmware Mnemonics
+
+These 4-character mnemonics are stored in STP field `-534183816` and sent to the instrument controller via the FirmwareCommand COM interface (`{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}`).
+
+| Mnemonic | Module | Description |
+|---|---|---|
+| `PXZI` | iSWAP motor controller | Prepare/position iSWAP traverse axis, initialize Z |
+| `H0ZI` | iSWAP Z-axis | Home iSWAP Z-axis (retract gripper vertically) |
+| `C0FY` | Channel/system | Coordination/synchronization (settle channel arm) |
+| `R0MO` | iSWAP traverse | Move iSWAP to Opposite side (right -> left) |
+| `R0MH` | iSWAP traverse | Move iSWAP to Home position (left -> right) |
+
+### iSWAP Default Grip Parameters
+
+| Rack Format | Grip Height | Grip Width | Grip Opening |
+|---|---|---|---|
+| 96-tip NTR | 25 mm | 77 mm | 90 mm |
+| 384-tip NTR | 22 mm | 77 mm | 90 mm |
+
+### CO-RE Grip Default Parameters
+
+| Rack Format | Grip Height | Grip Width | Grip Opening | Z-Travel | Z-Position |
+|---|---|---|---|---|---|
+| 96-tip NTR | 21 mm | 79 mm | 86 mm | 277.8 mm | 128.7 mm |
+| 384-tip NTR | 21 mm | 76 mm | 81 mm | 277.8 mm | 128.7 mm |
 
 ---
 

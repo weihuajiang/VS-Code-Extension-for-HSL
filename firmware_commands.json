@@ -699,6 +699,111 @@
       ],
       "responseFields": ["id####", "er##/##", "vlnnn nnn ..."],
       "notes": "2D Autoload only. Returns lengths from last CL command."
+    },
+    {
+      "code": "PXZI",
+      "sfcoId": "",
+      "category": "iSWAP",
+      "specSection": "3.13",
+      "description": "Prepare/position iSWAP traverse axis and initialize Z-axis motors for lateral movement",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": "Powers up the iSWAP traverse motors before a lateral park maneuver. Usually followed by H0ZI to retract the Z-axis."
+    },
+    {
+      "code": "H0ZI",
+      "sfcoId": "",
+      "category": "iSWAP",
+      "specSection": "3.13",
+      "description": "Home iSWAP Z-axis (retract gripper vertically to clear deck obstacles)",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": "Retracts the iSWAP gripper fingers vertically so the arm clears deck obstacles during traverse. Called after PXZI."
+    },
+    {
+      "code": "C0FY",
+      "sfcoId": "",
+      "category": "iSWAP",
+      "specSection": "3.13",
+      "description": "Coordination/synchronization command -- ensures channel arm is settled before iSWAP moves",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": "Synchronization fence: waits for the pipetting channel arm to settle at its commanded position before the iSWAP begins its traverse. Used before both R0MO and R0MH."
+    },
+    {
+      "code": "R0MO",
+      "sfcoId": "",
+      "category": "iSWAP",
+      "specSection": "3.13",
+      "description": "Move iSWAP to Opposite side (slide arm from right/home park to left park position)",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": "Slides the iSWAP arm along its horizontal rail from the right (home) park position to the left (opposite) park position. The arm must be prepared (PXZI), Z-retracted (H0ZI), and channels cleared (MoveToPosition + C0FY) before issuing this command."
+    },
+    {
+      "code": "R0MH",
+      "sfcoId": "",
+      "category": "iSWAP",
+      "specSection": "3.13",
+      "description": "Move iSWAP to Home position (slide arm from left park back to right/home park position)",
+      "commandPoint": 1,
+      "params": [
+        {
+          "name": "id",
+          "type": "INT",
+          "min": 0,
+          "max": 9999,
+          "default": 0,
+          "width": 4,
+          "description": "Identification number"
+        }
+      ],
+      "responseFields": ["id####", "er##/##"],
+      "notes": "Slides the iSWAP arm along its horizontal rail from the left (opposite) park position back to the right (home) park position. Exact reverse of R0MO. Preceded by C0FY synchronization."
     }
   ]
 }
