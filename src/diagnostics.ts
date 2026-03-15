@@ -224,6 +224,9 @@ async function refreshDiagnostics(
   // Check for unsupported 'continue' keyword
   checkContinueKeyword(document, ignoredRanges, diagnostics);
 
+  // Check for standalone 'goto' (only 'onerror goto' is valid in HSL)
+  checkStandaloneGoto(document, ignoredRanges, diagnostics);
+
   // Compute lines inside #ifndef HSL_RUNTIME ... #endif blocks once,
   // so both variable-placement and declaration-pairing checks can use it.
   const hslRuntimeGuardedLines = getHslRuntimeGuardedLines(document, ignoredRanges);
@@ -1101,6 +1104,66 @@ function checkContinueKeyword(
       );
       diag.source = "hsl";
       diag.code = "invalid-continue";
+      diagnostics.push(diag);
+    }
+  }
+}
+
+/**
+ * Detects standalone `goto <label>;` statements that are NOT part of
+ * `onerror goto`.  HSL does **not** have a general-purpose `goto`
+ * statement -- only `onerror goto <label>;` and `onerror goto 0;`
+ * are valid.  A standalone `goto` causes VENUS error 1206.
+ *
+ * The recommended fix is to restructure the error handling using one of:
+ *   - **Fall-through pattern**: let both success and error paths converge
+ *     at the label block (e.g., `_myLabel: { err.Clear(); onerror goto 0; }`)
+ *   - **Return pattern**: use `return;` before the error label on the
+ *     success path, so the label block is only reached on error.
+ */
+function checkStandaloneGoto(
+  document: vscode.TextDocument,
+  ignoredRanges: OffsetRange[],
+  diagnostics: vscode.Diagnostic[]
+): void {
+  // Match `goto <identifier>;` but NOT `onerror goto`.
+  // We look for `goto` preceded by something other than `onerror`.
+  const gotoPattern = /\bgoto\b/gi;
+  const onerrorPrefix = /\bonerror\s+$/i;
+
+  for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+    const line = document.lineAt(lineIndex);
+    const lineText = line.text;
+    const lineOffset = document.offsetAt(line.range.start);
+
+    gotoPattern.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = gotoPattern.exec(lineText)) !== null) {
+      const absoluteOffset = lineOffset + match.index;
+      if (isInsideIgnoredRange(absoluteOffset, ignoredRanges)) {
+        continue;
+      }
+      // Check whether this `goto` is preceded by `onerror` on the same line
+      const textBefore = lineText.substring(0, match.index);
+      if (onerrorPrefix.test(textBefore)) {
+        continue; // `onerror goto` is valid -- skip
+      }
+      const range = new vscode.Range(
+        lineIndex,
+        match.index,
+        lineIndex,
+        match.index + match[0].length
+      );
+      const diag = new vscode.Diagnostic(
+        range,
+        "Standalone 'goto' is not valid HSL. Only 'onerror goto <label>' and " +
+          "'onerror goto 0' are supported. Use the fall-through pattern " +
+          "(let both paths reach the label block) or return before the label " +
+          "to skip the error handler on success.",
+        vscode.DiagnosticSeverity.Error
+      );
+      diag.source = "hsl";
+      diag.code = "standalone-goto";
       diagnostics.push(diag);
     }
   }

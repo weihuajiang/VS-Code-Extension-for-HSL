@@ -336,6 +336,7 @@ namespace MyLib
 | `missing-initialize-step` | Error | Method files | Device used before Initialize in `method main()` |
 | `initialize-in-library` | Error | Library files | Initialize called in a file with no `method main()` |
 | `global-device-in-library` | Warning | Library files | `global device` declared in a file with no `method main()` |
+| `standalone-goto` | Error | All files | Standalone `goto <label>` used without `onerror` prefix |
 
 ---
 
@@ -689,6 +690,102 @@ while(i < 10)
    }
 }
 ```
+
+### No Standalone `goto` Statement
+
+HSL does **not** have a general-purpose `goto` keyword. Only `onerror goto <label>;` and `onerror goto 0;` are valid. A bare `goto <label>;` (without the preceding `onerror`) produces **VENUS error 1206**. The VS Code extension flags this with diagnostic code `standalone-goto`.
+
+```hsl
+// WRONG -- standalone goto does not exist in HSL
+onerror goto _myErr;
+DoSomethingRisky();
+onerror goto 0;
+goto _skipErr;       // ERROR 1206 -- 'goto' is not a valid statement
+
+_myErr:
+{
+   err.Clear();
+   onerror goto 0;
+   resume next;
+}
+_skipErr:
+```
+
+### Error Handling Patterns (`onerror goto`)
+
+HSL error handling uses `onerror goto <label>;` to register a jump target and `onerror goto 0;` to deregister it. Because standalone `goto` does not exist, you must structure error handlers so that **normal execution flow naturally reaches or bypasses the error-handler block** without a `goto`. Three patterns are available:
+
+#### Pattern A: Fall-through (recommended when code continues after the risky call)
+
+Both the success and error paths fall through into the label block. On success, `err.Clear()` is a no-op. This is the simplest and most common pattern.
+
+```hsl
+onerror goto _parkErr;
+FW_ParkCarrierBackInDeck(ML_STAR, 1300, 200, 0);
+
+_parkErr:
+{
+   err.Clear();
+   onerror goto 0;
+}
+// Execution continues here regardless of success or failure
+```
+
+#### Pattern B: Return before label (when the error handler is the last thing in the function)
+
+The success path exits via `return;` so it never reaches the label. The error handler is only entered on failure. Use `resume next;` inside the handler to continue after the failing statement (which resumes at the statement following the one that threw), or `return;` to exit the function from the handler.
+
+```hsl
+function DoWork(device & ML_STAR) void
+{
+   onerror goto _workErr;
+   RiskyOperation();
+   onerror goto 0;
+
+   // ... more code ...
+
+   return;
+
+   _workErr:
+   {
+      Trace("Operation failed.");
+      err.Clear();
+      onerror goto 0;
+      resume next;
+   }
+}
+```
+
+#### Pattern C: Flag variable (when you need to know whether the error occurred)
+
+A flag variable is set after the risky call. Both paths fall through to the label, but the handler checks the flag to decide what to do.
+
+```hsl
+variable int_Ok;
+int_Ok = 0;
+
+onerror goto _checkErr;
+RiskyCall();
+int_Ok = 1;
+
+_checkErr:
+{
+   if (int_Ok == 0)
+   {
+      Trace("RiskyCall failed -- continuing anyway.");
+      err.Clear();
+   }
+   onerror goto 0;
+}
+```
+
+#### Key rules
+
+- **`onerror goto <label>;`** registers `<label>` as the error jump target.
+- **`onerror goto 0;`** deregisters the current error handler. Always call this after the protected section to avoid catching unrelated errors.
+- **`err.Clear();`** clears the active error inside a handler.
+- **`resume next;`** continues execution at the statement after the one that threw. Only use inside an error handler entered via `onerror goto`.
+- **Never use standalone `goto <label>;`** -- it does not exist in HSL.
 
 ### No Compound Assignment Operators
 
