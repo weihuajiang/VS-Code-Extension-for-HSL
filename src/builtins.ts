@@ -1971,10 +1971,10 @@ export const ELEMENT_FUNCTIONS: ElementFunction[] = [
   {
     objectType: "file",
     name: "AddField",
-    signature: "file.AddField(fieldNo, variableObj, type, width)",
+    signature: "file.AddField(fieldNo, variableObj, type[, width])",
     description: "Adds a field to the record definition",
     documentation:
-      "Adds a field to the record definition of the file object.\n\n**Parameters:**\n- `fieldNo` -- the field number, 1-based (integer).\n- `variableObj` -- the variable object associated with the field.\n- `type` -- the type of the field. Values: `hslInteger`, `hslFloat`, `hslString`, `hslDate`.\n- `width` -- the width of the field (integer). Ignored for `hslCSVDelimited` and `hslTabDelimited` files.",
+      "Adds a field to the record definition of the file object.\n\n**Parameters:**\n- `fieldNo` -- the field number, 1-based (integer).\n- `variableObj` -- the variable object associated with the field.\n- `type` -- the type of the field. Values: `hslInteger`, `hslFloat`, `hslString`, `hslDate`.\n- `width` -- (optional) the width of the field (integer). Required for `hslString` fields in database/Excel files. Ignored for `hslCSVDelimited` and `hslTabDelimited` files.",
     insertText: "AddField(${1:fieldNo}, ${2:variableObj}, ${3:type}, ${4:width})",
   },
   {
