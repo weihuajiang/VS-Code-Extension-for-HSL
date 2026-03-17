@@ -2509,8 +2509,14 @@ function checkStringConcatenation(
  * not for accessing global variables.  `Namespace::Function()` is valid,
  * but `Namespace::variable` (without a trailing `(`) is a compile error.
  *
- * This check flags every occurrence of `Identifier::Identifier` that is
- * NOT immediately followed by `(`, indicating a variable access attempt.
+ * However, HSL **does** allow `::` access for `const` declarations in
+ * namespaces (e.g., `MECC::IDS::stepNameFileOpen`).  Since the extension
+ * cannot distinguish `const` from `variable` in external/included files,
+ * we only flag namespace-qualified non-function names that appear at
+ * parenthesis depth 0 (i.e., NOT inside a function call argument list).
+ * Qualified names inside parentheses are overwhelmingly `const` references
+ * passed as arguments -- a pattern the Hamilton Method Editor generates
+ * extensively (e.g., `MECC::RaiseRuntimeErrorEx(..., MECC::IDS::xxx, ...)`).
  */
 function checkNamespaceQualifiedVariableAccess(
   document: vscode.TextDocument,
@@ -2519,6 +2525,21 @@ function checkNamespaceQualifiedVariableAccess(
 ): void {
   const fullText = document.getText();
   const cleanText = buildMaskedText(fullText, ignoredRanges);
+
+  // Pre-compute parenthesis depth at each position so we can skip
+  // qualified names that appear inside function call argument lists.
+  // depth[i] = number of unmatched '(' before position i.
+  const parenDepth = new Uint16Array(cleanText.length + 1);
+  let depth = 0;
+  for (let i = 0; i < cleanText.length; i++) {
+    parenDepth[i] = depth;
+    if (cleanText[i] === "(") {
+      depth++;
+    } else if (cleanText[i] === ")") {
+      depth = Math.max(0, depth - 1);
+    }
+  }
+  parenDepth[cleanText.length] = depth;
 
   // Match a qualified name (A::B or A::B::C etc.) that is NOT followed by
   // `(` (which would make it a function call) or `::` (which would make
@@ -2542,6 +2563,16 @@ function checkNamespaceQualifiedVariableAccess(
     // Skip if followed by `(` -- that is a valid namespace-qualified function call
     const afterMatch = cleanText.slice(matchEnd);
     if (/^\s*\(/.test(afterMatch)) {
+      continue;
+    }
+
+    // Skip if inside parentheses (paren depth > 0).  Namespace-qualified
+    // names inside function call arguments are typically `const` references
+    // from included libraries (e.g., MECC::IDS::stepNameFileOpen).  The
+    // extension cannot resolve whether the referenced symbol is `const` or
+    // `variable` from an external file, so we allow read-only usage inside
+    // expressions to avoid false positives on standard Hamilton library code.
+    if (parenDepth[matchStart] > 0) {
       continue;
     }
 
