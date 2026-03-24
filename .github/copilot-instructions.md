@@ -632,7 +632,34 @@ function Example() void
 
 ### Array Element Assignment
 
-Array element assignment using bracket notation (`arr[index] = value`) is valid HSL syntax. However, place **one assignment per line** for parser compatibility:
+Array element assignment using bracket notation (`arr[index] = value`) is valid HSL syntax **only when the array already has sufficient size**. Place **one assignment per line** for parser compatibility.
+
+**Critical**: Declaring `variable arr[];` creates a **zero-length array**. You **cannot** grow it by assigning to indices (`arr[0] = "A"` causes runtime error `array reference out of bound` -- error `0x23 - 0x1 - 0x19`). This applies to both local arrays and arrays passed as function parameters.
+
+Arrays can be populated by:
+- Function return values: `arr = SomeFunction(...);`
+- The runtime resizing the array internally (e.g., `DevAddLabware` populating a return array)
+- Declaring with initial values in the Hamilton Method Editor
+
+```hsl
+// WRONG -- arr has zero length, index assignment fails at runtime
+variable arrRows[];
+arrRows[0] = "A";    // ERROR: array reference out of bound
+arrRows[1] = "B";    // never reached
+
+// CORRECT -- use if/else chain for small fixed lookups
+variable strRow;
+strRow = "A";
+if (row == 1) { strRow = "B"; }
+if (row == 2) { strRow = "C"; }
+// ... etc.
+
+// CORRECT -- populate from function return
+variable arrRetValues[];
+arrRetValues = ML_STAR._541143FA_7FA2_11D3_AD85_0004ACB1DCB2("guid"); // TipPickUp
+```
+
+When assignment is valid (pre-sized array), place **one assignment per line**:
 
 ```hsl
 // AVOID -- multiple assignments on one line (may cause parser issues)
@@ -666,6 +693,70 @@ strResult = strResult + "," + strItem;
 ```
 
 This restriction applies to **all** uses of `arr[index]` as an operand of `+`, including both left and right sides. The assignment `arr[index] = value` itself is fine -- only the use inside `+` expressions is prohibited.
+
+### No Array Output Parameters in Library Functions
+
+Passing a `variable arr[]` parameter to a library function and trying to grow it inside the function by index assignment (`arr[i] = value`) causes runtime error `array reference out of bound`. The caller's empty array cannot be resized through a parameter reference.
+
+**Workaround**: Use deterministic naming conventions so the caller can reconstruct element names without an output array. For example, if a function creates labware IDs `Prefix_1`, `Prefix_2`, ..., `Prefix_N`, the caller can rebuild any ID with:
+
+```hsl
+// Library function -- no array output parameter needed
+function AddPlateStack(
+   device & ML_STAR,
+   variable plateCount,
+   variable labwareIdPrefix) variable
+{
+   variable i;
+   variable labwareId;
+   variable strIdx;
+
+   i = 0;
+   while (i < plateCount)
+   {
+      strIdx = IStr(i + 1);
+      labwareId = labwareIdPrefix;
+      labwareId = labwareId + "_";
+      labwareId = labwareId + strIdx;
+      // ... use labwareId ...
+      i = i + 1;
+   }
+   return(plateCount);
+}
+
+// Caller -- reconstruct IDs using the naming convention
+variable id;
+variable strIdx;
+i = 0;
+while (i < addedCount)
+{
+   strIdx = IStr(i + 1);
+   id = "AssayPlate_";
+   id = id + strIdx;
+   // ... use id ...
+   i = i + 1;
+}
+```
+
+### `DevGetLabwareData` Returns Strings
+
+All values returned by `DevGetLabwareData()` (from HSLDevLib) are **strings**, even when the underlying property is numeric (e.g., `"Dim.Dz"`, `"StackHt"`, `"Dim.Dx"`). Using a returned value directly in a numeric comparison (`> 0`, `< 10`, etc.) causes runtime error `left hand side of expression is not a number` (error `0x23 - 0x2 - 0x4`).
+
+**Always** wrap the return value with `FVal()` before numeric operations:
+
+```hsl
+// WRONG -- rawValue is a string, numeric comparison fails
+variable rawValue;
+rawValue = DevGetLabwareData(ML_STAR, labwareId, "Dim.Dz");
+if (rawValue > 0) { ... }    // ERROR: not a number
+
+// CORRECT -- convert with FVal() first
+variable rawValue;
+variable numValue;
+rawValue = DevGetLabwareData(ML_STAR, labwareId, "Dim.Dz");
+numValue = FVal(rawValue);
+if (numValue > 0) { ... }    // OK
+```
 
 ### No `continue` Keyword
 
