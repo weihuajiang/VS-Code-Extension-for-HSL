@@ -287,6 +287,25 @@ class Lexer:
                 return Token(token_type, two_char, start_line, start_col, self.filename)
 
         # Single-character operators and delimiters
+        # Special case: '*' at the start of a line followed by '$$author=' or '$$valid='
+        # is a checksum trailer line (Hamilton Method Editor format).
+        # VENUS rejects this format (error 1220), but we recognize it to avoid
+        # cascading parse errors and report a clear warning instead.
+        if ch == '*' and start_col == 1:
+            rest_of_line = ''
+            peek = self.pos + 1
+            while peek < len(self.source) and self.source[peek] != '\n':
+                rest_of_line += self.source[peek]
+                peek += 1
+            if '$$author=' in rest_of_line or '$$valid=' in rest_of_line:
+                # Consume the entire line as a CHECKSUM token
+                full = ch
+                self._advance()
+                while self.pos < len(self.source) and self.source[self.pos] != '\n':
+                    full += self.source[self.pos]
+                    self._advance()
+                return Token(TokenType.CHECKSUM, full, start_line, start_col, self.filename)
+
         token_type = {
             '+': TokenType.PLUS,
             '-': TokenType.MINUS,
